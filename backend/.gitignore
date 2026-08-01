@@ -1,0 +1,13 @@
+# Ignore the environment file containing secretss
+.env
+
+# Ignore python cache and virtual environments
+__pycache__/
+venv/
+.venv
+
+# Ignore node modules
+node_modules/
+
+# Ignore uploaded files (form submissions)
+uploads/
