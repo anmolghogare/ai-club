@@ -13,13 +13,9 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const checkAuth = async (token: string | null) => {
+  const checkAuth = async () => {
     try {
-      const apiBaseUrl = getApiUrl('/api/auth/me');
-      const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-
-      const res = await fetch(apiBaseUrl, { headers, credentials: "include" });
+      const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated && data.user) {
@@ -29,7 +25,7 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
         }
       }
     } catch (e) {
-      console.error("Auth check failed:", e);
+      console.error('Auth check failed:', e);
     }
     setIsAuthenticated(false);
     return false;
@@ -37,8 +33,7 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("auth_token");
-      await checkAuth(token);
+      await checkAuth();
       setIsLoading(false);
     };
     initAuth();
@@ -49,31 +44,27 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
     setIsLoading(true);
     setErrorMsg(null);
     try {
-      const apiBaseUrl = getApiUrl('/api/auth/google');
-      const syncRes = await fetch(apiBaseUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const syncRes = await fetch(getApiUrl('/api/auth/google'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_token: credentialResponse.credential }),
-        credentials: "include",
+        credentials: 'include',  // Cookie is set by the server, no token in response body
       });
 
       if (syncRes.ok) {
         const syncData = await syncRes.json();
-        if (syncData.status === "success") {
-          if (syncData.token) {
-            localStorage.setItem("auth_token", syncData.token);
-          }
+        if (syncData.status === 'success') {
           setIsAuthenticated(true);
         } else {
-          setErrorMsg(syncData.message || "Failed to authenticate with backend.");
+          setErrorMsg(syncData.message || 'Failed to authenticate with backend.');
         }
       } else {
         const errText = await syncRes.text();
         setErrorMsg(`Server Error: ${errText || syncRes.statusText}`);
       }
     } catch (syncErr: any) {
-      console.error("Failed to sync login:", syncErr);
-      setErrorMsg("Unable to connect to the authentication server.");
+      console.error('Failed to sync login:', syncErr);
+      setErrorMsg('Unable to connect to the authentication server.');
     } finally {
       setIsLoading(false);
     }

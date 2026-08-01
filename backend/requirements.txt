@@ -1,25 +1,25 @@
 # ─── Core web framework ───────────────────────────────────────────────────────
-fastapi
-uvicorn[standard]
-aiofiles
+fastapi==0.141.1
+uvicorn[standard]==0.52.1
+aiofiles==25.1.0
 
 
 # ─── Database ─────────────────────────────────────────────────────────────────
-SQLAlchemy[asyncio]
-asyncpg
-greenlet
+SQLAlchemy[asyncio]==2.0.51
+asyncpg==0.31.0
+greenlet==3.5.4
 
 # ─── Validation ───────────────────────────────────────────────────────────────
-pydantic[email]
+pydantic[email]==2.13.4
 
 # ─── Authentication ───────────────────────────────────────────────────────────
-google-auth           # Google ID-Token server-side verification
-PyJWT                 # JWT creation and validation (HS256)
+google-auth==2.56.2       # Google ID-Token server-side verification
+PyJWT==2.13.0             # JWT creation and validation (HS256)
 
 # ─── AI ───────────────────────────────────────────────────────────────────────
-google-genai
+google-genai==2.16.0
 
-# ─── Config ───────────────────────────────────────────────────────────────────
-python-dotenv
-httpx
-python-multipart
+# ─── Config & HTTP ────────────────────────────────────────────────────────────
+python-dotenv==1.2.2
+httpx==0.28.1
+python-multipart==0.0.32

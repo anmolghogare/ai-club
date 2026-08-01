@@ -4,6 +4,12 @@
 .env.*.local
 *.env
 
+# Database backup files — contain PII, never commit these
+db_backup.json
+db_full_backup.json
+*_backup.json
+*_full_backup.json
+
 # Dependencies
 node_modules/
 .venv/

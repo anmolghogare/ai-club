@@ -33,7 +33,7 @@ from auth.middleware import get_current_user
 
 logger = logging.getLogger(__name__)
 
-SUPER_ADMIN_EMAIL: str = os.getenv("SUPER_ADMIN_EMAIL", "meet56963@gmail.com")
+SUPER_ADMIN_EMAIL: str = os.getenv("SUPER_ADMIN_EMAIL", "")  # No hardcoded fallback — fail-closed if unset
 
 
 async def require_admin(

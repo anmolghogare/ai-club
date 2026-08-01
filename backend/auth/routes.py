@@ -147,11 +147,12 @@ async def google_auth(
     )
 
     # ── Step 4: Return public profile ─────────────────────────────────────────
+    # NOTE: The JWT is delivered via the HttpOnly cookie set above (Step 3).
+    # We do NOT return it in the response body to prevent localStorage storage (SEC-02).
     return AuthSuccessResponse(
         status="success",
         message="Account created successfully." if is_new else "Logged in successfully.",
         user=UserPublicResponse.model_validate(db_user),
-        token=access_token,
     )
 
 

@@ -45,7 +45,9 @@ class User(Base):
 
     @property
     def is_admin(self) -> bool:
-        admin_env = os.getenv("SUPER_ADMIN_EMAIL", "meet56963@gmail.com")
+        admin_env = os.getenv("SUPER_ADMIN_EMAIL", "")  # No hardcoded fallback — fail-closed if unset
+        if not admin_env:
+            return False
         admins = [email.strip() for email in admin_env.split(",") if email.strip()]
         return self.email in admins
 
