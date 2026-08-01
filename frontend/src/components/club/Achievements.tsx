@@ -5,6 +5,13 @@ import { useState, useEffect } from 'react';
 import { getApiUrl } from '@/lib/api';
 
 interface AchievementModel {
+  id: number;
+  title: string;
+  student: string;
+  description: string;
+  category: string;
+  icon: string;
+}
 
 export default function Achievements() {
   const [achievements, setAchievements] = useState<AchievementModel[]>([]);
