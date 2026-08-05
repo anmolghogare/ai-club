@@ -266,8 +266,8 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              gap: '1px',
-              background: 'hsl(228,20%,78%)',
+              borderTop: '1px solid hsl(228,20%,78%)',
+              borderLeft: '1px solid hsl(228,20%,78%)',
             }}
           >
             {filteredMembers.map((m) => (
@@ -281,6 +281,8 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
+                  borderRight: '1px solid hsl(228,20%,78%)',
+                  borderBottom: '1px solid hsl(228,20%,78%)',
                 }}
                 onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'white'}
                 onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)'}
