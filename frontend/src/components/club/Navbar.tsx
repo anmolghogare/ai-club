@@ -79,15 +79,11 @@ export default function Navbar() {
     fetchCounts();
   }, []);
 
-  // Auth check
+  // Auth check — uses HttpOnly cookie set by backend; no localStorage needed
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const apiBaseUrl = getApiUrl('/api/auth/me');
-        const headers: Record<string, string> = {};
-        const token = localStorage.getItem('auth_token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-        const res = await fetch(apiBaseUrl, { headers, credentials: 'include' });
+        const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           if (data.authenticated && data.user) {
@@ -108,13 +104,11 @@ export default function Navbar() {
 
   const logout = async () => {
     try {
-      const apiBaseUrl = getApiUrl('/api/auth/logout');
-      const headers: Record<string, string> = {};
-      const token = localStorage.getItem('auth_token');
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      await fetch(apiBaseUrl, { method: 'POST', headers, credentials: 'include' });
+      await fetch(getApiUrl('/api/auth/logout'), {
+        method: 'POST',
+        credentials: 'include',
+      });
     } catch (_) {}
-    localStorage.removeItem('auth_token');
     setUser(null);
     setShowUserDropdown(false);
   };

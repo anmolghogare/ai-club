@@ -74,9 +74,20 @@ async def lifespan(app: FastAPI):
     yield
     task.cancel()
 
-app = FastAPI(title="AI Club DAU API", version="1.0.0", lifespan=lifespan)
+# Disable interactive docs in production to avoid exposing the API schema publicly
+_is_production = os.getenv("ENVIRONMENT") == "production"
+app = FastAPI(
+    title="AI Club DAU API",
+    version="1.0.0",
+    lifespan=lifespan,
+    docs_url=None if _is_production else "/docs",
+    redoc_url=None if _is_production else "/redoc",
+    openapi_url=None if _is_production else "/openapi.json",
+)
 
 # --- CORS SETUP ---
+# Set ALLOWED_ORIGINS in your environment as a comma-separated list of allowed origins.
+# In development without ALLOWED_ORIGINS set, only localhost origins are allowed.
 allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
 if allowed_origins_env:
     origins = [orig.strip() for orig in allowed_origins_env.split(",") if orig.strip()]
@@ -85,10 +96,6 @@ else:
         "http://localhost:5173",
         "http://localhost:8080",
         "http://localhost:3000",
-        "https://aiclubdau.vercel.app",
-        "https://club-website-7aay.vercel.app",
-        "https://club-website-eta.vercel.app",
-        "https://club-website-blush.vercel.app"
     ]
 
 app.add_middleware(
@@ -119,16 +126,17 @@ app.include_router(achievements_router)
 # ── Startup ────────────────────────────────────────────────────────────────
 async def keep_alive_task():
     """
-    Pings the API itself every 14 minutes and 50 seconds to prevent
+    Pings the /health endpoint every 14 minutes and 50 seconds to prevent
     Render free tier from spinning down the instance.
+    Pings /health (not /docs) so the API schema is never exposed just for keep-alive.
     """
     render_external_url = os.getenv("RENDER_EXTERNAL_URL", "https://ai-club-website-e9zk.onrender.com")
-    url = f"{render_external_url}/docs"
+    url = f"{render_external_url}/health"
     while True:
         await asyncio.sleep(890)  # 14 minutes and 50 seconds
         try:
             async with httpx.AsyncClient() as client:
-                await client.get(url)
+                await client.get(url, timeout=10)
                 logging.info(f"Keep-alive ping sent to {url}")
         except asyncio.CancelledError:
             break

@@ -239,13 +239,10 @@ const Admin = () => {
   const [eventMessage, setEventMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const getAuthHeaders = (extra: Record<string, string> = {}) => {
-    const headers: Record<string, string> = { ...extra };
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    return headers;
+  // Auth uses HttpOnly cookie set by the backend — credentials:'include' handles it automatically.
+  // getAuthHeaders only carries content-type or other non-auth headers.
+  const getAuthHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
+    return { ...extra };
   };
 
   const fetchAchievementsList = async () => {
@@ -290,22 +287,28 @@ const Admin = () => {
   };
 
   const handleDeleteAchievement = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this achievement?")) return;
-    try {
-      const res = await fetch(getApiUrl(`/api/admin/achievements/${id}`), {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-        credentials: 'include'
-      });
-      if (res.ok) {
-        showToast('Achievement deleted successfully!', 'success');
-        fetchAchievementsList();
-      } else {
-        showToast('Failed to delete achievement.', 'error');
-      }
-    } catch (err) {
-      showToast('Error deleting achievement.', 'error');
-    }
+    openConfirm(
+      'Delete Achievement',
+      'Are you sure you want to delete this achievement? This action cannot be undone.',
+      async () => {
+        try {
+          const res = await fetch(getApiUrl(`/api/admin/achievements/${id}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+          });
+          if (res.ok) {
+            showToast('Achievement deleted successfully!', 'success');
+            fetchAchievementsList();
+          } else {
+            showToast('Failed to delete achievement.', 'error');
+          }
+        } catch (err) {
+          showToast('Error deleting achievement.', 'error');
+        }
+      },
+      true // isDestructive
+    );
   };
 
   // 1. Fetch Events list for selectors
@@ -480,15 +483,14 @@ const Admin = () => {
     checkAdminAuth();
   }, []);
 
-  // Lock body scroll when modals are open to prevent background scrolling propagation
+  // Lock body scroll when any modal is open
   useEffect(() => {
-    const isAnyModalOpen = 
-      !!selectedRegId || 
-      !!editingEvent || 
-      confirmModal.isOpen || 
-      isMemberModalOpen || 
-      isMemberModalOpen || 
-      isProjectModalOpen || 
+    const isAnyModalOpen =
+      !!selectedRegId ||
+      !!editingEvent ||
+      confirmModal.isOpen ||
+      isMemberModalOpen ||
+      isProjectModalOpen ||
       isAchievementModalOpen ||
       isPastEventModalOpen;
 
@@ -499,12 +501,12 @@ const Admin = () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     }
-    
+
     return () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [selectedRegId, editingEvent, confirmModal.isOpen, isMemberModalOpen, isProjectModalOpen, isPastEventModalOpen]);
+  }, [selectedRegId, editingEvent, confirmModal.isOpen, isMemberModalOpen, isProjectModalOpen, isAchievementModalOpen, isPastEventModalOpen]);
 
   const fetchFormFields = async (eventId: number | '') => {
     if (!eventId) return;

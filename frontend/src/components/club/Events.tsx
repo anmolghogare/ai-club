@@ -103,18 +103,14 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
 
   const fetchUserData = async () => {
     try {
-      const headers: Record<string, string> = {};
-      const token = localStorage.getItem('auth_token');
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-
-      const authRes = await fetch(getApiUrl('/api/auth/me'), { headers, credentials: 'include' });
+      const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
       if (authRes.ok) {
         const authData = await authRes.json();
         if (authData.authenticated && authData.user) {
           setUserProfile(authData.user);
-          
+
           // Fetch registrations
-          const regRes = await fetch(getApiUrl('/api/user/registrations'), { headers, credentials: 'include' });
+          const regRes = await fetch(getApiUrl('/api/user/registrations'), { credentials: 'include' });
           if (regRes.ok) {
             const regData = await regRes.json();
             if (regData.registrations) {
@@ -200,11 +196,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
         // Prepopulate default fields from backend profile
         let profile: any = {};
         try {
-          const headers: Record<string, string> = {};
-          const token = localStorage.getItem('auth_token');
-          if (token) headers['Authorization'] = `Bearer ${token}`;
-
-          const authRes = await fetch(getApiUrl('/api/auth/me'), { headers, credentials: 'include' });
+          const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
           if (authRes.ok) {
             const authData = await authRes.json();
             if (authData.authenticated && authData.user) {
@@ -301,11 +293,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
     let currentUser = userProfile;
     if (!currentUser) {
       try {
-        const headers: Record<string, string> = {};
-        const token = localStorage.getItem('auth_token');
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
-        const authRes = await fetch(getApiUrl('/api/auth/me'), { headers, credentials: 'include' });
+        const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
         if (authRes.ok) {
           const authData = await authRes.json();
           if (authData.authenticated && authData.user) {
@@ -358,9 +346,8 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
       const apiPath = `/api/events/${selectedEvent.id}/register`;
 
       let res;
-      const token = localStorage.getItem('auth_token');
       if (hasFiles) {
-        // Send as multipart/form-data
+        // Send as multipart/form-data — cookie is attached automatically via credentials:'include'
         const formDataPayload = new FormData();
         formDataPayload.append('data', JSON.stringify({
           responses: responses,
@@ -371,23 +358,16 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           formDataPayload.append(fieldId, file);
         });
 
-        const headers: Record<string, string> = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
         res = await fetch(getApiUrl(apiPath), {
           method: 'POST',
-          headers: headers,
           body: formDataPayload,
-          credentials: 'include' // include session cookies
+          credentials: 'include'
         });
       } else {
         // Send as JSON
-        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = `Bearer ${token}`;
-
         res = await fetch(getApiUrl(apiPath), {
           method: 'POST',
-          headers: headers,
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             responses: responses,
             team: teamInput
@@ -639,7 +619,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
             >
-              View all events &amp; archive <ArrowRight size={13} />
+              View all events {'&'} archive <ArrowRight size={13} />
             </Link>
           </div>
         </div>
@@ -659,9 +639,13 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
             color: 'hsl(230, 25%, 10%)', marginBottom: '2rem',
           }}
         >
-          Events &amp; Workshops
+          Events {'&'} Workshops
         </h1>
-        <div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+        >
 
         {/* Highlight banner */}
         {featured && (
@@ -1255,7 +1239,6 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           </div>
         )}
       </AnimatePresence>
-      </div>
       </div>
     </section>
   );

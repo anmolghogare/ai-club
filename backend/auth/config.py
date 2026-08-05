@@ -37,13 +37,16 @@ class AuthConfig:
 
     @classmethod
     def validate(cls) -> None:
-        """Raise ValueError early if critical settings are missing."""
+        """Raise ValueError early if critical settings are missing or insecure."""
         if not cls.GOOGLE_CLIENT_ID:
             raise ValueError("GOOGLE_CLIENT_ID environment variable is not set.")
-        if cls.JWT_SECRET_KEY == "CHANGE_ME_IN_PRODUCTION" and cls.ENVIRONMENT == "production":
+        if cls.JWT_SECRET_KEY == "CHANGE_ME_IN_PRODUCTION":
             raise ValueError(
-                "JWT_SECRET_KEY must be set to a strong random secret in production."
+                "JWT_SECRET_KEY must be changed from the default value in all environments.\n"
+                "Generate a strong secret with: python -c \"import secrets; print(secrets.token_hex(64))\"\n"
+                "Then set it as JWT_SECRET_KEY in your .env file."
             )
+
 
 
 settings = AuthConfig()
