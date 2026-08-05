@@ -37,15 +37,23 @@ elif DATABASE_URL.startswith("postgresql://"):
 pool_size = int(os.getenv("DB_POOL_SIZE", "5"))
 max_overflow = int(os.getenv("DB_MAX_OVERFLOW", "5"))
 
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=False,
-    pool_pre_ping=True,
-    pool_size=pool_size,
-    max_overflow=max_overflow,
-    pool_recycle=1800,
-    connect_args={"statement_cache_size": 0}
-)
+engine_args = {
+    "echo": False,
+}
+
+if DATABASE_URL.startswith("sqlite"):
+    # SQLite does not support pool_size, max_overflow, or statement_cache_size
+    pass
+else:
+    engine_args.update({
+        "pool_pre_ping": False,
+        "pool_size": pool_size,
+        "max_overflow": max_overflow,
+        "pool_recycle": 1800,
+        "connect_args": {"statement_cache_size": 0}
+    })
+
+engine = create_async_engine(DATABASE_URL, **engine_args)
 
 async_session = sessionmaker(
     engine,
@@ -54,3 +62,7 @@ async_session = sessionmaker(
 )
 
 Base = declarative_base()
+
+async def get_db():
+    async with async_session() as session:
+        yield session

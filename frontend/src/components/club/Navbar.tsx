@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X, LogOut, Shield, ChevronDown, ClipboardList, User } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-import { supabase } from '../../lib/supabase';
 import { getApiUrl } from '../../lib/api';
 import aiClubLogo from '@/assets/ai-club-logo.jpeg';
 
@@ -79,17 +78,18 @@ export default function Navbar() {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        const [eventsRes, projectsRes, membersRes] = await Promise.all([
-          supabase.from('events').select('id', { count: 'exact', head: true }).in('status', ['upcoming', 'registration_open']),
-          supabase.from('club_projects').select('id', { count: 'exact', head: true }),
-          supabase.from('club_members').select('id', { count: 'exact', head: true }),
-        ]);
-        setCounts({
-          events: eventsRes.count ?? 0,
-          projects: projectsRes.count ?? 0,
-          members: membersRes.count ?? 0,
-        });
-      } catch (_) {}
+        const res = await fetch(getApiUrl('/api/stats'));
+        if (res.ok) {
+          const data = await res.json();
+          setCounts({
+            events: data.events ?? 0,
+            projects: data.projects ?? 0,
+            members: data.members ?? 0,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch stats", err);
+      }
     };
     fetchCounts();
   }, []);
@@ -227,8 +227,10 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav links */}
-        <ul style={{ display: 'flex', alignItems: 'center', gap: 0, listStyle: 'none', margin: 0, padding: 0 }} className="hidden md:flex">
+        {/* Desktop nav + Auth group */}
+        <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem' }}>
+          {/* Desktop nav links */}
+          <ul style={{ display: 'flex', alignItems: 'center', gap: 0, listStyle: 'none', margin: 0, padding: 0 }}>
           {navItems.map((item) => {
             const active = isActive(item);
             return (
@@ -245,11 +247,11 @@ export default function Navbar() {
               </li>
             );
           })}
-        </ul>
+          </ul>
 
-        {/* Right: Auth + Join */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} className="hidden md:flex">
-          {user ? (
+          {/* Right: Auth */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+            {user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
@@ -333,31 +335,7 @@ export default function Navbar() {
               {authLoading ? 'Signing in…' : 'Sign in'}
             </button>
           )}
-
-          <a
-            href="https://discord.gg/bU7JdWa6"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex', alignItems: 'center',
-              padding: '7px 18px',
-              background: 'hsl(230, 25%, 12%)',
-              color: 'hsl(228, 30%, 93%)',
-              fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600,
-              border: '1.5px solid hsl(230, 25%, 12%)', borderRadius: '2px',
-              textDecoration: 'none', transition: 'background 0.15s ease, color 0.15s ease', letterSpacing: '0.02em',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'hsl(243, 75%, 59%)';
-              (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.background = 'hsl(230, 25%, 12%)';
-              (e.currentTarget as HTMLElement).style.borderColor = 'hsl(230, 25%, 12%)';
-            }}
-          >
-            Join
-          </a>
+        </div>
         </div>
 
         {/* Mobile hamburger */}
@@ -414,12 +392,6 @@ export default function Navbar() {
                   Sign in with Google
                 </button>
               )}
-              <a
-                href="https://discord.gg/bU7JdWa6" target="_blank" rel="noopener noreferrer"
-                style={{ display: 'inline-flex', alignItems: 'center', padding: '8px 20px', background: 'hsl(230, 25%, 12%)', color: 'hsl(228, 30%, 93%)', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600, border: '1.5px solid hsl(230, 25%, 12%)', borderRadius: 2, textDecoration: 'none' }}
-              >
-                Join the club
-              </a>
             </div>
 
             {user && (

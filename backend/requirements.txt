@@ -22,4 +22,4 @@ google-genai==2.16.0
 # ─── Config & HTTP ────────────────────────────────────────────────────────────
 python-dotenv==1.2.2
 httpx==0.28.1
-python-multipart==0.0.32
+python-multipart==0.0.32aiosqlite

@@ -45,12 +45,8 @@ export default function Achievements() {
     }
   };
 
-  if (loading || achievements.length === 0) {
-    return null; // or a loading spinner, but returning null hides section if empty
-  }
-
   return (
-    <section className="py-20 relative overflow-hidden" id="achievements">
+    <section className="py-20 relative overflow-hidden min-h-[60vh]" id="achievements">
       {/* Background decorations */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/5 rounded-full blur-[100px] pointer-events-none" />
@@ -76,30 +72,42 @@ export default function Achievements() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {achievements.map((item, index) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-card/50 backdrop-blur-md border border-border/50 rounded-2xl p-6 hover:border-primary/30 hover:bg-card/80 transition-all group"
-            >
-              <div className="flex items-start gap-4">
-                <div className="p-3 bg-secondary/80 rounded-xl group-hover:scale-110 transition-transform">
-                  {renderIcon(item.icon)}
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : achievements.length === 0 ? (
+          <div className="text-center py-12 bg-card/50 backdrop-blur-md border border-border/50 rounded-2xl max-w-3xl mx-auto">
+            <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-50" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">No achievements found</h3>
+            <p className="text-muted-foreground">Check back later for updates on our students' incredible accomplishments.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {achievements.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-card/50 backdrop-blur-md border border-border/50 rounded-2xl p-6 hover:border-primary/30 hover:bg-card/80 transition-all group"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-secondary/80 rounded-xl group-hover:scale-110 transition-transform">
+                    {renderIcon(item.icon)}
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono text-primary mb-1 uppercase tracking-wider">{item.category}</div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
+                    <p className="text-sm font-semibold text-foreground/80 mb-2">By {item.student}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-xs font-mono text-primary mb-1 uppercase tracking-wider">{item.category}</div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                  <p className="text-sm font-semibold text-foreground/80 mb-2">By {item.student}</p>
-                  <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

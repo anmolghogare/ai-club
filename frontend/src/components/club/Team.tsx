@@ -1,9 +1,21 @@
-import { Member, MemberRole } from "../../data/members";
+export type MemberRole = 'Convenor' | 'Deputy Convenor' | 'Core Member' | 'Extended Core Member' | 'Member';
+
+export interface Member {
+  id: number;
+  name: string;
+  role: MemberRole;
+  photo: string;
+  description: string;
+  github?: string;
+  linkedin?: string;
+  order_no?: number;
+  created_at?: string;
+}
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { getApiUrl } from '../../lib/api';
 import { Search, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
 
 
 // Role badge colours — light editorial palette
@@ -115,22 +127,19 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const { data, error } = await supabase
-          .from('club_members')
-          .select('*');
-        if (error) {
-          console.error("Supabase error fetching members", error);
-        } else if (data) {
-          // Sort automatically by role hierarchy
-          const sorted = [...data].sort((a, b) => {
-            const roleA = ROLE_ORDER[a.role] ?? 99;
-            const roleB = ROLE_ORDER[b.role] ?? 99;
-            if (roleA !== roleB) return roleA - roleB;
-            // Within same role, sort alphabetically by name
-            return a.name.localeCompare(b.name);
-          });
-          setMemberList(sorted);
-        }
+        const res = await fetch(getApiUrl('/api/members'));
+        if (!res.ok) throw new Error('Failed to fetch members');
+        const data = await res.json();
+        
+        // Sort automatically by role hierarchy
+        const sorted = [...data].sort((a, b) => {
+          const roleA = ROLE_ORDER[a.role] ?? 99;
+          const roleB = ROLE_ORDER[b.role] ?? 99;
+          if (roleA !== roleB) return roleA - roleB;
+          // Within same role, sort alphabetically by name
+          return a.name.localeCompare(b.name);
+        });
+        setMemberList(sorted);
       } catch (err) {
         console.error("Failed to fetch members", err);
       } finally {

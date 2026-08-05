@@ -1,57 +1,5 @@
-const resources = [
-  {
-    group: 'START HERE',
-    items: [
-      {
-        title: '3Blue1Brown — Neural Networks',
-        description: 'Four videos that make backpropagation visual before it becomes algebraic.',
-        type: 'VIDEO',
-        href: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi',
-      },
-      {
-        title: 'Neural Networks: Zero to Hero',
-        description: 'Karpathy builds autograd, then a language model, from an empty file. Our language track follows this.',
-        type: 'COURSE',
-        href: 'https://karpathy.ai/zero-to-hero.html',
-      },
-      {
-        title: 'Practical Deep Learning — fast.ai',
-        description: 'Top-down: you train a working model in lesson one and learn why it worked in lesson six.',
-        type: 'COURSE',
-        href: 'https://course.fast.ai/',
-      },
-      {
-        title: 'Deep Learning — Goodfellow, Bengio, Courville',
-        description: 'The reference. Chapters 2–4 are the maths prerequisite for everything on this page.',
-        type: 'BOOK',
-        href: 'https://www.deeplearningbook.org/',
-      },
-    ],
-  },
-  {
-    group: 'GOING DEEPER',
-    items: [
-      {
-        title: 'Attention Is All You Need',
-        description: 'The transformer paper. Read it after watching the 3b1b attention video.',
-        type: 'PAPER',
-        href: 'https://arxiv.org/abs/1706.03762',
-      },
-      {
-        title: 'CS231n — Convolutional Neural Networks',
-        description: 'Stanford lecture notes. Best written source for vision fundamentals.',
-        type: 'COURSE',
-        href: 'http://cs231n.stanford.edu/',
-      },
-      {
-        title: 'Hugging Face Course',
-        description: 'Transformers, tokenizers, and datasets. Practical and free.',
-        type: 'COURSE',
-        href: 'https://huggingface.co/learn',
-      },
-    ],
-  },
-];
+import { useState, useEffect } from 'react';
+import { getApiUrl } from '../../lib/api';
 
 const typeColors: Record<string, string> = {
   VIDEO: 'hsl(243, 75%, 59%)',
@@ -60,7 +8,59 @@ const typeColors: Record<string, string> = {
   PAPER: 'hsl(330, 45%, 50%)',
 };
 
+type ResourceItem = {
+  title: string;
+  description: string;
+  type: string;
+  href: string;
+};
+
+type ResourceGroup = {
+  group: string;
+  items: ResourceItem[];
+};
+
 export default function Resources() {
+  const [resources, setResources] = useState<ResourceGroup[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        const res = await fetch(getApiUrl('/api/resources'));
+        if (!res.ok) throw new Error('Failed to fetch resources');
+        const data = await res.json();
+        
+        // Group by group_name
+        const grouped: Record<string, ResourceItem[]> = {};
+        data.forEach((item: any) => {
+          if (!grouped[item.group_name]) {
+            grouped[item.group_name] = [];
+          }
+          grouped[item.group_name].push({
+            title: item.title,
+            description: item.description,
+            type: item.resource_type,
+            href: item.url,
+          });
+        });
+
+        // Convert to array format for rendering
+        const formatted = Object.keys(grouped).map(groupName => ({
+          group: groupName,
+          items: grouped[groupName]
+        }));
+        
+        setResources(formatted);
+      } catch (err) {
+        console.error("Failed to fetch resources", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchResources();
+  }, []);
+
   return (
     <section
       id="resources"

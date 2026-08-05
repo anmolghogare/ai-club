@@ -21,7 +21,7 @@ const EventDetailPage = lazy(() => import("./pages/EventDetailPage.tsx"));
 const MyRegistrationsPage = lazy(() => import("./pages/MyRegistrationsPage.tsx"));
 
 const queryClient = new QueryClient();
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "placeholder_client_id_for_google_oauth_provider.apps.googleusercontent.com";
 
 const Loader = () => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>

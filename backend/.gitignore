@@ -11,3 +11,7 @@ node_modules/
 
 # Ignore uploaded files (form submissions)
 uploads/
+
+# Ignore SQLite databases
+*.db
+*.sqlite3

@@ -1,36 +1,24 @@
 import { useState, useEffect } from 'react';
 import { ExternalLink, Search, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Project } from '../../data/projects';
-import { supabase } from '../../lib/supabase';
+import { getApiUrl } from '../../lib/api';
 
-// Tracks shown on homepage (reference-style 2×2 grid)
-const tracks = [
-  {
-    title: 'Foundations',
-    description:
-      'Linear algebra you can actually use, gradients by hand, then backprop implemented from scratch in NumPy. Ends with a digit classifier written without a framework.',
-    audience: 'For first and second years, or anyone who skipped the math.',
-  },
-  {
-    title: 'Language models',
-    description:
-      'Tokenisation, attention, and training a small GPT on a corpus we collect ourselves. We follow Karpathy\'s build order, then diverge into fine-tuning and evaluation.',
-    audience: 'Assumes comfort with Python and basic PyTorch.',
-  },
-  {
-    title: 'Vision & robotics',
-    description:
-      'Convolutions, segmentation, and control. Work is grounded in hardware where we can get it — the track has a standing project on visual navigation.',
-    audience: 'Pairs well with the institute\'s signal processing courses.',
-  },
-  {
-    title: 'Applied & research',
-    description:
-      'For members with a specific problem: a paper reproduction, a competition, or a professor\'s project. The track is mostly accountability and code review.',
-    audience: 'Third years, fourth years, and postgraduates.',
-  },
-];
+export interface Project {
+  id: number;
+  title: string;
+  author: string;
+  authorId: number;
+  description: string;
+  tags: string[];
+  githubLink: string;
+}
+
+export interface Track {
+  id: number;
+  title: string;
+  description: string;
+  audience?: string;
+}
 
 // Tag styles for full project listing
 const tagStyleMap: Record<string, { tagClass: string; label: string }> = {
@@ -72,15 +60,16 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const [trackList, setTrackList] = useState<Track[]>([]);
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const { data, error } = await supabase
-          .from('club_projects')
-          .select('*')
-          .order('id', { ascending: false });
+        const res = await fetch(getApiUrl('/api/projects'));
+        if (!res.ok) throw new Error('Failed to fetch projects');
+        const data = await res.json();
 
-        if (!error && data) {
+        if (data) {
           const parsedData = data.map((p: any) => {
             let tagsList: string[] = [];
             if (p.tags) {
@@ -98,11 +87,26 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
           });
           setProjectList(parsedData);
         }
-      } catch (_) {}
-      finally { setLoading(false); }
+      } catch (err) {
+        console.error("Failed to fetch projects", err);
+      } finally { setLoading(false); }
     };
-    fetchProjects();
-  }, []);
+
+    const fetchTracks = async () => {
+      try {
+        const res = await fetch(getApiUrl('/api/tracks'));
+        if (res.ok) setTrackList(await res.json());
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    if (isHomepage) {
+      fetchTracks();
+    } else {
+      fetchProjects();
+    }
+  }, [isHomepage]);
 
   // ── Homepage: show Tracks grid ──────────────────────────────────
   if (isHomepage) {
@@ -151,7 +155,13 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
             }}
             className="grid-cols-1 sm:grid-cols-2"
           >
-            {tracks.map((track, i) => (
+            {trackList.length === 0 ? (
+              <div style={{ padding: '2rem' }}>
+                <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>
+                  No tracks available.
+                </p>
+              </div>
+            ) : trackList.map((track, i) => (
               <div
                 key={track.title}
                 style={{

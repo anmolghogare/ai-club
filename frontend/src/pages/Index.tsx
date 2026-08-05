@@ -7,8 +7,6 @@ import Projects from '@/components/club/Projects';
 import Team from '@/components/club/Team';
 import Resources from '@/components/club/Resources';
 import Roadmap from '@/components/club/Roadmap';
-import Blog from '@/components/club/Blog';
-import Testimonials from '@/components/club/Testimonials';
 import Footer from '@/components/club/Footer';
 import Chatbot from '@/components/club/Chatbot';
 
@@ -37,8 +35,6 @@ const Index = () => {
       <Team isHomepage={true} />
       <Roadmap />
       <Resources />
-      <Blog />
-      <Testimonials />
       <Footer />
       <Chatbot />
     </div>

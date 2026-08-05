@@ -61,14 +61,11 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ d: '00', h: '00', m: '00', s: '00' });
   const [searchQuery, setSearchQuery] = useState('');
-  const [pastSearchQuery, setPastSearchQuery] = useState('');
+  
   // Filter state (full-page only)
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('');
-
-  // Past Events state
-  const [pastEvents, setPastEvents] = useState<PastEvent[]>([]);
-  const [loadingPastEvents, setLoadingPastEvents] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+  
   const [selectedEvent, setSelectedEvent] = useState<EventModel | null>(null);
   
   // Dynamic Form schema state
@@ -130,27 +127,12 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
     }
   };
 
-  // Fetch past events from Supabase
   useEffect(() => {
-    const fetchPastEvents = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('past_events')
-          .select('*')
-          .order('sort_order', { ascending: false });
-        if (!error && data) setPastEvents(data);
-      } catch (e) {
-        console.error('Failed to fetch past events', e);
-      } finally {
-        setLoadingPastEvents(false);
-      }
-    };
     // Fetch initial data
     if (isHomepage) {
       fetchEvents();
     }
     fetchUserData();
-    fetchPastEvents();
   }, []);
 
   // Effect to re-fetch when filters change (only on full page)
@@ -441,15 +423,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
 
   const displayedUpcomingEvents = isHomepage ? filteredEvents.slice(0, 2) : filteredEvents;
 
-  // Filter past events by search on the dedicated page
-  const filteredPastEvents = pastEvents.filter(ev => {
-    if (pastSearchQuery.trim() === '') return true;
-    const q = pastSearchQuery.toLowerCase();
-    return ev.title.toLowerCase().includes(q) ||
-           ev.description.toLowerCase().includes(q) ||
-           ev.category.toLowerCase().includes(q) ||
-           (ev.speaker && ev.speaker.toLowerCase().includes(q));
-  });
+
 
   // ── Homepage: calendar list style ──────────────────────────────
   if (isHomepage) {
@@ -902,160 +876,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
         )}
 
         {/* placeholder - homepage handled above */}
-
-        {/* ── Past Events Section ──────────────────────────────────────── */}
-        {!isHomepage && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="mt-24"
-          >
-            <div className="flex items-center gap-3 mb-2">
-              <span className="w-8 h-px bg-primary/50" />
-              <p className="section-label" style={{ marginBottom: 0 }}>Past Events</p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
-              <h3 className="font-display font-extrabold text-foreground" style={{ fontSize: 'clamp(22px, 3vw, 34px)' }}>
-                Events Archive
-              </h3>
-              <div className="relative w-full sm:max-w-xs">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-                  <Search size={14} className="text-primary/60" />
-                </span>
-                <input
-                  type="text"
-                  placeholder="Search archive..."
-                  value={pastSearchQuery}
-                  onChange={(e) => setPastSearchQuery(e.target.value)}
-                  className="w-full bg-secondary/85 border border-border rounded-xl pl-9 pr-4 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
-                />
-                {pastSearchQuery && (
-                  <button onClick={() => setPastSearchQuery('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-[10px] text-muted-foreground hover:text-foreground">Clear</button>
-                )}
-              </div>
-            </div>
-
-            {loadingPastEvents ? (
-              <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" size={28} /></div>
-            ) : filteredPastEvents.length === 0 ? (
-              <p className="text-muted-foreground text-center py-10">No past events found.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {filteredPastEvents.map((evt, i) => (
-                  <motion.div
-                    key={evt.id}
-                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.07, duration: 0.4 }}
-                    whileHover={{ y: -5, transition: { duration: 0.2 } }}
-                    className="relative overflow-hidden rounded-2xl flex flex-col"
-                    style={{
-                      background: 'linear-gradient(145deg, hsl(217 30% 12%), hsl(217 20% 9%))',
-                      border: '1px solid hsl(217 30% 20%)',
-                      boxShadow: '0 4px 24px hsl(217 91% 60% / 0.05)',
-                    }}
-                  >
-                    {/* Top color strip by category */}
-                    <div
-                      className="h-1 w-full"
-                      style={{
-                        background: evt.category.toLowerCase().includes('competition') || evt.category.toLowerCase().includes('hackathon')
-                          ? 'linear-gradient(90deg, hsl(340 90% 55%), hsl(20 90% 55%))'
-                          : evt.category.toLowerCase().includes('speaker')
-                          ? 'linear-gradient(90deg, hsl(260 90% 65%), hsl(217 91% 60%))'
-                          : 'linear-gradient(90deg, hsl(160 90% 43%), hsl(217 91% 60%))',
-                      }}
-                    />
-
-                    <div className="p-6 flex flex-col flex-1">
-                      {/* Image placeholder */}
-                      {evt.image_url ? (
-                        <img src={evt.image_url} alt={evt.title} className="w-full h-36 object-cover rounded-lg mb-4" />
-                      ) : (
-                        <div
-                          className="w-full h-32 rounded-lg mb-4 flex items-center justify-center text-2xl font-bold text-primary/20 select-none"
-                          style={{ background: 'hsl(217 30% 15%)' }}
-                        >
-                          {evt.title.charAt(0)}
-                        </div>
-                      )}
-
-                      {/* Category badge */}
-                      <span className="font-mono text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full w-fit"
-                        style={{ background: 'hsl(217 91% 60% / 0.12)', color: 'hsl(217 91% 70%)', border: '1px solid hsl(217 91% 60% / 0.2)' }}
-                      >
-                        {evt.category}
-                      </span>
-
-                      {/* Title */}
-                      <h4 className="font-display font-bold text-base text-foreground mt-3 mb-2 leading-snug">
-                        {evt.title}
-                      </h4>
-
-                      {/* Description */}
-                      <p className="text-xs text-muted-foreground leading-relaxed flex-1">
-                        {evt.description}
-                      </p>
-
-                      {/* Winners */}
-                      {evt.winners && (
-                        <div className="mt-6 p-6 md:p-8 rounded-2xl bg-gradient-to-br from-yellow-500/10 via-amber-500/5 to-transparent border-2 border-yellow-500/30 flex flex-col gap-4 shadow-[0_0_30px_rgba(234,179,8,0.2)] backdrop-blur-md relative overflow-hidden group">
-                          {/* Animated Shimmer */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
-
-                          <span className="font-bold text-yellow-500 flex items-center gap-3 uppercase font-mono tracking-widest text-lg md:text-xl relative z-10 drop-shadow-[0_0_8px_rgba(234,179,8,0.5)]">
-                            <span className="text-3xl animate-bounce">🏆</span> Winners Declared
-                          </span>
-                          
-                          <div className="whitespace-pre-line text-foreground text-base md:text-lg leading-relaxed font-sans pl-4 border-l-4 border-yellow-500/50 relative z-10 font-semibold bg-yellow-500/5 p-4 rounded-r-xl shadow-[inset_0_0_20px_rgba(234,179,8,0.05)]">
-                            {evt.winners}
-                          </div>
-                          
-                          {evt.winner_link && (
-                            <a
-                              href={evt.winner_link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-4 inline-flex w-fit bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-500 border border-yellow-500/50 px-6 py-3 rounded-xl transition-all duration-300 items-center gap-3 text-sm md:text-base font-mono tracking-wider uppercase font-bold relative z-10 hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:-translate-y-1"
-                            >
-                              <ExternalLink size={18} /> View Winner Details / PDF
-                            </a>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Meta info */}
-                      <div className="mt-4 pt-4 border-t border-border/50 flex flex-col gap-1.5">
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CalendarDays size={12} className="text-primary/60" />
-                          <span>{evt.date_label}</span>
-                        </div>
-                        {evt.speaker && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <Mic size={12} className="text-primary/60" />
-                            <span>{evt.speaker}</span>
-                          </div>
-                        )}
-                        {evt.participants && (
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                            <UsersRound size={12} className="text-primary/60" />
-                            <span>{evt.participants}+ participants</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            )}
-          </motion.div>
-        )}
       </motion.div>
-
       {/* Registration Modal Overlay */}
       <AnimatePresence>
         {selectedEvent && (

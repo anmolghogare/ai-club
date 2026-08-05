@@ -6,7 +6,7 @@ import time
 from contextlib import asynccontextmanager
 from typing import Dict, Tuple
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import FastAPI, HTTPException, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, Text, DateTime, select, desc, text
 
 # ── Shared DB (engine + session factory + Base) ────────────────────────────
-from db import Base, async_session, engine  # noqa: E402
+from db import Base, async_session, engine, get_db  # noqa: E402
 
 # ── Auth module ────────────────────────────────────────────────────────────
 from auth.config import settings as auth_settings
@@ -43,8 +43,22 @@ from registrations.routes import router as registrations_router
 # ── Admin Dashboard module ─────────────────────────────────────────────────
 from admin.routes import router as admin_router
 
-# ── Members & Projects module ──────────────────────────────────────────────
-from members.models import ClubMember, ClubProject   # registers tables with Base
+# ── Members, Projects, Resources, Roadmaps ─────────────────────────────────
+from members.models import ClubMember
+from members.routes import router as members_router
+
+from projects.models import ClubProject
+from projects.routes import router as projects_router
+
+from resources.models import ClubResource
+from resources.routes import router as resources_router
+
+from roadmaps.models import ClubRoadmap
+from roadmaps.routes import router as roadmaps_router
+
+# ── Tracks module ──────────────────────────────────────────────────────────
+from tracks.models import ClubTrack
+from tracks.routes import router as tracks_router
 
 # ── Achievements module ────────────────────────────────────────────────────
 from achievements.models import ClubAchievement
@@ -65,9 +79,11 @@ async def lifespan(app: FastAPI):
     auth_settings.validate()
     
     # Auto-create all tables (idempotent).
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-        # Note: Raw ALTER TABLE removed. Schema changes should be handled by Alembic or Base.metadata.create_all for new DBs.
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    except Exception as e:
+        logging.warning(f"Could not connect to database for table creation: {str(e)}")
 
     # Start the keep-alive background task
     task = asyncio.create_task(keep_alive_task())
@@ -121,6 +137,27 @@ app.include_router(forms_router)
 app.include_router(registrations_router)
 app.include_router(admin_router)
 app.include_router(achievements_router)
+app.include_router(members_router)
+app.include_router(projects_router)
+app.include_router(resources_router)
+app.include_router(roadmaps_router)
+app.include_router(tracks_router)
+
+# ── Stats Endpoint (Navbar) ────────────────────────────────────────────────
+from sqlalchemy.future import select
+from sqlalchemy import func
+
+@app.get("/api/stats")
+async def get_club_stats(db=Depends(get_db)):
+    events_count = await db.scalar(select(func.count(ClubEvent.id)))
+    projects_count = await db.scalar(select(func.count(ClubProject.id)))
+    members_count = await db.scalar(select(func.count(ClubMember.id)))
+    
+    return {
+        "events": events_count or 0,
+        "projects": projects_count or 0,
+        "members": members_count or 0,
+    }
 
 
 # ── Startup ────────────────────────────────────────────────────────────────
@@ -342,13 +379,14 @@ async def club_chat(request: ChatRequest, http_request: Request):
 
     try:
         dynamic_context = ""
-        async with async_session() as session:
-            result = await session.execute(
-                select(ClubEvent).order_by(desc(ClubEvent.event_date)).limit(1)
-            )
-            latest_event = result.scalars().first()
-            if latest_event:
-                dynamic_context = f"""
+        try:
+            async with async_session() as session:
+                result = await session.execute(
+                    select(ClubEvent).order_by(desc(ClubEvent.event_date)).limit(1)
+                )
+                latest_event = result.scalars().first()
+                if latest_event:
+                    dynamic_context = f"""
 LATEST EVENT FROM DATABASE:
 - Name: {latest_event.title}
 - Date: {latest_event.event_date.isoformat() if hasattr(latest_event.event_date, 'isoformat') else latest_event.event_date}
@@ -356,6 +394,9 @@ LATEST EVENT FROM DATABASE:
 - Category: {latest_event.category}
 - Venue: {latest_event.venue}
 """
+        except Exception as db_e:
+            logging.warning(f"Could not fetch dynamic context from DB: {str(db_e)}")
+            # Continue without dynamic context
 
         system_prompt = f"""You are NeuralNode, the official AI assistant of AI Club DAU — a friendly, knowledgeable, and enthusiastic chatbot embedded on the club's website.
 
@@ -374,6 +415,10 @@ RULES:
 {dynamic_context}
 """
 
+        api_key = os.getenv("GOOGLE_API_KEY", "")
+        if not api_key or api_key == "your_gemini_api_key_here":
+            return {"reply": "I am currently running in offline mode because the Gemini API key is missing. Please add a valid `GOOGLE_API_KEY` to the `backend/.env` file to chat with me!"}
+
         response = ai_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=f"{system_prompt}\n\nUser question: {request.message}"
@@ -383,7 +428,7 @@ RULES:
 
     except Exception as e:
         logging.error(f"CRITICAL CHAT ERROR: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="The chatbot is currently unavailable. Please try again later.")
+        return {"reply": "I'm having trouble connecting to my AI brain right now (invalid API key or quota exceeded). Please check the backend logs or verify the Gemini API key."}
 
 
 # Used only for local testing

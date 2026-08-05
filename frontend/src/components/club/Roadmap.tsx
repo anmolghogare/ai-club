@@ -1,161 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Brain, Sparkles, ChevronDown, CheckCircle2, Circle,
+  Brain, Sparkles, ChevronDown, CheckCircle2,
   BookOpen, Code2, BarChart3, Layers, Cpu, Zap, Bot, Network
 } from 'lucide-react';
+import { getApiUrl } from '../../lib/api';
 
-/* ─── DATA ───────────────────────────────────────────────────────── */
+const IconMap: Record<string, React.ElementType> = {
+  BookOpen, BarChart3, Layers, Cpu, Code2, Bot, Sparkles, Network, Zap
+};
 
-const ML_ROADMAP = [
-  {
-    phase: 'Phase 1',
-    title: 'Mathematics & Python Foundations',
-    duration: '4–6 weeks',
-    color: 'from-blue-500 to-cyan-500',
-    icon: BookOpen,
-    topics: [
-      'Linear Algebra — vectors, matrices, eigenvalues',
-      'Calculus — derivatives, gradients, chain rule',
-      'Probability & Statistics — distributions, Bayes theorem',
-      'Python — NumPy, Pandas, Matplotlib',
-      'Data Wrangling & EDA (Exploratory Data Analysis)',
-    ],
-  },
-  {
-    phase: 'Phase 2',
-    title: 'Classical Machine Learning',
-    duration: '6–8 weeks',
-    color: 'from-violet-500 to-purple-500',
-    icon: BarChart3,
-    topics: [
-      'Supervised Learning — Linear & Logistic Regression',
-      'Decision Trees, Random Forests, Gradient Boosting (XGBoost)',
-      'Unsupervised Learning — K-Means, DBSCAN, PCA',
-      'Model Evaluation — Bias-Variance, Cross-Validation, Metrics',
-      'Feature Engineering & Selection',
-    ],
-  },
-  {
-    phase: 'Phase 3',
-    title: 'Deep Learning',
-    duration: '6–8 weeks',
-    color: 'from-pink-500 to-rose-500',
-    icon: Layers,
-    topics: [
-      'Neural Networks from scratch — forward & backprop',
-      'PyTorch — tensors, autograd, training loops',
-      'CNNs — image classification, transfer learning',
-      'RNNs & LSTMs — sequence modelling',
-      'Regularisation — Dropout, BatchNorm, Weight Decay',
-    ],
-  },
-  {
-    phase: 'Phase 4',
-    title: 'Specialisations',
-    duration: '4–6 weeks (pick one)',
-    color: 'from-orange-500 to-amber-500',
-    icon: Cpu,
-    topics: [
-      'Computer Vision — Object Detection (YOLO), Segmentation',
-      'NLP — Transformers, BERT, text classification',
-      'Reinforcement Learning — MDPs, Q-Learning, PPO',
-      'Time-Series — ARIMA, Prophet, LSTM for forecasting',
-      'Recommendation Systems — Collaborative Filtering, Matrix Factorisation',
-    ],
-  },
-  {
-    phase: 'Phase 5',
-    title: 'MLOps & Deployment',
-    duration: '3–4 weeks',
-    color: 'from-teal-500 to-emerald-500',
-    icon: Code2,
-    topics: [
-      'Model Packaging — ONNX, TorchScript, TFLite',
-      'REST APIs — FastAPI + Docker containers',
-      'Experiment Tracking — MLflow, Weights & Biases',
-      'Cloud Deployment — AWS SageMaker / GCP Vertex AI',
-      'CI/CD Pipelines for ML (GitHub Actions)',
-    ],
-  },
-];
-
-const GENAI_ROADMAP = [
-  {
-    phase: 'Phase 1',
-    title: 'Foundations of Generative AI',
-    duration: '3–4 weeks',
-    color: 'from-fuchsia-500 to-pink-500',
-    icon: BookOpen,
-    topics: [
-      'What is Generative AI — overview & landscape',
-      'Transformers & Attention Mechanism in depth',
-      'Tokenisation, Embeddings & Vector Spaces',
-      'Prompt Engineering — zero-shot, few-shot, chain-of-thought',
-      'Using OpenAI / Gemini APIs effectively',
-    ],
-  },
-  {
-    phase: 'Phase 2',
-    title: 'Large Language Models',
-    duration: '5–6 weeks',
-    color: 'from-indigo-500 to-blue-500',
-    icon: Bot,
-    topics: [
-      'LLM Internals — pretraining, RLHF, alignment',
-      'Fine-Tuning — LoRA, QLoRA, Instruction Tuning',
-      'Retrieval-Augmented Generation (RAG)',
-      'LangChain & LlamaIndex frameworks',
-      'Evaluation — ROUGE, BERTScore, LLM-as-judge',
-    ],
-  },
-  {
-    phase: 'Phase 3',
-    title: 'Multimodal & Diffusion Models',
-    duration: '4–5 weeks',
-    color: 'from-rose-500 to-orange-500',
-    icon: Sparkles,
-    topics: [
-      'Diffusion Models — DDPM, DDIM, score matching',
-      'Stable Diffusion — architecture & fine-tuning (DreamBooth, LoRA)',
-      'Vision-Language Models — CLIP, LLaVA, GPT-4V',
-      'Audio Generation — text-to-speech, music generation',
-      'Video Generation — overview of Sora, RunwayML',
-    ],
-  },
-  {
-    phase: 'Phase 4',
-    title: 'Agents & Agentic Systems',
-    duration: '4–5 weeks',
-    color: 'from-emerald-500 to-teal-500',
-    icon: Network,
-    topics: [
-      'AI Agents — ReAct, plan-and-execute patterns',
-      'Tool Use — function calling, code execution',
-      'Memory Systems — short-term, long-term, episodic',
-      'Multi-Agent Frameworks — AutoGen, CrewAI',
-      'Building production agentic pipelines',
-    ],
-  },
-  {
-    phase: 'Phase 5',
-    title: 'GenAI in Production',
-    duration: '3–4 weeks',
-    color: 'from-yellow-500 to-amber-500',
-    icon: Zap,
-    topics: [
-      'LLM Ops — latency, cost optimisation, caching',
-      'Guardrails — safety filters, hallucination detection',
-      'Vector Databases — Pinecone, Weaviate, pgvector',
-      'Streaming responses & real-time UX',
-      'Monitoring & observability for LLM apps',
-    ],
-  },
-];
+type RoadmapPhase = {
+  phase: string;
+  title: string;
+  duration: string;
+  color: string;
+  icon: React.ElementType;
+  topics: string[];
+};
 
 /* ─── PHASE CARD ─────────────────────────────────────────────────── */
 
-function PhaseCard({ phase, index }: { phase: typeof ML_ROADMAP[0]; index: number }) {
+function PhaseCard({ phase, index }: { phase: RoadmapPhase; index: number }) {
   const [open, setOpen] = useState(index === 0);
   const Icon = phase.icon;
 
@@ -245,7 +111,7 @@ function RoadmapColumn({
   title, subtitle, icon: Icon, gradient, data, delay = 0,
 }: {
   title: string; subtitle: string; icon: React.ElementType;
-  gradient: string; data: typeof ML_ROADMAP; delay?: number;
+  gradient: string; data: RoadmapPhase[]; delay?: number;
 }) {
   return (
     <motion.div
@@ -278,6 +144,47 @@ function RoadmapColumn({
 /* ─── MAIN COMPONENT ─────────────────────────────────────────────── */
 
 export default function Roadmap() {
+  const [mlRoadmap, setMlRoadmap] = useState<RoadmapPhase[]>([]);
+  const [genaiRoadmap, setGenaiRoadmap] = useState<RoadmapPhase[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRoadmaps = async () => {
+      try {
+        const res = await fetch(getApiUrl('/api/roadmaps'));
+        if (!res.ok) throw new Error('Failed to fetch roadmaps');
+        const data = await res.json();
+        
+        const ml: RoadmapPhase[] = [];
+        const genai: RoadmapPhase[] = [];
+        
+        data.forEach((item: any) => {
+          const parsedItem: RoadmapPhase = {
+            phase: item.phase,
+            title: item.title,
+            duration: item.duration,
+            color: item.color,
+            icon: IconMap[item.icon_name] || BookOpen,
+            topics: item.topics || []
+          };
+          if (item.roadmap_type === 'ML') {
+            ml.push(parsedItem);
+          } else if (item.roadmap_type === 'GENAI') {
+            genai.push(parsedItem);
+          }
+        });
+        
+        setMlRoadmap(ml);
+        setGenaiRoadmap(genai);
+      } catch (err) {
+        console.error("Failed to fetch roadmaps", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRoadmaps();
+  }, []);
+
   return (
     <section id="roadmap" className="relative z-[1] max-w-[1200px] mx-auto px-6 md:px-12 py-24">
       <motion.div
@@ -304,7 +211,7 @@ export default function Roadmap() {
             subtitle="~6–7 months end-to-end"
             icon={Brain}
             gradient="from-blue-500 to-violet-500"
-            data={ML_ROADMAP}
+            data={mlRoadmap}
             delay={0}
           />
           <RoadmapColumn
@@ -312,7 +219,7 @@ export default function Roadmap() {
             subtitle="~4–5 months end-to-end"
             icon={Sparkles}
             gradient="from-fuchsia-500 to-rose-500"
-            data={GENAI_ROADMAP}
+            data={genaiRoadmap}
             delay={0.15}
           />
         </div>

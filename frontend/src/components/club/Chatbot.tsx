@@ -117,7 +117,7 @@ export default function Chatbot() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[78%] rounded-xl px-4 py-2.5 text-sm leading-relaxed ${
+                    className={`max-w-[78%] rounded-xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
                       msg.sender === 'user'
                         ? 'bg-primary text-primary-foreground rounded-tr-sm'
                         : 'bg-secondary text-foreground rounded-tl-sm'
