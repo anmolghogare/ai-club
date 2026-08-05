@@ -143,7 +143,6 @@ export default function EventDetailPage() {
 
   if (loading) return (
     <div style={{ background: 'hsl(228,30%,93%)', minHeight: '100vh' }}>
-      <Navbar />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,45%)' }}>
         Loading event…
       </div>
@@ -152,7 +151,6 @@ export default function EventDetailPage() {
 
   if (error || !event) return (
     <div style={{ background: 'hsl(228,30%,93%)', minHeight: '100vh' }}>
-      <Navbar />
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', gap: 16, fontFamily: 'Inter, sans-serif' }}>
         <AlertCircle size={40} style={{ color: 'hsl(0,70%,50%)' }} />
         <h2 style={{ color: 'hsl(230,25%,12%)', fontFamily: 'Playfair Display, Georgia, serif' }}>Event not found</h2>
@@ -165,7 +163,6 @@ export default function EventDetailPage() {
 
   return (
     <div style={{ background: 'hsl(228,30%,93%)', minHeight: '100vh' }}>
-      <Navbar />
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '5rem 2rem 4rem' }}>
         {/* Back link */}
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3 }}>

@@ -8,7 +8,6 @@ import { ArrowLeft } from 'lucide-react';
 const ProjectsPage = () => {
   return (
     <div className="relative z-[1] min-h-screen">
-      <Navbar />
       <div className="pt-28 max-w-[1200px] mx-auto px-6 md:px-12 -mb-16 relative z-10">
         <Link 
           to="/" 

@@ -12,6 +12,7 @@ import ProjectsPage from "./pages/ProjectsPage.tsx";
 import TeamPage from "./pages/TeamPage.tsx";
 import AchievementsPage from "./pages/AchievementsPage.tsx";
 import AuthBarrier from "./components/AuthBarrier.tsx";
+import Navbar from "./components/club/Navbar.tsx";
 import BackgroundCanvas from "./components/club/BackgroundCanvas.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 
@@ -38,6 +39,7 @@ const App = () => (
         <BrowserRouter>
           <BackgroundCanvas />
           <ScrollToTop />
+          <Navbar />
           <Routes>
             {/* ── Public routes — no login required ── */}
             <Route path="/" element={<Index />} />

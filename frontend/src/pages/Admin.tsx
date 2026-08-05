@@ -1325,7 +1325,6 @@ const Admin = () => {
   if (authState.isLoading) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm relative z-[1]">
           <Loader2 className="animate-spin text-primary w-12 h-12 mb-4" />
           <p className="text-xs font-mono tracking-widest text-primary uppercase">Verifying Authorization...</p>
@@ -1337,7 +1336,6 @@ const Admin = () => {
   if (!authState.isAuthenticated) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen flex items-center justify-center px-6 relative z-[1] bg-background">
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -1370,7 +1368,6 @@ const Admin = () => {
   if (!authState.isAuthorized) {
     return (
       <>
-        <Navbar />
         <div className="min-h-screen flex items-center justify-center px-6 relative z-[1] bg-background">
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.95 }}

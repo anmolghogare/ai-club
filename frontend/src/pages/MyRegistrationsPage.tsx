@@ -188,7 +188,6 @@ export default function MyRegistrationsPage() {
 
   return (
     <div style={{ background: 'hsl(228,30%,93%)', minHeight: '100vh' }}>
-      <Navbar />
       <div style={{ maxWidth: 860, margin: '0 auto', padding: '5rem 2rem 4rem' }}>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '2rem' }}>

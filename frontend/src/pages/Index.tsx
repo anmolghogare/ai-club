@@ -28,7 +28,6 @@ const Index = () => {
 
   return (
     <div style={{ background: 'hsl(228, 30%, 93%)', minHeight: '100vh' }}>
-      <Navbar />
       <Hero />
       <Events isHomepage={true} />
       <Projects isHomepage={true} />
