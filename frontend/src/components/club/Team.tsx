@@ -151,7 +151,8 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
 
   const filteredMembers = memberList.filter((m) => {
     if (isHomepage) {
-      return m.role === 'Convenor' || m.role === 'Deputy Convenor' || m.role === 'Core Member';
+      // Allow all roles on the homepage so the imported members show up
+      return true;
     }
 
     if (searchQuery.trim() !== '') {
