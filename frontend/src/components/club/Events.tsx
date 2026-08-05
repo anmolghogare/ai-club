@@ -62,6 +62,9 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
   const [timeLeft, setTimeLeft] = useState({ d: '00', h: '00', m: '00', s: '00' });
   const [searchQuery, setSearchQuery] = useState('');
   const [pastSearchQuery, setPastSearchQuery] = useState('');
+  // Filter state (full-page only)
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
 
   // Past Events state
   const [pastEvents, setPastEvents] = useState<PastEvent[]>([]);
@@ -85,11 +88,14 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // 1. Fetch Events from backend
-  const fetchEvents = async () => {
+  // 1. Fetch Events from backend (with optional filters)
+  const fetchEvents = async (status?: string, category?: string) => {
     setLoadingEvents(true);
     try {
-      const res = await fetch(getApiUrl('/api/events?limit=50'));
+      const params = new URLSearchParams({ limit: '50' });
+      if (status) params.set('status', status);
+      if (category) params.set('category', category);
+      const res = await fetch(getApiUrl(`/api/events?${params}`));
       if (res.ok) {
         const data = await res.json();
         setEvents(data.events || []);
@@ -139,10 +145,20 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
         setLoadingPastEvents(false);
       }
     };
-    fetchEvents();
+    // Fetch initial data
+    if (isHomepage) {
+      fetchEvents();
+    }
     fetchUserData();
     fetchPastEvents();
   }, []);
+
+  // Effect to re-fetch when filters change (only on full page)
+  useEffect(() => {
+    if (!isHomepage) {
+      fetchEvents(statusFilter, categoryFilter);
+    }
+  }, [statusFilter, categoryFilter, isHomepage]);
 
   const featured = events.find(ev => ev.status === 'registration_open') || events.find(ev => ev.status === 'upcoming');
 
@@ -562,30 +578,40 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                         )}
                       </p>
 
-                      {/* Register button */}
-                      {ev.status === 'registration_open' && (
-                        registeredEventIds.includes(ev.id) ? (
-                          <span style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', padding: '4px 12px', border: '1px solid hsl(243,75%,80%)', borderRadius: 2 }}>
-                            Registered ✓
-                          </span>
-                        ) : ev.registration_link ? (
-                          <a
-                            href={ev.registration_link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, textDecoration: 'none', border: '1px solid hsl(230,25%,12%)' }}
-                          >
-                            Register now
-                          </a>
-                        ) : (
-                          <button
-                            onClick={() => setSelectedEvent(ev)}
-                            style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, border: '1px solid hsl(230,25%,12%)', cursor: 'pointer' }}
-                          >
-                            Register now
-                          </button>
-                        )
-                      )}
+                      {/* Register button + View Details */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 10, flexWrap: 'wrap' }}>
+                        {ev.status === 'registration_open' && (
+                          registeredEventIds.includes(ev.id) ? (
+                            <span style={{ display: 'inline-block', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', padding: '4px 12px', border: '1px solid hsl(243,75%,80%)', borderRadius: 2 }}>
+                              Registered ✓
+                            </span>
+                          ) : ev.registration_link ? (
+                            <a
+                              href={ev.registration_link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ display: 'inline-block', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, textDecoration: 'none', border: '1px solid hsl(230,25%,12%)' }}
+                            >
+                              Register now
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => setSelectedEvent(ev)}
+                              style={{ display: 'inline-block', fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, border: '1px solid hsl(230,25%,12%)', cursor: 'pointer' }}
+                            >
+                              Register now
+                            </button>
+                          )
+                        )}
+                        <Link
+                          to={`/events/${ev.id}`}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', textDecoration: 'none', padding: '4px 10px', border: '1px solid hsl(243,75%,75%)', borderRadius: 2 }}
+                          onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(243,75%,97%)'}
+                          onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                        >
+                          <ArrowRight size={11} /> View Details
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 );
@@ -705,22 +731,59 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           </motion.div>
         )}
 
-        {/* Search Bar for Live Events on Dedicated Page */}
-        {!isHomepage && (
-          <div className="relative w-full max-w-md mb-8">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-              <Search size={16} className="text-primary/60" />
-            </span>
-            <input
-              type="text"
-              placeholder="Search active events..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-secondary/80 border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-xs text-muted-foreground hover:text-foreground">Clear</button>
-            )}
+        {/* Filters for Live Events on Dedicated Page */}
+        {!isHomepage && activeTab === 'upcoming' && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: 'hsl(230,15%,45%)', fontWeight: 500 }}>Status:</span>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid hsl(228,20%,80%)', fontSize: '0.8rem', fontFamily: 'Inter, sans-serif', outline: 'none' }}
+              >
+                <option value="">All Active/Upcoming</option>
+                <option value="registration_open">Registration Open</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="registration_closed">Registration Closed</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.8rem', color: 'hsl(230,15%,45%)', fontWeight: 500 }}>Category:</span>
+              {['', 'Hackathon', 'Workshop', 'Seminar'].map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setCategoryFilter(cat)}
+                  style={{
+                    padding: '4px 12px',
+                    borderRadius: '99px',
+                    fontSize: '0.75rem',
+                    fontFamily: 'Inter, sans-serif',
+                    fontWeight: 500,
+                    cursor: 'pointer',
+                    background: categoryFilter === cat ? 'hsl(243,75%,59%)' : 'white',
+                    color: categoryFilter === cat ? 'white' : 'hsl(230,15%,45%)',
+                    border: `1px solid ${categoryFilter === cat ? 'hsl(243,75%,59%)' : 'hsl(228,20%,80%)'}`
+                  }}
+                >
+                  {cat === '' ? 'All' : cat}
+                </button>
+              ))}
+            </div>
+            
+            <div style={{ flex: 1, minWidth: '200px', display: 'flex', justifyContent: 'flex-end' }}>
+              <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'hsl(230,15%,60%)' }} />
+                <input
+                  type="text"
+                  placeholder="Search events..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  style={{ width: '100%', padding: '6px 30px', borderRadius: '6px', border: '1px solid hsl(228,20%,80%)', fontSize: '0.8rem', fontFamily: 'Inter, sans-serif', outline: 'none' }}
+                />
+              </div>
+            </div>
           </div>
         )}
 

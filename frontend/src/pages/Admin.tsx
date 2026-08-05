@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import Navbar from '@/components/club/Navbar';
 import Footer from '@/components/club/Footer';
-import { Loader2, Download, Trash2, Calendar, Users, Award, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight } from 'lucide-react';
+import { Loader2, Download, Trash2, Calendar, Users, Award, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 import { supabase } from '../lib/supabase';
 import { getApiUrl } from '../lib/api';
@@ -103,6 +103,9 @@ const Admin = () => {
   });
   const [fieldMessage, setFieldMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
   const [addingField, setAddingField] = useState(false);
+  const [editingForm, setEditingForm] = useState<any | null>(null);
+  const [isBulkAdding, setIsBulkAdding] = useState(false);
+  const [bulkAddJson, setBulkAddJson] = useState('');
 
   // Custom Toast and Confirmation Modal states
   const [toast, setToast] = useState<{ isOpen: boolean; message: string; type: 'success' | 'error' | 'info' }>({
@@ -595,6 +598,97 @@ const Admin = () => {
       fetchFormFields(builderEventId);
     } catch (err: any) {
       setFieldMessage({ type: 'error', text: err.message || 'Error adding field' });
+    } finally {
+      setAddingField(false);
+    }
+  };
+
+  const handleUpdateField = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingForm || !builderEventId) return;
+    setAddingField(true);
+    setFieldMessage(null);
+    try {
+      const payload = {
+        label: editingForm.label.trim(),
+        placeholder: editingForm.placeholder?.trim() || null,
+        required: editingForm.required,
+        order_no: Number(editingForm.order_no)
+      };
+      const res = await fetch(getApiUrl(`/api/admin/form-fields/${editingForm.id}`), {
+        method: 'PUT',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to update field');
+      setFieldMessage({ type: 'success', text: 'Field updated successfully!' });
+      setEditingForm(null);
+      fetchFormFields(builderEventId);
+    } catch (err: any) {
+      setFieldMessage({ type: 'error', text: err.message });
+    } finally {
+      setAddingField(false);
+    }
+  };
+
+  const handleReorderFields = async (fieldId: number, direction: 'up' | 'down') => {
+    if (!builderFields || builderFields.length < 2 || !builderEventId) return;
+    const currentIndex = builderFields.findIndex(f => f.id === fieldId);
+    if (currentIndex === -1) return;
+    if (direction === 'up' && currentIndex === 0) return;
+    if (direction === 'down' && currentIndex === builderFields.length - 1) return;
+
+    const newOrder = [...builderFields];
+    const swapIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    [newOrder[currentIndex], newOrder[swapIndex]] = [newOrder[swapIndex], newOrder[currentIndex]];
+    
+    // Optimistic update
+    setBuilderFields(newOrder);
+
+    try {
+      const res = await fetch(getApiUrl(`/api/admin/events/${builderEventId}/form-fields/reorder`), {
+        method: 'PUT',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(newOrder.map(f => f.id)),
+        credentials: 'include'
+      });
+      if (!res.ok) throw new Error('Failed to reorder');
+      fetchFormFields(builderEventId);
+    } catch (err) {
+      fetchFormFields(builderEventId);
+    }
+  };
+
+  const handleBulkAdd = async () => {
+    if (!bulkAddJson.trim() || !builderEventId) return;
+    setAddingField(true);
+    setFieldMessage(null);
+    try {
+      let parsed;
+      try {
+        parsed = JSON.parse(bulkAddJson);
+      } catch (err) {
+        throw new Error('Invalid JSON format');
+      }
+      if (!Array.isArray(parsed)) throw new Error('JSON must be an array of fields');
+      
+      const res = await fetch(getApiUrl(`/api/admin/events/${builderEventId}/form-fields/bulk`), {
+        method: 'POST',
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ fields: parsed }),
+        credentials: 'include'
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.detail || 'Failed to bulk add fields');
+      }
+      setFieldMessage({ type: 'success', text: 'Bulk fields added successfully!' });
+      setIsBulkAdding(false);
+      setBulkAddJson('');
+      fetchFormFields(builderEventId);
+    } catch (err: any) {
+      setFieldMessage({ type: 'error', text: err.message });
     } finally {
       setAddingField(false);
     }
@@ -1983,13 +2077,12 @@ const Admin = () => {
                                   <div className="text-[10px] text-muted-foreground/50 font-mono">Order: {field.order_no}</div>
                                 </div>
                                 
-                                <button
-                                  onClick={() => handleDeleteField(field.id)}
-                                  className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors"
-                                  title="Delete Field"
-                                >
-                                  <Trash2 size={14} />
-                                </button>
+                                <div className="flex gap-1">
+                                  <button onClick={() => handleReorderFields(field.id, 'up')} className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors" title="Move Up"><ArrowUp size={14} /></button>
+                                  <button onClick={() => handleReorderFields(field.id, 'down')} className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors" title="Move Down"><ArrowDown size={14} /></button>
+                                  <button onClick={() => setEditingForm(field)} className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors" title="Edit Field"><Edit2 size={14} /></button>
+                                  <button onClick={() => handleDeleteField(field.id)} className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors" title="Delete Field"><Trash2 size={14} /></button>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -1997,8 +2090,34 @@ const Admin = () => {
                       </div>
 
                       {/* Right: Add New Field form (5 cols) */}
-                      <div className="lg:col-span-5 bg-secondary/15 p-6 rounded-xl border border-border/80 h-fit">
-                        <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider font-mono mb-4">Add Field</h3>
+                      <div className="lg:col-span-5 space-y-4 h-fit">
+                        {isBulkAdding ? (
+                          <div className="bg-secondary/15 p-6 rounded-xl border border-border/80">
+                            <div className="flex justify-between items-center mb-4">
+                              <h3 className="text-sm font-semibold text-foreground">Bulk Add Fields</h3>
+                              <button onClick={() => setIsBulkAdding(false)} className="text-xs text-primary hover:underline">Switch to Single Add</button>
+                            </div>
+                            <textarea
+                              value={bulkAddJson}
+                              onChange={(e) => setBulkAddJson(e.target.value)}
+                              placeholder="[{ &quot;label&quot;: &quot;Github&quot;, &quot;field_type&quot;: &quot;text&quot;, &quot;required&quot;: false, &quot;order_no&quot;: 10 }]"
+                              rows={8}
+                              className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs font-mono mb-4 focus:outline-none focus:border-primary/50"
+                            />
+                            <button
+                              onClick={handleBulkAdd}
+                              disabled={addingField || !bulkAddJson.trim()}
+                              className="w-full bg-primary text-primary-foreground font-semibold py-2.5 rounded-lg text-sm hover:bg-primary/90 transition-colors disabled:opacity-50"
+                            >
+                              {addingField ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Bulk Add'}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="bg-secondary/15 p-6 rounded-xl border border-border/80">
+                            <div className="flex justify-between items-center mb-6">
+                              <h3 className="text-sm font-semibold text-foreground flex items-center gap-2"><Plus size={16} className="text-primary" /> Add New Field</h3>
+                              <button onClick={() => setIsBulkAdding(true)} className="text-xs text-primary hover:underline">Bulk Add JSON</button>
+                            </div>
                         
                         {fieldMessage && (
                           <div className={`p-3 rounded-lg mb-4 text-xs ${fieldMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-500' : 'bg-red-500/10 border border-red-500/20 text-red-500'}`}>
@@ -2129,6 +2248,8 @@ const Admin = () => {
                             {addingField ? 'Adding Field...' : 'Add Field'}
                           </button>
                         </form>
+                      </div>
+                      )}
                       </div>
                     </div>
                   )}
@@ -3535,6 +3656,45 @@ const Admin = () => {
               ) : (
                 <p className="text-xs text-muted-foreground text-center py-8">Failed to render registration details.</p>
               )}
+            </motion.div>
+          </div>
+        )}
+
+        {/* Edit Field Modal */}
+        {editingForm && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setEditingForm(null)} />
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-md bg-card rounded-2xl shadow-xl border border-border p-6 overflow-hidden">
+              <h3 className="text-lg font-bold text-foreground mb-4 font-serif">Edit Form Field</h3>
+              <form onSubmit={handleUpdateField} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Label</label>
+                  <input type="text" value={editingForm.label} onChange={e => setEditingForm({...editingForm, label: e.target.value})} className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50" required />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Placeholder</label>
+                  <input type="text" value={editingForm.placeholder || ''} onChange={e => setEditingForm({...editingForm, placeholder: e.target.value})} className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50" />
+                </div>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Required</label>
+                    <div className="flex items-center gap-2">
+                      <input type="checkbox" checked={editingForm.required} onChange={e => setEditingForm({...editingForm, required: e.target.checked})} className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20" />
+                      <span className="text-sm text-foreground">Yes</span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <label className="block text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wider">Order No</label>
+                    <input type="number" value={editingForm.order_no} onChange={e => setEditingForm({...editingForm, order_no: Number(e.target.value)})} className="w-full bg-secondary/50 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary/50" required />
+                  </div>
+                </div>
+                <div className="flex gap-3 pt-4 border-t border-border mt-6">
+                  <button type="button" onClick={() => setEditingForm(null)} className="flex-1 px-4 py-2 border border-border text-foreground text-sm font-medium rounded-lg hover:bg-secondary/80 transition-colors">Cancel</button>
+                  <button type="submit" disabled={addingField} className="flex-1 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50">
+                    {addingField ? <Loader2 size={16} className="animate-spin mx-auto" /> : 'Save Changes'}
+                  </button>
+                </div>
+              </form>
             </motion.div>
           </div>
         )}

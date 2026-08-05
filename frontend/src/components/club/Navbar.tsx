@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Menu, X, LogOut, Shield, ChevronDown } from 'lucide-react';
+import { Menu, X, LogOut, Shield, ChevronDown, ClipboardList, User } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { supabase } from '../../lib/supabase';
 import { getApiUrl } from '../../lib/api';
 import aiClubLogo from '@/assets/ai-club-logo.jpeg';
@@ -27,11 +28,27 @@ const navItems = [
   { label: 'Achievements', href: '/achievements', pagePath: '/achievements' },
 ];
 
+const linkStyle = (active: boolean) => ({
+  display: 'block',
+  padding: '0 14px',
+  height: '56px',
+  lineHeight: '56px',
+  fontFamily: 'Inter, sans-serif',
+  fontSize: '0.83rem',
+  fontWeight: active ? 600 : 400,
+  color: active ? 'hsl(243, 75%, 59%)' : 'hsl(230, 15%, 35%)',
+  textDecoration: 'none',
+  borderBottom: active ? '2px solid hsl(243, 75%, 59%)' : '2px solid transparent',
+  transition: 'color 0.15s ease, border-color 0.15s ease',
+  whiteSpace: 'nowrap' as const,
+});
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
   const [counts, setCounts] = useState<NavCounts>({ events: 0, projects: 0, members: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +66,6 @@ export default function Navbar() {
     setShowUserDropdown(false);
   }, [location.pathname]);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -60,7 +76,6 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  // Fetch counts
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -102,6 +117,52 @@ export default function Navbar() {
     checkAuth();
   }, []);
 
+  // Google OAuth login — exchanges Google credential for backend JWT cookie
+  const googleLogin = useGoogleLogin({
+    flow: 'implicit',
+    onSuccess: async (tokenResponse) => {
+      setAuthLoading(true);
+      try {
+        // Get user info from Google
+        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        if (!userInfoRes.ok) throw new Error('Failed to get user info');
+        const googleUser = await userInfoRes.json();
+
+        // Exchange with backend (backend needs id_token; use access_token as fallback)
+        const authRes = await fetch(getApiUrl('/api/auth/google'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ id_token: tokenResponse.access_token }),
+        });
+
+        if (authRes.ok) {
+          const data = await authRes.json();
+          if (data.user) {
+            setUser({
+              name: data.user.name,
+              email: data.user.email,
+              picture: data.user.profile_image || googleUser.picture || '',
+              is_admin: !!data.user.is_admin,
+            });
+          }
+        } else {
+          console.error('Auth failed:', await authRes.text());
+        }
+      } catch (err) {
+        console.error('Login error:', err);
+      } finally {
+        setAuthLoading(false);
+      }
+    },
+    onError: (err) => {
+      console.error('Google login error:', err);
+      setAuthLoading(false);
+    },
+  });
+
   const logout = async () => {
     try {
       await fetch(getApiUrl('/api/auth/logout'), {
@@ -133,37 +194,32 @@ export default function Navbar() {
     return location.hash === `#${hash}` && location.pathname === '/';
   };
 
+  const dropdownItem = (href: string, icon: React.ReactNode, label: string) => (
+    <a
+      href={href}
+      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: '0.8rem', color: 'hsl(230,25%,12%)', textDecoration: 'none', transition: 'background 0.15s' }}
+      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,20%,96%)'}
+      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+    >
+      {icon} {label}
+    </a>
+  );
+
   return (
     <>
       <nav
         style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 50,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '56px',
-          padding: '0 2rem',
-          backgroundColor: scrolled ? 'hsl(228, 30%, 93%)' : 'hsl(228, 30%, 93%)',
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          height: '56px', padding: '0 2rem',
+          backgroundColor: 'hsl(228, 30%, 93%)',
           borderBottom: '1px solid hsl(228, 20%, 80%)',
           transition: 'box-shadow 0.3s ease',
           boxShadow: scrolled ? '0 1px 12px rgba(0,0,0,0.06)' : 'none',
         }}
       >
         {/* Logo */}
-        <Link
-          to="/"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            textDecoration: 'none',
-            flexShrink: 0,
-          }}
-        >
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', flexShrink: 0 }}>
           <img src={aiClubLogo} alt="AI Club DAU" style={{ width: 26, height: 26, borderRadius: 3, objectFit: 'contain' }} />
           <span style={{ fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '0.95rem', color: 'hsl(230, 25%, 12%)' }}>
             AI Club{' '}
@@ -172,7 +228,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <ul style={{ display: 'flex', alignItems: 'center', gap: '0', listStyle: 'none', margin: 0, padding: 0 }} className="hidden md:flex">
+        <ul style={{ display: 'flex', alignItems: 'center', gap: 0, listStyle: 'none', margin: 0, padding: 0 }} className="hidden md:flex">
           {navItems.map((item) => {
             const active = isActive(item);
             return (
@@ -180,30 +236,9 @@ export default function Navbar() {
                 <a
                   href={item.pagePath || item.href}
                   onClick={(e) => handleNavClick(e, item.pagePath || item.href)}
-                  style={{
-                    display: 'block',
-                    padding: '0 14px',
-                    height: '56px',
-                    lineHeight: '56px',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '0.83rem',
-                    fontWeight: active ? 600 : 400,
-                    color: active ? 'hsl(243, 75%, 59%)' : 'hsl(230, 15%, 35%)',
-                    textDecoration: 'none',
-                    borderBottom: active ? '2px solid hsl(243, 75%, 59%)' : '2px solid transparent',
-                    transition: 'color 0.15s ease, border-color 0.15s ease',
-                    whiteSpace: 'nowrap',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = 'hsl(230, 25%, 12%)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!active) {
-                      (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)';
-                    }
-                  }}
+                  style={linkStyle(active)}
+                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 25%, 12%)'; }}
+                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)'; }}
                 >
                   {item.label}
                 </a>
@@ -213,21 +248,15 @@ export default function Navbar() {
         </ul>
 
         {/* Right: Auth + Join */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }} className="hidden md:flex">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }} className="hidden md:flex">
           {user ? (
             <div ref={dropdownRef} style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '4px 10px 4px 4px',
-                  border: '1px solid hsl(228, 20%, 80%)',
-                  borderRadius: '4px',
-                  background: 'white',
-                  cursor: 'pointer',
-                  transition: 'border-color 0.15s',
+                  display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 10px 4px 4px',
+                  border: '1px solid hsl(228, 20%, 80%)', borderRadius: '4px',
+                  background: 'white', cursor: 'pointer', transition: 'border-color 0.15s',
                 }}
               >
                 {user.picture ? (
@@ -246,16 +275,9 @@ export default function Navbar() {
 
               {showUserDropdown && (
                 <div style={{
-                  position: 'absolute',
-                  right: 0,
-                  marginTop: '6px',
-                  width: '200px',
-                  background: 'white',
-                  border: '1px solid hsl(228,20%,80%)',
-                  borderRadius: '4px',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  zIndex: 100,
-                  overflow: 'hidden',
+                  position: 'absolute', right: 0, marginTop: '6px', width: '210px',
+                  background: 'white', border: '1px solid hsl(228,20%,80%)', borderRadius: '6px',
+                  boxShadow: '0 4px 20px rgba(0,0,0,0.10)', zIndex: 100, overflow: 'hidden',
                 }}>
                   <div style={{ padding: '12px 14px', borderBottom: '1px solid hsl(228,20%,88%)' }}>
                     <p style={{ fontSize: '0.8rem', fontWeight: 600, color: 'hsl(230,25%,12%)', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</p>
@@ -266,44 +288,64 @@ export default function Navbar() {
                       </span>
                     )}
                   </div>
-                  {user.is_admin && (
-                    <a href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: '0.8rem', color: 'hsl(230,25%,12%)', textDecoration: 'none', transition: 'background 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,20%,96%)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}>
-                      <Shield size={13} style={{ color: 'hsl(243,75%,59%)' }} /> Admin Dashboard
-                    </a>
-                  )}
-                  <button
-                    onClick={logout}
-                    style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', width: '100%', border: 'none', background: 'transparent', fontSize: '0.8rem', color: 'hsl(0,70%,50%)', cursor: 'pointer', transition: 'background 0.15s' }}
-                    onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(0,70%,97%)'}
-                    onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
-                  >
-                    <LogOut size={13} /> Sign Out
-                  </button>
+                  {dropdownItem('/my-registrations', <ClipboardList size={13} style={{ color: 'hsl(243,75%,59%)' }} />, 'My Registrations')}
+                  {user.is_admin && dropdownItem('/admin', <Shield size={13} style={{ color: 'hsl(243,75%,59%)' }} />, 'Admin Dashboard')}
+                  <div style={{ borderTop: '1px solid hsl(228,20%,88%)' }}>
+                    <button
+                      onClick={logout}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', width: '100%', border: 'none', background: 'transparent', fontSize: '0.8rem', color: 'hsl(0,70%,50%)', cursor: 'pointer', transition: 'background 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(0,70%,97%)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
+                    >
+                      <LogOut size={13} /> Sign Out
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
-          ) : null}
+          ) : (
+            <button
+              onClick={() => googleLogin()}
+              disabled={authLoading}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '6px 14px',
+                background: 'white',
+                border: '1px solid hsl(228, 20%, 80%)',
+                borderRadius: '4px',
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '0.82rem',
+                fontWeight: 500,
+                color: 'hsl(230, 25%, 12%)',
+                cursor: authLoading ? 'wait' : 'pointer',
+                transition: 'border-color 0.15s, box-shadow 0.15s',
+                opacity: authLoading ? 0.7 : 1,
+              }}
+              onMouseEnter={e => (e.currentTarget as HTMLElement).style.boxShadow = '0 1px 6px rgba(0,0,0,0.1)'}
+              onMouseLeave={e => (e.currentTarget as HTMLElement).style.boxShadow = 'none'}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+              </svg>
+              {authLoading ? 'Signing in…' : 'Sign in'}
+            </button>
+          )}
 
           <a
             href="https://discord.gg/bU7JdWa6"
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
+              display: 'inline-flex', alignItems: 'center',
               padding: '7px 18px',
               background: 'hsl(230, 25%, 12%)',
               color: 'hsl(228, 30%, 93%)',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '0.82rem',
-              fontWeight: 600,
-              border: '1.5px solid hsl(230, 25%, 12%)',
-              borderRadius: '2px',
-              textDecoration: 'none',
-              transition: 'background 0.15s ease, color 0.15s ease',
-              letterSpacing: '0.02em',
+              fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600,
+              border: '1.5px solid hsl(230, 25%, 12%)', borderRadius: '2px',
+              textDecoration: 'none', transition: 'background 0.15s ease, color 0.15s ease', letterSpacing: '0.02em',
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLElement).style.background = 'hsl(243, 75%, 59%)';
@@ -332,14 +374,10 @@ export default function Navbar() {
           <div
             className="md:hidden"
             style={{
-              position: 'absolute',
-              top: '56px',
-              left: 0,
-              right: 0,
+              position: 'absolute', top: '56px', left: 0, right: 0,
               background: 'hsl(228, 30%, 93%)',
               borderBottom: '1px solid hsl(228, 20%, 80%)',
-              padding: '1rem 2rem 1.5rem',
-              zIndex: 49,
+              padding: '1rem 2rem 1.5rem', zIndex: 49,
             }}
           >
             <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -350,15 +388,7 @@ export default function Navbar() {
                     <a
                       href={item.pagePath || item.href}
                       onClick={(e) => { handleNavClick(e, item.pagePath || item.href); setMobileOpen(false); }}
-                      style={{
-                        display: 'block',
-                        padding: '12px 0',
-                        fontFamily: 'Inter, sans-serif',
-                        fontSize: '0.9rem',
-                        fontWeight: active ? 600 : 400,
-                        color: active ? 'hsl(243, 75%, 59%)' : 'hsl(230, 20%, 25%)',
-                        textDecoration: 'none',
-                      }}
+                      style={{ display: 'block', padding: '12px 0', fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', fontWeight: active ? 600 : 400, color: active ? 'hsl(243, 75%, 59%)' : 'hsl(230, 20%, 25%)', textDecoration: 'none' }}
                     >
                       {item.label}
                     </a>
@@ -368,32 +398,28 @@ export default function Navbar() {
             </ul>
 
             <div style={{ marginTop: '1.25rem', display: 'flex', gap: 10 }}>
-              <a
-                href="https://discord.gg/bU7JdWa6"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', padding: '8px 20px',
-                  background: 'hsl(230, 25%, 12%)', color: 'hsl(228, 30%, 93%)',
-                  fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600,
-                  border: '1.5px solid hsl(230, 25%, 12%)', borderRadius: 2, textDecoration: 'none',
-                }}
-              >
-                Join the club
-              </a>
-              {user && (
+              {user ? (
                 <button
                   onClick={() => { logout(); setMobileOpen(false); }}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px',
-                    background: 'transparent', color: 'hsl(0,70%,50%)',
-                    fontFamily: 'Inter, sans-serif', fontSize: '0.82rem',
-                    border: '1px solid hsl(228, 20%, 80%)', borderRadius: 2, cursor: 'pointer',
-                  }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'transparent', color: 'hsl(0,70%,50%)', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', border: '1px solid hsl(228, 20%, 80%)', borderRadius: 2, cursor: 'pointer' }}
                 >
                   <LogOut size={14} /> Sign Out
                 </button>
+              ) : (
+                <button
+                  onClick={() => { googleLogin(); setMobileOpen(false); }}
+                  disabled={authLoading}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', background: 'white', color: 'hsl(230,25%,12%)', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', border: '1px solid hsl(228, 20%, 80%)', borderRadius: 2, cursor: 'pointer' }}
+                >
+                  Sign in with Google
+                </button>
               )}
+              <a
+                href="https://discord.gg/bU7JdWa6" target="_blank" rel="noopener noreferrer"
+                style={{ display: 'inline-flex', alignItems: 'center', padding: '8px 20px', background: 'hsl(230, 25%, 12%)', color: 'hsl(228, 30%, 93%)', fontFamily: 'Inter, sans-serif', fontSize: '0.82rem', fontWeight: 600, border: '1.5px solid hsl(230, 25%, 12%)', borderRadius: 2, textDecoration: 'none' }}
+              >
+                Join the club
+              </a>
             </div>
 
             {user && (
@@ -409,11 +435,16 @@ export default function Navbar() {
                   <p style={{ margin: 0, fontSize: '0.82rem', fontWeight: 600, color: 'hsl(230,25%,12%)' }}>{user.name}</p>
                   <p style={{ margin: 0, fontSize: '0.7rem', color: 'hsl(230,15%,50%)' }}>{user.email}</p>
                 </div>
-                {user.is_admin && (
-                  <a href="/admin" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(243,75%,59%)', textDecoration: 'none' }}>
-                    <Shield size={12} /> Admin
+                <div style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {user.is_admin && (
+                    <a href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(243,75%,59%)', textDecoration: 'none' }}>
+                      <Shield size={12} /> Admin
+                    </a>
+                  )}
+                  <a href="/my-registrations" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(230,20%,40%)', textDecoration: 'none' }}>
+                    <ClipboardList size={12} /> My Regs
                   </a>
-                )}
+                </div>
               </div>
             )}
           </div>

@@ -15,11 +15,19 @@ import AuthBarrier from "./components/AuthBarrier.tsx";
 import BackgroundCanvas from "./components/club/BackgroundCanvas.tsx";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 
-// Lazy-load Admin so its ~185KB bundle is never loaded by public visitors
+// Lazy-load heavier pages to keep the initial bundle small
 const Admin = lazy(() => import("./pages/Admin.tsx"));
+const EventDetailPage = lazy(() => import("./pages/EventDetailPage.tsx"));
+const MyRegistrationsPage = lazy(() => import("./pages/MyRegistrationsPage.tsx"));
 
 const queryClient = new QueryClient();
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+
+const Loader = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>
+    Loading…
+  </div>
+);
 
 const App = () => (
   <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
@@ -28,9 +36,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* Single shared canvas — renders behind all pages */}
           <BackgroundCanvas />
-          {/* Reset scroll to top on every route change */}
           <ScrollToTop />
           <Routes>
             {/* ── Public routes — no login required ── */}
@@ -40,19 +46,29 @@ const App = () => (
             <Route path="/team" element={<TeamPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
 
-            {/* ── Protected route — admin only ── */}
-            <Route
-              path="/admin"
-              element={
-                <AuthBarrier>
-                  <Suspense fallback={<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>Loading admin panel...</div>}>
-                    <Admin />
-                  </Suspense>
-                </AuthBarrier>
-              }
-            />
+            {/* ── Event detail page ── */}
+            <Route path="/events/:id" element={
+              <Suspense fallback={<Loader />}>
+                <EventDetailPage />
+              </Suspense>
+            } />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            {/* ── My registrations (auth handled inside page) ── */}
+            <Route path="/my-registrations" element={
+              <Suspense fallback={<Loader />}>
+                <MyRegistrationsPage />
+              </Suspense>
+            } />
+
+            {/* ── Protected admin route ── */}
+            <Route path="/admin" element={
+              <AuthBarrier>
+                <Suspense fallback={<Loader />}>
+                  <Admin />
+                </Suspense>
+              </AuthBarrier>
+            } />
+
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
