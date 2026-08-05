@@ -28,8 +28,8 @@ class AuthConfig:
     # ── Cookie ────────────────────────────────────────────────────────────────
     COOKIE_NAME: str = "access_token"
     COOKIE_HTTPONLY: bool = True
-    COOKIE_SECURE: bool = os.getenv("ENVIRONMENT", "development") == "production"
-    COOKIE_SAMESITE: str = "none" if os.getenv("ENVIRONMENT", "development") == "production" else "lax"
+    COOKIE_SECURE: bool = True
+    COOKIE_SAMESITE: str = "none"
     COOKIE_MAX_AGE: int = JWT_ACCESS_TOKEN_EXPIRE_MINUTES * 60  # seconds
 
     # ── Misc ──────────────────────────────────────────────────────────────────
