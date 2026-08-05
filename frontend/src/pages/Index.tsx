@@ -20,7 +20,6 @@ const Index = () => {
       const hash = location.hash.substring(1);
       const el = document.getElementById(hash);
       if (el) {
-        // Wait a brief moment to ensure everything is mounted
         const timer = setTimeout(() => {
           el.scrollIntoView({ behavior: 'smooth' });
         }, 150);
@@ -30,22 +29,15 @@ const Index = () => {
   }, [location]);
 
   return (
-    <div className="relative z-[1] min-h-screen">
+    <div style={{ background: 'hsl(228, 30%, 93%)', minHeight: '100vh' }}>
       <Navbar />
       <Hero />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Events isHomepage={true} />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Projects isHomepage={true} />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Team isHomepage={true} />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Roadmap />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Resources />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Blog />
-      <div className="h-px bg-border mx-6 md:mx-12 relative z-[1]" />
       <Testimonials />
       <Footer />
       <Chatbot />

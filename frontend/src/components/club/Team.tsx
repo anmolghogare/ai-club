@@ -6,13 +6,13 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 
 
-// Role badge colours
+// Role badge colours — light editorial palette
 const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
-  'Convenor':             { label: 'Convenor',             classes: 'bg-amber-500/15 text-amber-400 border border-amber-500/30' },
-  'Deputy Convenor':      { label: 'Deputy Convenor',      classes: 'bg-blue-500/15 text-blue-400 border border-blue-500/30' },
-  'Core Member':          { label: 'Core Member',          classes: 'bg-primary/15 text-primary border border-primary/30' },
-  'Extended Core Member': { label: 'Extended Core Member', classes: 'bg-accent/15 text-accent border border-accent/30' },
-  'Member':               { label: 'Member',               classes: 'bg-secondary text-muted-foreground border border-border' },
+  'Convenor':             { label: 'Convenor',             classes: 'bg-amber-50 text-amber-700 border border-amber-200' },
+  'Deputy Convenor':      { label: 'Deputy Convenor',      classes: 'bg-blue-50 text-blue-700 border border-blue-200' },
+  'Core Member':          { label: 'Core Member',          classes: 'bg-indigo-50 text-indigo-700 border border-indigo-200' },
+  'Extended Core Member': { label: 'Extended Core Member', classes: 'bg-purple-50 text-purple-700 border border-purple-200' },
+  'Member':               { label: 'Member',               classes: 'bg-gray-100 text-gray-600 border border-gray-200' },
 };
 
 const RoleBadge = ({ role }: { role: MemberRole }) => {
@@ -81,13 +81,19 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   }
 
   return (
-    <motion.div
-      className="w-[84px] h-[84px] rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-display text-2xl font-extrabold text-primary-foreground mx-auto mb-4"
-      whileHover={{ scale: 1.15, rotate: 5 }}
-      transition={{ type: 'spring', stiffness: 300 }}
+    <div
+      style={{
+        width: 72, height: 72, borderRadius: '50%',
+        background: 'hsl(243, 75%, 92%)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '1.1rem',
+        color: 'hsl(243, 75%, 45%)',
+        margin: '0 auto 1rem',
+        border: '1.5px solid hsl(243, 75%, 85%)',
+      }}
     >
       {initials}
-    </motion.div>
+    </div>
   );
 }
 
@@ -161,142 +167,171 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
   });
 
   return (
-    <section id="team" className="relative z-[1] max-w-[1200px] mx-auto px-6 md:px-12 py-24">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-80px' }}
-        transition={{ duration: 0.6 }}
-      >
-        <p className="section-label">03 — Team</p>
-        <h2 className="font-display font-extrabold text-foreground mb-12" style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}>
-          Meet the Team
+    <section
+      id="team"
+      style={{
+        background: 'hsl(228, 30%, 93%)',
+        borderTop: '1px solid hsl(228, 20%, 80%)',
+      }}
+    >
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '5rem 2rem' }}>
+        <h2
+          style={{
+            fontFamily: 'Playfair Display, Georgia, serif',
+            fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+            fontWeight: 700,
+            letterSpacing: '-0.025em',
+            color: 'hsl(230, 25%, 10%)',
+            marginBottom: '0.6rem',
+          }}
+        >
+          The team
         </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '1rem',
+            color: 'hsl(230, 15%, 45%)',
+            marginBottom: '2.5rem',
+          }}
+        >
+          Students who keep the Wednesday sessions running.
+        </p>
 
-        {/* Search Bar */}
+        {/* Search + Filters for full page */}
         {!isHomepage && (
-          <div className="relative w-full max-w-md mb-8">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-muted-foreground">
-              <Search size={16} className="text-primary/60" />
-            </span>
-            <input
-              type="text"
-              placeholder="Search team members by name, role..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-secondary/80 border border-border rounded-xl pl-10 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 transition-colors"
-            />
-            {searchQuery && (
-              <button onClick={() => setSearchQuery('')} className="absolute inset-y-0 right-0 flex items-center pr-3 text-xs text-muted-foreground hover:text-foreground">Clear</button>
-            )}
-          </div>
-        )}
-
-        {/* Role Filters */}
-        {!isHomepage && (
-          <div className="flex flex-wrap gap-2 mb-10">
-            {[
-              { id: 'all', label: 'All Members' },
-              { id: 'convenor', label: 'Convenors' },
-              { id: 'core', label: 'Core Team' },
-              { id: 'extended', label: 'Extended Core' },
-              { id: 'member', label: 'General Members' }
-            ].map((pill) => (
-              <button
-                key={pill.id}
-                onClick={() => setRoleFilter(pill.id)}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                  roleFilter === pill.id
-                    ? 'bg-primary/20 text-primary border-primary/45 shadow-[0_0_15px_rgba(37,99,235,0.15)]'
-                    : 'bg-secondary/50 text-muted-foreground border-border hover:bg-secondary hover:text-foreground'
-                }`}
-              >
-                {pill.label}
-              </button>
-            ))}
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
+            <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: 340 }}>
+              <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'hsl(230,15%,50%)' }} />
+              <input
+                type="text"
+                placeholder="Search by name or role..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  width: '100%', paddingLeft: 32, paddingRight: 12, paddingTop: 8, paddingBottom: 8,
+                  fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
+                  border: '1px solid hsl(228, 20%, 76%)', borderRadius: 2,
+                  background: 'white', outline: 'none', color: 'hsl(230,25%,12%)',
+                  boxSizing: 'border-box' as const,
+                }}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+              {[
+                { id: 'all', label: 'All' },
+                { id: 'convenor', label: 'Leadership' },
+                { id: 'core', label: 'Core' },
+                { id: 'extended', label: 'Extended Core' },
+                { id: 'member', label: 'Members' },
+              ].map((pill) => (
+                <button
+                  key={pill.id}
+                  onClick={() => setRoleFilter(pill.id)}
+                  style={{
+                    padding: '6px 14px',
+                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem',
+                    border: '1px solid',
+                    borderColor: roleFilter === pill.id ? 'hsl(243,75%,59%)' : 'hsl(228,20%,76%)',
+                    borderRadius: 2,
+                    background: roleFilter === pill.id ? 'hsl(243,75%,59%)' : 'transparent',
+                    color: roleFilter === pill.id ? 'white' : 'hsl(230,15%,40%)',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {pill.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {loading ? (
-          <div className="text-center text-muted-foreground text-sm py-12">Loading team...</div>
+          <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>Loading team...</p>
         ) : filteredMembers.length === 0 ? (
-          <div className="text-center text-muted-foreground text-sm py-12">No team members found.</div>
+          <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>No members found.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {filteredMembers.map((m, i) => (
-              <motion.div
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+              gap: '1px',
+              background: 'hsl(228,20%,78%)',
+            }}
+          >
+            {filteredMembers.map((m) => (
+              <div
                 key={m.id}
-                custom={i}
-                variants={cardVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-40px' }}
-                whileHover={{ y: -8, transition: { duration: 0.25 } }}
-                className="glass-card relative overflow-hidden p-6 text-center group cursor-pointer flex flex-col items-center"
+                style={{
+                  padding: '1.5rem 1rem',
+                  background: 'hsl(228,30%,93%)',
+                  textAlign: 'center',
+                  transition: 'background 0.15s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                }}
+                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'white'}
+                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)'}
               >
-                {/* Top gradient bar on hover */}
-                <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                {/* Avatar — photo or initials */}
                 <MemberAvatar name={m.name} photo={m.photo || ''} />
-
-                {/* Name */}
-                <h4 className="font-display font-bold text-sm text-foreground leading-tight">{m.name}</h4>
-
-                {/* Role badge */}
+                <h4
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    color: 'hsl(230, 25%, 12%)',
+                    marginBottom: '0.35rem',
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {m.name}
+                </h4>
                 <RoleBadge role={m.role} />
-
-                {/* Social links */}
-                <div className="flex items-center justify-center gap-3 mt-2">
+                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: '0.6rem' }}>
                   {m.github && (
-                    <a
-                      href={m.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-foreground transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label="GitHub"
+                    <a href={m.github} target="_blank" rel="noopener noreferrer"
+                      style={{ color: 'hsl(230,15%,50%)', transition: 'color 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,25%,12%)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,15%,50%)'}
                     >
                       <GitHubIcon />
                     </a>
                   )}
                   {m.linkedin && (
-                    <a
-                      href={m.linkedin}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-muted-foreground hover:text-primary transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label="LinkedIn"
+                    <a href={m.linkedin} target="_blank" rel="noopener noreferrer"
+                      style={{ color: 'hsl(230,15%,50%)', transition: 'color 0.15s' }}
+                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'hsl(243,75%,59%)'}
+                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,15%,50%)'}
                     >
                       <LinkedInIcon />
                     </a>
                   )}
                 </div>
-
-                {/* Description */}
-                {m.description && (
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed line-clamp-3">
-                    {m.description}
-                  </p>
-                )}
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
 
-        {/* View All Team CTA on Homepage */}
+        {/* CTA */}
         {isHomepage && (
-          <div className="flex justify-center mt-12">
+          <div style={{ marginTop: '2.5rem' }}>
             <Link
               to="/team"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.25)] hover:scale-105 duration-300"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem',
+                color: 'hsl(243, 75%, 59%)', textDecoration: 'none', letterSpacing: '0.02em',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
             >
-              Meet the Full Team <ArrowRight size={16} />
+              Meet the full team <ArrowRight size={13} />
             </Link>
           </div>
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }

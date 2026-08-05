@@ -1,49 +1,192 @@
-import { motion } from 'framer-motion';
-import { BookOpen, Cpu, Layers, Network } from 'lucide-react';
-
 const resources = [
-  { icon: <BookOpen size={20} />, title: 'Python & Data Science foundations', sub: 'Learn NumPy, Pandas, Matplotlib, and EDA basics.', color: 'bg-blue-500/10 text-blue-400 border border-blue-500/20' },
-  { icon: <Layers size={20} />, title: 'Machine Learning & Deep Learning', sub: 'From regression fundamentals to PyTorch training loops.', color: 'bg-violet-500/10 text-violet-400 border border-violet-500/20' },
-  { icon: <Cpu size={20} />, title: 'Computer Vision & NLP Pipelines', sub: 'Build object detection (YOLO), OpenCV apps, and BERT classification.', color: 'bg-pink-500/10 text-pink-400 border border-pink-500/20' },
-  { icon: <Network size={20} />, title: 'Generative AI & LLM Systems', sub: 'Explore prompt engineering, RAG pipelines, and agentic workflows.', color: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' },
+  {
+    group: 'START HERE',
+    items: [
+      {
+        title: '3Blue1Brown — Neural Networks',
+        description: 'Four videos that make backpropagation visual before it becomes algebraic.',
+        type: 'VIDEO',
+        href: 'https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi',
+      },
+      {
+        title: 'Neural Networks: Zero to Hero',
+        description: 'Karpathy builds autograd, then a language model, from an empty file. Our language track follows this.',
+        type: 'COURSE',
+        href: 'https://karpathy.ai/zero-to-hero.html',
+      },
+      {
+        title: 'Practical Deep Learning — fast.ai',
+        description: 'Top-down: you train a working model in lesson one and learn why it worked in lesson six.',
+        type: 'COURSE',
+        href: 'https://course.fast.ai/',
+      },
+      {
+        title: 'Deep Learning — Goodfellow, Bengio, Courville',
+        description: 'The reference. Chapters 2–4 are the maths prerequisite for everything on this page.',
+        type: 'BOOK',
+        href: 'https://www.deeplearningbook.org/',
+      },
+    ],
+  },
+  {
+    group: 'GOING DEEPER',
+    items: [
+      {
+        title: 'Attention Is All You Need',
+        description: 'The transformer paper. Read it after watching the 3b1b attention video.',
+        type: 'PAPER',
+        href: 'https://arxiv.org/abs/1706.03762',
+      },
+      {
+        title: 'CS231n — Convolutional Neural Networks',
+        description: 'Stanford lecture notes. Best written source for vision fundamentals.',
+        type: 'COURSE',
+        href: 'http://cs231n.stanford.edu/',
+      },
+      {
+        title: 'Hugging Face Course',
+        description: 'Transformers, tokenizers, and datasets. Practical and free.',
+        type: 'COURSE',
+        href: 'https://huggingface.co/learn',
+      },
+    ],
+  },
 ];
+
+const typeColors: Record<string, string> = {
+  VIDEO: 'hsl(243, 75%, 59%)',
+  COURSE: 'hsl(243, 75%, 59%)',
+  BOOK: 'hsl(243, 75%, 59%)',
+  PAPER: 'hsl(330, 45%, 50%)',
+};
 
 export default function Resources() {
   return (
-    <section id="resources" className="relative z-[1] max-w-[1200px] mx-auto px-6 md:px-12 py-24">
-      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
-        <p className="section-label">05 — Resources</p>
-        <h2 className="font-display font-extrabold text-foreground mb-12" style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}>
-          Learning Resources
+    <section
+      id="resources"
+      style={{
+        background: 'hsl(228, 28%, 90%)',
+        borderTop: '1px solid hsl(228, 20%, 80%)',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1280,
+          margin: '0 auto',
+          padding: '5rem 2rem',
+        }}
+      >
+        {/* Title */}
+        <h2
+          style={{
+            fontFamily: 'Playfair Display, Georgia, serif',
+            fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+            fontWeight: 700,
+            letterSpacing: '-0.025em',
+            color: 'hsl(230, 25%, 10%)',
+            marginBottom: '0.6rem',
+          }}
+        >
+          Resources
         </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: '1rem',
+            color: 'hsl(230, 15%, 45%)',
+            marginBottom: '2.5rem',
+          }}
+        >
+          The list we actually send people, in the order we send it. Everything here is free.
+        </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {resources.map((r, i) => (
-            <motion.a
-              key={r.title}
-              href="#roadmap"
-              className="glass-card relative overflow-hidden flex items-start gap-4 p-6 no-underline group"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ y: -6, transition: { duration: 0.25 } }}
+        {/* Resource groups */}
+        {resources.map((group) => (
+          <div key={group.group} style={{ marginBottom: '2.5rem' }}>
+            {/* Group label */}
+            <p
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.65rem',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'hsl(230, 15%, 50%)',
+                marginBottom: '0.5rem',
+              }}
             >
-              <motion.div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${r.color}`}
-                whileHover={{ rotate: 15, scale: 1.1 }}
-                transition={{ type: 'spring', stiffness: 300 }}
+              {group.group}
+            </p>
+
+            {/* Items */}
+            {group.items.map((item) => (
+              <a
+                key={item.title}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  justifyContent: 'space-between',
+                  gap: '1.5rem',
+                  padding: '1.1rem 0',
+                  borderTop: '1px solid hsl(228, 20%, 80%)',
+                  textDecoration: 'none',
+                  transition: 'background 0.15s ease',
+                  borderRadius: '2px',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.paddingLeft = '0.5rem';
+                  (e.currentTarget as HTMLElement).style.paddingRight = '0.5rem';
+                  (e.currentTarget as HTMLElement).style.background = 'hsl(228, 30%, 95%)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.paddingLeft = '0';
+                  (e.currentTarget as HTMLElement).style.paddingRight = '0';
+                  (e.currentTarget as HTMLElement).style.background = 'transparent';
+                }}
               >
-                {r.icon}
-              </motion.div>
-              <div>
-                <h4 className="font-display font-semibold text-sm text-foreground group-hover:text-primary transition-colors duration-300">{r.title}</h4>
-                <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">{r.sub}</p>
-              </div>
-            </motion.a>
-          ))}
-        </div>
-      </motion.div>
+                <div>
+                  <p
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '0.95rem',
+                      fontWeight: 600,
+                      color: 'hsl(230, 25%, 12%)',
+                      marginBottom: '3px',
+                    }}
+                  >
+                    {item.title}
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '0.85rem',
+                      color: 'hsl(230, 15%, 42%)',
+                      lineHeight: 1.55,
+                    }}
+                  >
+                    {item.description}
+                  </p>
+                </div>
+                <span
+                  style={{
+                    fontFamily: 'JetBrains Mono, monospace',
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: typeColors[item.type] || 'hsl(243, 75%, 59%)',
+                    flexShrink: 0,
+                    paddingTop: '2px',
+                  }}
+                >
+                  {item.type}
+                </span>
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
     </section>
   );
 }

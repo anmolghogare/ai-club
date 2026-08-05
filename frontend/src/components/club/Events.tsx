@@ -455,13 +455,213 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
            (ev.speaker && ev.speaker.toLowerCase().includes(q));
   });
 
+  // ── Homepage: calendar list style ──────────────────────────────
+  if (isHomepage) {
+    return (
+      <section
+        id="events"
+        style={{
+          background: 'hsl(228, 28%, 91%)',
+          borderTop: '1px solid hsl(228, 20%, 80%)',
+        }}
+      >
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '5rem 2rem' }}>
+          {/* Title */}
+          <h2
+            style={{
+              fontFamily: 'Playfair Display, Georgia, serif',
+              fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+              fontWeight: 700,
+              letterSpacing: '-0.025em',
+              color: 'hsl(230, 25%, 10%)',
+              marginBottom: '0.6rem',
+            }}
+          >
+            Calendar
+          </h2>
+          <p
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '1rem',
+              color: 'hsl(230, 15%, 45%)',
+              marginBottom: '2.5rem',
+            }}
+          >
+            Sessions are open to every DA-IICT student. Walk in; nothing is ticketed.
+          </p>
+
+          {/* Event list */}
+          <div>
+            {loadingEvents ? (
+              <p style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem', color: 'hsl(230, 15%, 50%)' }}>Loading events...</p>
+            ) : displayedUpcomingEvents.length === 0 ? (
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.9rem', color: 'hsl(230, 15%, 50%)', padding: '2rem 0', borderTop: '1px solid hsl(228, 20%, 80%)' }}>
+                No upcoming events at the moment. Check back soon.
+              </p>
+            ) : (
+              displayedUpcomingEvents.map((ev) => {
+                const dateObj = new Date(ev.event_start_date || ev.event_date);
+                const day = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+                const date = dateObj.getDate();
+                return (
+                  <div
+                    key={ev.id}
+                    style={{
+                      display: 'flex',
+                      gap: '2rem',
+                      padding: '1.5rem 0',
+                      borderTop: '1px solid hsl(228, 20%, 80%)',
+                      alignItems: 'flex-start',
+                    }}
+                  >
+                    {/* Date column */}
+                    <div style={{ minWidth: 70, flexShrink: 0 }}>
+                      <p
+                        style={{
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: '0.65rem',
+                          letterSpacing: '0.1em',
+                          color: 'hsl(230, 15%, 50%)',
+                          marginBottom: 2,
+                          textTransform: 'uppercase',
+                        }}
+                      >
+                        {day}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'Playfair Display, Georgia, serif',
+                          fontSize: '1.15rem',
+                          fontWeight: 700,
+                          color: 'hsl(243, 75%, 59%)',
+                          lineHeight: 1.1,
+                        }}
+                      >
+                        {month} {date}
+                      </p>
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ flex: 1 }}>
+                      <h3
+                        style={{
+                          fontFamily: 'Playfair Display, Georgia, serif',
+                          fontSize: '1.1rem',
+                          fontWeight: 700,
+                          color: 'hsl(230, 25%, 12%)',
+                          marginBottom: '0.35rem',
+                          letterSpacing: '-0.01em',
+                        }}
+                      >
+                        {ev.title}
+                      </h3>
+                      <p
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: '0.88rem',
+                          color: 'hsl(230, 15%, 40%)',
+                          lineHeight: 1.6,
+                          marginBottom: '0.75rem',
+                          maxWidth: 600,
+                        }}
+                      >
+                        {ev.description}
+                      </p>
+                      <p
+                        style={{
+                          fontFamily: 'JetBrains Mono, monospace',
+                          fontSize: '0.75rem',
+                          color: 'hsl(230, 15%, 48%)',
+                        }}
+                      >
+                        {ev.venue} · {ev.start_time} ·{' '}
+                        <span style={{ textTransform: 'capitalize' }}>{ev.event_type}</span>
+                        {ev.status === 'registration_open' && (
+                          <span style={{ color: 'hsl(243, 75%, 59%)', marginLeft: 8 }}>· Open for registration</span>
+                        )}
+                      </p>
+
+                      {/* Register button */}
+                      {ev.status === 'registration_open' && (
+                        registeredEventIds.includes(ev.id) ? (
+                          <span style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', padding: '4px 12px', border: '1px solid hsl(243,75%,80%)', borderRadius: 2 }}>
+                            Registered ✓
+                          </span>
+                        ) : ev.registration_link ? (
+                          <a
+                            href={ev.registration_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, textDecoration: 'none', border: '1px solid hsl(230,25%,12%)' }}
+                          >
+                            Register now
+                          </a>
+                        ) : (
+                          <button
+                            onClick={() => setSelectedEvent(ev)}
+                            style={{ display: 'inline-block', marginTop: 10, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(228,30%,93%)', background: 'hsl(230,25%,12%)', padding: '5px 14px', borderRadius: 2, border: '1px solid hsl(230,25%,12%)', cursor: 'pointer' }}
+                          >
+                            Register now
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+
+            {/* Footnote */}
+            <p
+              style={{
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: '0.72rem',
+                color: 'hsl(230, 15%, 55%)',
+                marginTop: '1.5rem',
+                borderTop: '1px solid hsl(228, 20%, 80%)',
+                paddingTop: '1rem',
+              }}
+            >
+              Dates shift occasionally around institute schedules — check the Discord for updates.
+            </p>
+          </div>
+
+          {/* View all CTA */}
+          <div style={{ marginTop: '2.5rem' }}>
+            <Link
+              to="/events"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem',
+                color: 'hsl(243, 75%, 59%)', textDecoration: 'none', letterSpacing: '0.02em',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+            >
+              View all events &amp; archive <ArrowRight size={13} />
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Full page: original detailed view ────────────────────────────
   return (
-    <section id="events" className="relative z-[1] max-w-[1200px] mx-auto px-6 md:px-12 py-24">
-      <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ duration: 0.6 }}>
-        <p className="section-label">01 — Events</p>
-        <h2 className="font-display font-extrabold text-foreground mb-12" style={{ fontSize: 'clamp(28px, 4vw, 44px)' }}>
+    <section id="events" style={{ background: 'hsl(228, 30%, 93%)', minHeight: '80vh' }}>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '4rem 2rem' }}>
+        <h1
+          style={{
+            fontFamily: 'Playfair Display, Georgia, serif',
+            fontSize: 'clamp(2rem, 4vw, 3.5rem)',
+            fontWeight: 700, letterSpacing: '-0.025em',
+            color: 'hsl(230, 25%, 10%)', marginBottom: '2rem',
+          }}
+        >
           Events &amp; Workshops
-        </h2>
+        </h1>
+        <div>
 
         {/* Highlight banner */}
         {featured && (
@@ -654,17 +854,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           </div>
         )}
 
-        {/* View All Events CTA on Homepage */}
-        {isHomepage && (
-          <div className="flex justify-center mt-12">
-            <Link
-              to="/events"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/95 transition-all shadow-[0_0_20px_rgba(37,99,235,0.25)] hover:scale-105 duration-300"
-            >
-              View Events Archive &amp; Workshops <ArrowRight size={16} />
-            </Link>
-          </div>
-        )}
+        {/* placeholder - homepage handled above */}
 
         {/* ── Past Events Section ──────────────────────────────────────── */}
         {!isHomepage && (
@@ -1065,6 +1255,8 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           </div>
         )}
       </AnimatePresence>
+      </div>
+      </div>
     </section>
   );
 }
