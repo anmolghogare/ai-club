@@ -30,6 +30,16 @@ const Loader = () => (
   </div>
 );
 
+import { useLocation } from "react-router-dom";
+
+const HeaderNavbar = () => {
+  const location = useLocation();
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+  return <Navbar />;
+};
+
 const App = () => (
   <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
     <QueryClientProvider client={queryClient}>
@@ -39,7 +49,7 @@ const App = () => (
         <BrowserRouter>
           <BackgroundCanvas />
           <ScrollToTop />
-          <Navbar />
+          <HeaderNavbar />
           <Routes>
             {/* ── Public routes — no login required ── */}
             <Route path="/" element={<Index />} />

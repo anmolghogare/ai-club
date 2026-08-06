@@ -106,7 +106,7 @@ export default function Hero() {
               maxWidth: 800,
             }}
           >
-            We meet on Wednesdays to read the paper nobody assigned.
+            We meet to read the paper nobody assigned.
           </h1>
 
           {/* Subtitle */}

@@ -1426,24 +1426,24 @@ const Admin = () => {
 
   return (
     <>
-      <div className="min-h-screen relative z-[1] bg-[#090d16]/30 flex flex-col md:flex-row">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row">
         {/* Left Sidebar Navigation */}
-        <aside className="w-full md:w-64 shrink-0 bg-[#0c1222]/80 backdrop-blur-xl border-b md:border-b-0 md:border-r border-border md:sticky md:top-0 md:h-screen flex flex-col justify-between p-6">
+        <aside className="w-full md:w-64 shrink-0 bg-slate-900 text-slate-100 border-b md:border-b-0 md:border-r border-slate-800 md:sticky md:top-0 md:h-screen flex flex-col justify-between p-6">
           <div className="space-y-6">
             {/* Header / Logo */}
-            <div className="flex items-center gap-3 py-2 border-b border-border/55">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-display font-extrabold text-primary-foreground shadow-[0_0_15px_rgba(37,99,235,0.4)] select-none">
+            <div className="flex items-center gap-3 py-2 border-b border-slate-800">
+              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center font-display font-extrabold text-white shadow-md select-none">
                 AI
               </div>
               <div>
-                <h1 className="font-display font-extrabold text-foreground text-sm tracking-wide leading-none uppercase">Club Console</h1>
-                <span className="text-[9px] text-primary/80 font-mono tracking-widest uppercase">Admin Panel</span>
+                <h1 className="font-display font-extrabold text-white text-sm tracking-wide leading-none uppercase">Club Console</h1>
+                <span className="text-[10px] text-indigo-400 font-mono tracking-widest uppercase">Admin Panel</span>
               </div>
             </div>
 
             {/* Profile Info */}
-            <div className="flex items-center gap-3 bg-secondary/35 p-3 rounded-xl border border-border/55">
-              <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center font-display text-sm font-extrabold text-primary border border-primary/20 overflow-hidden">
+            <div className="flex items-center gap-3 bg-slate-800/90 p-3 rounded-xl border border-slate-700/80">
+              <div className="w-9 h-9 rounded-full bg-indigo-600/30 flex items-center justify-center font-display text-sm font-bold text-indigo-300 border border-indigo-500/30 overflow-hidden shrink-0">
                 {authState.user?.picture ? (
                   <img src={authState.user.picture} alt={authState.user.name} className="w-full h-full object-cover" />
                 ) : (
@@ -1451,8 +1451,8 @@ const Admin = () => {
                 )}
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-foreground text-xs leading-none truncate">{authState.user?.name}</p>
-                <p className="text-[9px] text-muted-foreground truncate mt-1">{authState.user?.email}</p>
+                <p className="font-semibold text-white text-xs leading-none truncate">{authState.user?.name}</p>
+                <p className="text-[10px] text-slate-400 truncate mt-1">{authState.user?.email}</p>
               </div>
             </div>
 
@@ -1474,21 +1474,14 @@ const Admin = () => {
                   <button
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key as any)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 text-xs font-semibold rounded-lg transition-all duration-300 relative ${
+                    className={`w-full flex items-center gap-3 px-3.5 py-2.5 text-xs font-semibold rounded-lg transition-all duration-200 relative ${
                       isActive 
-                        ? 'text-foreground bg-primary/10 border border-primary/20 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent'
+                        ? 'text-white bg-indigo-600 shadow-sm' 
+                        : 'text-slate-400 hover:text-white hover:bg-slate-800/80'
                     }`}
                   >
-                    <span className={isActive ? 'text-primary' : 'text-muted-foreground'}>{tab.icon}</span>
+                    <span className={isActive ? 'text-white' : 'text-slate-400'}>{tab.icon}</span>
                     <span>{tab.label}</span>
-                    {isActive && (
-                      <motion.div
-                        layoutId="admin-sidebar-indicator"
-                        className="absolute right-2 w-1.5 h-1.5 rounded-full bg-primary"
-                        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                      />
-                    )}
                   </button>
                 );
               })}
@@ -1496,12 +1489,12 @@ const Admin = () => {
           </div>
 
           {/* Bottom Actions */}
-          <div className="pt-4 border-t border-border/55 space-y-2">
+          <div className="pt-4 border-t border-slate-800 space-y-2">
             <a 
               href="/"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-lg bg-secondary/50 border border-border hover:bg-secondary text-foreground transition-all duration-300"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition-colors border border-slate-700"
             >
-              <ChevronRight size={14} className="rotate-180 text-primary" />
+              <ChevronRight size={14} className="rotate-180 text-indigo-400" />
               <span>Back to Website</span>
             </a>
           </div>
@@ -1511,10 +1504,10 @@ const Admin = () => {
         <main className="flex-1 min-w-0 p-6 md:p-10 flex flex-col justify-between">
           <div className="max-w-[1200px] w-full">
             {/* Header bar */}
-            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-6">
+            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
               <div>
-                <p className="text-[10px] font-mono tracking-widest text-primary uppercase">Club Control Panel</p>
-                <h2 className="font-display font-extrabold text-foreground text-2xl md:text-3xl mt-1 tracking-tight">
+                <p className="text-[10px] font-mono tracking-widest text-indigo-600 uppercase font-bold">Club Control Panel</p>
+                <h2 className="font-display font-extrabold text-slate-900 text-2xl md:text-3xl mt-1 tracking-tight">
                   {activeTab === 'dashboard' && 'Dashboard Overview'}
                   {activeTab === 'registrations' && 'Registration Management'}
                   {activeTab === 'createEvent' && 'Launch New Event'}
@@ -1531,33 +1524,31 @@ const Admin = () => {
             {/* Metrics summary cards */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-8">
               {[
-                { label: 'Total Events', val: metrics?.total_events ?? '—', icon: <Calendar size={16} />, color: 'from-blue-600/10 to-blue-500/5', border: 'border-blue-500/20', iconColor: 'text-blue-400', glow: 'shadow-[0_0_15px_rgba(59,130,246,0.1)]', loading: loadingMetrics },
-                { label: 'Registrations', val: metrics?.total_registrations ?? '—', icon: <Users size={16} />, color: 'from-green-600/10 to-green-500/5', border: 'border-green-500/20', iconColor: 'text-green-400', glow: 'shadow-[0_0_15px_rgba(34,197,94,0.1)]', loading: loadingMetrics },
-                { label: 'Active Events', val: metrics?.active_events ?? '—', icon: <Award size={16} />, color: 'from-yellow-600/10 to-yellow-500/5', border: 'border-yellow-500/20', iconColor: 'text-yellow-400', glow: 'shadow-[0_0_15px_rgba(234,179,8,0.1)]', loading: loadingMetrics },
-                { label: 'Upcoming', val: metrics?.upcoming_events ?? '—', icon: <Clipboard size={16} />, color: 'from-pink-600/10 to-pink-500/5', border: 'border-pink-500/20', iconColor: 'text-pink-400', glow: 'shadow-[0_0_15px_rgba(236,72,153,0.1)]', loading: loadingMetrics },
-                { label: 'Past Events', val: supabaseCounts.pastEvents, icon: <Archive size={16} />, color: 'from-orange-600/10 to-orange-500/5', border: 'border-orange-500/20', iconColor: 'text-orange-400', glow: 'shadow-[0_0_15px_rgba(249,115,22,0.1)]', loading: false },
-                { label: 'Members', val: supabaseCounts.members, icon: <Users size={16} />, color: 'from-teal-600/10 to-teal-500/5', border: 'border-teal-500/20', iconColor: 'text-teal-400', glow: 'shadow-[0_0_15px_rgba(20,184,166,0.1)]', loading: false },
-                { label: 'Projects', val: supabaseCounts.projects, icon: <Settings size={16} />, color: 'from-purple-600/10 to-purple-500/5', border: 'border-purple-500/20', iconColor: 'text-purple-400', glow: 'shadow-[0_0_15px_rgba(168,85,247,0.1)]', loading: false },
+                { label: 'Total Events', val: metrics?.total_events ?? '—', icon: <Calendar size={16} />, iconColor: 'text-blue-600', loading: loadingMetrics },
+                { label: 'Registrations', val: metrics?.total_registrations ?? '—', icon: <Users size={16} />, iconColor: 'text-emerald-600', loading: loadingMetrics },
+                { label: 'Active Events', val: metrics?.active_events ?? '—', icon: <Award size={16} />, iconColor: 'text-amber-600', loading: loadingMetrics },
+                { label: 'Upcoming', val: metrics?.upcoming_events ?? '—', icon: <Clipboard size={16} />, iconColor: 'text-pink-600', loading: loadingMetrics },
+                { label: 'Past Events', val: supabaseCounts.pastEvents, icon: <Archive size={16} />, iconColor: 'text-orange-600', loading: false },
+                { label: 'Members', val: supabaseCounts.members, icon: <Users size={16} />, iconColor: 'text-teal-600', loading: false },
+                { label: 'Projects', val: supabaseCounts.projects, icon: <Settings size={16} />, iconColor: 'text-indigo-600', loading: false },
               ].map((card, i) => (
-                <motion.div 
+                <div 
                   key={i} 
-                  whileHover={{ y: -3, scale: 1.02 }}
-                  transition={{ duration: 0.2 }}
-                  className={`bg-gradient-to-br ${card.color} ${card.border} ${card.glow} p-4 rounded-xl border flex items-center justify-between gap-3 transition-all duration-300 relative overflow-hidden group ${card.loading ? 'animate-pulse' : ''}`}
+                  className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-3"
                 >
                   <div>
-                    <span className="text-[9px] text-muted-foreground tracking-wider uppercase font-mono block leading-none">{card.label}</span>
-                    <h3 className="font-display font-bold text-lg text-foreground mt-1.5 tracking-tight">{card.loading ? <span className="opacity-40">...</span> : card.val}</h3>
+                    <span className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase block">{card.label}</span>
+                    <h3 className="font-display font-bold text-xl text-slate-900 mt-1">{card.loading ? '...' : card.val}</h3>
                   </div>
-                  <div className={`p-2.5 rounded-lg bg-[#0f172a] ${card.iconColor} group-hover:scale-110 transition-transform duration-300 shrink-0`}>
+                  <div className={`p-2.5 rounded-lg bg-slate-100 ${card.iconColor} shrink-0`}>
                     {card.icon}
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
 
             {/* Content panel */}
-            <div className="glass-card p-6 md:p-8 rounded-2xl border border-border/60 bg-card/25 backdrop-blur-xl shadow-2xl">
+            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
               <AnimatePresence mode="wait">
                 {activeTab === 'dashboard' && (
                   <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
@@ -2282,53 +2273,53 @@ const Admin = () => {
               {activeTab === 'manageEvents' && (
                 <motion.div key="manageEvents" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold font-display text-foreground">Manage Events</h2>
-                    <button onClick={fetchEventsList} className="text-xs text-primary hover:underline">Refresh List</button>
+                    <h2 className="text-xl font-bold font-display text-slate-900">Manage Events</h2>
+                    <button onClick={fetchEventsList} className="text-xs text-indigo-600 font-semibold hover:underline">Refresh List</button>
                   </div>
 
                   {loadingEvents ? (
-                    <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" size={32} /></div>
+                    <div className="flex justify-center py-12"><Loader2 className="animate-spin text-indigo-600" size={32} /></div>
                   ) : events.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-12">No events found. You can create one in the "Create Event" tab.</p>
+                    <p className="text-slate-500 text-center py-12">No events found. You can create one in the "Create Event" tab.</p>
                   ) : (
-                    <div className="max-h-[500px] overflow-y-auto overflow-x-auto border border-border/30 rounded-xl bg-[#090d16]/40 shadow-inner custom-scrollbar">
+                    <div className="max-h-[500px] overflow-y-auto overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-sm custom-scrollbar">
                       <table className="w-full text-left border-collapse">
-                        <thead className="sticky top-0 bg-[#0c1222] z-10 border-b border-border/80 shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                          <tr className="text-muted-foreground text-xs uppercase tracking-wider">
-                            <th className="p-3.5 font-semibold">Event Title</th>
-                            <th className="p-3.5 font-semibold">Dates</th>
-                            <th className="p-3.5 font-semibold">Venue</th>
-                            <th className="p-3.5 font-semibold">Type</th>
-                            <th className="p-3.5 font-semibold">Category</th>
-                            <th className="p-3.5 font-semibold text-right">Actions</th>
+                        <thead className="sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
+                          <tr className="text-slate-700 text-xs uppercase tracking-wider font-semibold">
+                            <th className="p-3.5">Event Title</th>
+                            <th className="p-3.5">Dates</th>
+                            <th className="p-3.5">Venue</th>
+                            <th className="p-3.5">Type</th>
+                            <th className="p-3.5">Category</th>
+                            <th className="p-3.5 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="text-sm">
+                        <tbody className="text-sm divide-y divide-slate-100">
                           {events.map((ev: any) => (
-                            <tr key={ev.id} className="border-b border-border/50 hover:bg-white/5 transition-colors">
-                              <td className="p-3 font-medium text-foreground">{ev.title}</td>
-                              <td className="p-3 whitespace-nowrap text-muted-foreground text-xs">
+                            <tr key={ev.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-3.5 font-semibold text-slate-900">{ev.title}</td>
+                              <td className="p-3.5 whitespace-nowrap text-slate-600 text-xs">
                                 {ev.event_start_date && ev.event_end_date && ev.event_start_date !== ev.event_end_date
                                   ? `${ev.event_start_date} to ${ev.event_end_date}`
                                   : ev.event_start_date || ev.event_date}
                               </td>
-                              <td className="p-3 text-muted-foreground max-w-[150px] truncate" title={ev.venue}>{ev.venue || 'N/A'}</td>
-                              <td className="p-3 capitalize text-xs text-muted-foreground">{ev.event_type}</td>
-                              <td className="p-3"><span className="bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded text-xs uppercase">{ev.category}</span></td>
-                              <td className="p-3 text-right space-x-2">
+                              <td className="p-3.5 text-slate-600 max-w-[150px] truncate" title={ev.venue}>{ev.venue || 'N/A'}</td>
+                              <td className="p-3.5 capitalize text-xs text-slate-600">{ev.event_type}</td>
+                              <td className="p-3.5"><span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded text-xs font-semibold uppercase">{ev.category}</span></td>
+                              <td className="p-3.5 text-right space-x-2">
                                 <button
                                   onClick={() => handleStartEdit(ev)}
-                                  className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors inline-flex items-center"
+                                  className="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors inline-flex items-center"
                                   title="Edit Event"
                                 >
-                                  <Edit size={14} />
+                                  <Edit size={15} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteEvent(ev.id)}
-                                  className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors inline-flex items-center"
+                                  className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors inline-flex items-center"
                                   title="Delete Event"
                                 >
-                                  <Trash2 size={14} />
+                                  <Trash2 size={15} />
                                 </button>
                               </td>
                             </tr>
@@ -2344,7 +2335,7 @@ const Admin = () => {
               {activeTab === 'manageMembers' && (
                 <motion.div key="manageMembers" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-xl font-bold font-display text-foreground">Manage Members</h2>
+                    <h2 className="text-xl font-bold font-display text-slate-900">Manage Members</h2>
                     <button
                       onClick={() => {
                         setEditingMember(null);
@@ -2359,66 +2350,70 @@ const Admin = () => {
                         });
                         setIsMemberModalOpen(true);
                       }}
-                      className="px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/95 transition-colors"
+                      className="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
                     >
                       Add New Member
                     </button>
                   </div>
 
                   {loadingMembers ? (
-                    <div className="flex justify-center py-12"><Loader2 className="animate-spin text-primary" size={32} /></div>
+                    <div className="flex justify-center py-12"><Loader2 className="animate-spin text-indigo-600" size={32} /></div>
                   ) : adminMembers.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-12">No core members found. Click "Add New Member" to add one.</p>
+                    <p className="text-slate-500 text-center py-12">No core members found. Click "Add New Member" to add one.</p>
                   ) : (
-                    <div className="max-h-[500px] overflow-y-auto overflow-x-auto border border-border/30 rounded-xl bg-[#090d16]/40 shadow-inner custom-scrollbar">
+                    <div className="max-h-[500px] overflow-y-auto overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-sm custom-scrollbar">
                       <table className="w-full text-left border-collapse">
-                        <thead className="sticky top-0 bg-[#0c1222] z-10 border-b border-border/80 shadow-[0_1px_2px_rgba(0,0,0,0.3)]">
-                          <tr className="text-muted-foreground text-xs uppercase tracking-wider">
-                            <th className="p-3.5 font-semibold">Avatar</th>
-                            <th className="p-3.5 font-semibold">Name</th>
-                            <th className="p-3.5 font-semibold">Role</th>
-                            <th className="p-3.5 font-semibold">Links</th>
-                            <th className="p-3.5 font-semibold">Order</th>
-                            <th className="p-3.5 font-semibold text-right">Actions</th>
+                        <thead className="sticky top-0 bg-slate-100 z-10 border-b border-slate-200">
+                          <tr className="text-slate-700 text-xs uppercase tracking-wider font-semibold">
+                            <th className="p-3.5">Avatar</th>
+                            <th className="p-3.5">Name</th>
+                            <th className="p-3.5">Role</th>
+                            <th className="p-3.5">Links</th>
+                            <th className="p-3.5">Order</th>
+                            <th className="p-3.5 text-right">Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="text-sm">
+                        <tbody className="text-sm divide-y divide-slate-100">
                           {adminMembers.map((m: any) => (
-                            <tr key={m.id} className="border-b border-border/50 hover:bg-white/5 transition-colors">
-                              <td className="p-3">
+                            <tr key={m.id} className="hover:bg-slate-50 transition-colors">
+                              <td className="p-3.5">
                                 {m.photo ? (
-                                  <img src={m.photo} alt={m.name} className="w-8 h-8 rounded-full object-cover" />
+                                  <img src={m.photo} alt={m.name} className="w-8 h-8 rounded-full object-cover ring-1 ring-slate-200" />
                                 ) : (
-                                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center font-bold text-xs text-white">
-                                    {m.name.slice(0, 2).toUpperCase()}
+                                  <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                                    {(m.name || 'M').slice(0, 2).toUpperCase()}
                                   </div>
                                 )}
                               </td>
-                              <td className="p-3 font-medium text-foreground">{m.name}</td>
-                              <td className="p-3">
-                                <span className="bg-secondary text-foreground border border-border px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                              <td className="p-3.5 font-semibold text-slate-900">{m.name}</td>
+                              <td className="p-3.5">
+                                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full text-xs font-semibold">
                                   {m.role}
                                 </span>
                               </td>
-                              <td className="p-3 whitespace-nowrap text-muted-foreground text-xs">
-                                {m.github && <span className="mr-2">GitHub</span>}
-                                {m.linkedin && <span>LinkedIn</span>}
+                              <td className="p-3.5 whitespace-nowrap text-xs space-x-2">
+                                {m.github && (
+                                  <a href={m.github} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline font-semibold">GitHub</a>
+                                )}
+                                {m.linkedin && (
+                                  <a href={m.linkedin} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline font-semibold">LinkedIn</a>
+                                )}
                               </td>
-                              <td className="p-3 text-muted-foreground">{m.order_no}</td>
-                              <td className="p-3 text-right space-x-2">
+                              <td className="p-3.5 text-slate-600 font-mono text-xs">{m.order_no}</td>
+                              <td className="p-3.5 text-right space-x-2">
                                 <button
                                   onClick={() => openEditMember(m)}
-                                  className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors inline-flex items-center"
+                                  className="p-1.5 text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors inline-flex items-center"
                                   title="Edit Member"
                                 >
-                                  <Edit size={14} />
+                                  <Edit size={15} />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteMember(m.id)}
-                                  className="p-1.5 text-muted-foreground hover:text-destructive rounded-lg hover:bg-destructive/10 transition-colors inline-flex items-center"
+                                  className="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors inline-flex items-center"
                                   title="Delete Member"
                                 >
-                                  <Trash2 size={14} />
+                                  <Trash2 size={15} />
                                 </button>
                               </td>
                             </tr>
