@@ -278,30 +278,13 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
         ) : filteredMembers.length === 0 ? (
           <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>No members found.</p>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              borderTop: '1px solid hsl(228,20%,78%)',
-              borderLeft: '1px solid hsl(228,20%,78%)',
-            }}
-          >
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 py-4">
             {filteredMembers.map((m) => (
-              <div
+              <motion.div
                 key={m.id}
-                style={{
-                  padding: '1.5rem 1rem',
-                  background: 'hsl(228,30%,93%)',
-                  textAlign: 'center',
-                  transition: 'background 0.15s ease',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  borderRight: '1px solid hsl(228,20%,78%)',
-                  borderBottom: '1px solid hsl(228,20%,78%)',
-                }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'white'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)'}
+                whileHover={{ scale: 1.06, y: -6, zIndex: 20 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 22 }}
+                className="p-5 bg-white rounded-2xl border border-slate-200 shadow-2xs hover:shadow-xl hover:border-indigo-300 transition-shadow duration-300 flex flex-col items-center text-center relative group cursor-pointer"
               >
                 <MemberAvatar name={m.name} photo={m.photo || ''} />
                 <h4
@@ -337,7 +320,7 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
                     </a>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
