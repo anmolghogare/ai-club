@@ -293,15 +293,27 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
                   padding: '1.5rem 1rem',
                   background: 'hsl(228,30%,93%)',
                   textAlign: 'center',
-                  transition: 'background 0.15s ease',
+                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   borderRight: '1px solid hsl(228,20%,78%)',
                   borderBottom: '1px solid hsl(228,20%,78%)',
+                  position: 'relative',
+                  cursor: 'pointer',
                 }}
-                onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'white'}
-                onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)'}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.background = 'white';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px) scale(1.04)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 24px -6px rgba(99, 102, 241, 0.2)';
+                  (e.currentTarget as HTMLElement).style.zIndex = '10';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  (e.currentTarget as HTMLElement).style.zIndex = '1';
+                }}
               >
                 <MemberAvatar name={m.name} photo={m.photo || ''} />
                 <h4
