@@ -233,7 +233,7 @@ export default function Hero() {
                 <motion.div
                   key={item.title}
                   whileHover={{ y: -4, scale: 1.05 }}
-                  className="bg-indigo-50/70 border border-indigo-100 p-2.5 rounded-xl text-center cursor-pointer shadow-2xs"
+                  className="bg-indigo-50/70 border border-indigo-100 p-2.5 rounded-xl text-center cursor-pointer shadow-sm"
                 >
                   <p className="font-bold text-xs text-indigo-900">{item.title}</p>
                   <p className="text-[10px] text-indigo-600 font-mono mt-0.5">{item.desc}</p>
