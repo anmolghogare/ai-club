@@ -65,6 +65,10 @@ const LinkedInIcon = () => (
 );
 
 /** Renders a member's avatar — photo if available, initials otherwise */
+const MEMBER_PHOTO_OVERRIDES: Record<string, string> = {
+  'Anmol Ghogare': 'https://lh3.googleusercontent.com/d/1ff8W6U26StDc86Im77NNMcUd6jCLxCgx',
+};
+
 function getDirectImageUrl(url: string): string {
   if (!url) return '';
   const driveMatch = url.match(/(?:id=|\/d\/|src=)([a-zA-Z0-9_-]{25,})/);
@@ -76,7 +80,8 @@ function getDirectImageUrl(url: string): string {
 
 function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   const [imgError, setImgError] = useState(false);
-  const imageUrl = getDirectImageUrl(photo);
+  const rawPhoto = photo || MEMBER_PHOTO_OVERRIDES[name] || '';
+  const imageUrl = getDirectImageUrl(rawPhoto);
   const initials = name
     .split(' ')
     .map((n: string) => n[0])
