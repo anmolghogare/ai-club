@@ -80,7 +80,11 @@ function getDirectImageUrl(url: string): string {
 
 function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   const [imgError, setImgError] = useState(false);
-  const rawPhoto = photo || MEMBER_PHOTO_OVERRIDES[name] || '';
+  const normalizedName = (name || '').trim().toLowerCase();
+  const overridePhoto = Object.entries(MEMBER_PHOTO_OVERRIDES).find(
+    ([k]) => k.toLowerCase() === normalizedName
+  )?.[1];
+  const rawPhoto = photo || overridePhoto || '';
   const imageUrl = getDirectImageUrl(rawPhoto);
   const initials = name
     .split(' ')
