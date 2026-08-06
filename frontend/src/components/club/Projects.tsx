@@ -146,36 +146,33 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
           </p>
 
           {/* 2×2 grid */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '0',
-              border: '1.5px solid hsl(228, 20%, 75%)',
-            }}
-            className="grid-cols-1 sm:grid-cols-2"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 py-4">
             {trackList.length === 0 ? (
               <div style={{ padding: '2rem' }}>
                 <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>
                   No tracks available.
                 </p>
               </div>
-            ) : trackList.map((track, i) => (
+            ) : trackList.map((track) => (
               <div
                 key={track.title}
                 style={{
                   padding: '2rem',
-                  borderRight: i % 2 === 0 ? '1.5px solid hsl(228, 20%, 75%)' : 'none',
-                  borderBottom: i < 2 ? '1.5px solid hsl(228, 20%, 75%)' : 'none',
-                  background: 'hsl(228, 30%, 93%)',
-                  transition: 'background 0.2s ease',
+                  border: '1.5px solid hsl(228, 20%, 82%)',
+                  borderRadius: '20px',
+                  background: 'white',
+                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  cursor: 'pointer',
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'white';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px) scale(1.02)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 32px -8px rgba(99, 102, 241, 0.2)';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
                 }}
                 onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.background = 'hsl(228, 30%, 93%)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  (e.currentTarget as HTMLElement).style.borderColor = 'hsl(228, 20%, 82%)';
                 }}
               >
                 <h3

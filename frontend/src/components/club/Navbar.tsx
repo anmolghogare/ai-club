@@ -238,20 +238,49 @@ export default function Navbar() {
 
         {/* Desktop nav + Auth group */}
         <div className="hidden md:flex" style={{ alignItems: 'center', gap: '1.5rem' }}>
-          {/* Desktop nav links */}
-          <ul style={{ display: 'flex', alignItems: 'center', gap: 0, listStyle: 'none', margin: 0, padding: 0 }}>
+          {/* Desktop nav links with playful pop spring effects */}
+          <ul style={{ display: 'flex', alignItems: 'center', gap: '4px', listStyle: 'none', margin: 0, padding: 0 }}>
           {navItems.map((item) => {
             const active = isActive(item);
+            const badgeCount = item.label === 'Events' ? counts.events : item.label === 'Tracks' ? counts.projects : item.label === 'Team' ? counts.members : 0;
             return (
               <li key={item.label}>
                 <a
                   href={item.pagePath || item.href}
                   onClick={(e) => handleNavClick(e, item.pagePath || item.href)}
-                  style={linkStyle(active)}
-                  onMouseEnter={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 25%, 12%)'; }}
-                  onMouseLeave={(e) => { if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)'; }}
+                  style={{
+                    ...linkStyle(active),
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    borderRadius: '8px',
+                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px) scale(1.05)';
+                    if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(243, 75%, 59%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                    if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)';
+                  }}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {badgeCount > 0 && (
+                    <span
+                      style={{
+                        fontFamily: 'JetBrains Mono, monospace',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        padding: '1px 6px',
+                        borderRadius: '10px',
+                        background: active ? 'hsl(243, 75%, 59%)' : 'hsl(228, 20%, 82%)',
+                        color: active ? 'white' : 'hsl(230, 25%, 25%)',
+                      }}
+                    >
+                      {badgeCount}
+                    </span>
+                  )}
                 </a>
               </li>
             );

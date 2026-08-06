@@ -480,9 +480,24 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                     style={{
                       display: 'flex',
                       gap: '2rem',
-                      padding: '1.5rem 0',
-                      borderTop: '1px solid hsl(228, 20%, 80%)',
+                      padding: '1.5rem',
+                      borderRadius: '16px',
+                      background: 'white',
+                      border: '1px solid hsl(228, 20%, 84%)',
                       alignItems: 'flex-start',
+                      marginBottom: '1rem',
+                      transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={e => {
+                      (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px) scale(1.01)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 24px -6px rgba(99, 102, 241, 0.18)';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
+                    }}
+                    onMouseLeave={e => {
+                      (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                      (e.currentTarget as HTMLElement).style.borderColor = 'hsl(228, 20%, 84%)';
                     }}
                   >
                     {/* Date column */}

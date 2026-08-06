@@ -89,9 +89,10 @@ export default function Achievements() {
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ scale: 1.04, y: -6 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-card/50 backdrop-blur-md border border-border/50 rounded-2xl p-6 hover:border-primary/30 hover:bg-card/80 transition-all group"
+                transition={{ type: 'spring', stiffness: 350, damping: 22 }}
+                className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 hover:border-indigo-400 hover:shadow-xl transition-all cursor-pointer group"
               >
                 <div className="flex items-start gap-4">
                   <div className="p-3 bg-secondary/80 rounded-xl group-hover:scale-110 transition-transform">
