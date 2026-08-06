@@ -323,7 +323,7 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
         {loading ? (
           <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem', padding: '2rem 0' }}>Loading projects...</p>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1px', background: 'hsl(228,20%,75%)' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
             {filtered.map((p) => {
               const { tagClass, label } = getPrimaryTag(p.tags);
               const gitLink = (p as any).github_link || p.githubLink || '';
@@ -332,11 +332,22 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
                   key={p.id}
                   style={{
                     padding: '1.75rem',
-                    background: 'hsl(228,30%,93%)',
-                    transition: 'background 0.15s ease',
+                    background: 'white',
+                    borderRadius: '16px',
+                    border: '1px solid hsl(228,20%,84%)',
+                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    cursor: 'pointer',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = 'white'}
-                  onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)'}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-5px) scale(1.02)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 24px -6px rgba(99, 102, 241, 0.18)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(228,20%,84%)';
+                  }}
                 >
                   <span className={`${tagClass}`} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     {label}

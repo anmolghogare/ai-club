@@ -28,17 +28,17 @@ const navItems = [
 ];
 
 const linkStyle = (active: boolean) => ({
-  display: 'block',
-  padding: '0 14px',
-  height: '56px',
-  lineHeight: '56px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '6px 12px',
   fontFamily: 'Inter, sans-serif',
   fontSize: '0.83rem',
   fontWeight: active ? 600 : 400,
   color: active ? 'hsl(243, 75%, 59%)' : 'hsl(230, 15%, 35%)',
   textDecoration: 'none',
-  borderBottom: active ? '2px solid hsl(243, 75%, 59%)' : '2px solid transparent',
-  transition: 'color 0.15s ease, border-color 0.15s ease',
+  borderRadius: '8px',
+  background: active ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+  transition: 'all 0.15s ease',
   whiteSpace: 'nowrap' as const,
 });
 
@@ -250,19 +250,21 @@ export default function Navbar() {
                   onClick={(e) => handleNavClick(e, item.pagePath || item.href)}
                   style={{
                     ...linkStyle(active),
-                    display: 'flex',
-                    alignItems: 'center',
                     gap: '6px',
-                    borderRadius: '8px',
-                    transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   }}
                   onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px) scale(1.05)';
-                    if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(243, 75%, 59%)';
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.color = 'hsl(243, 75%, 59%)';
+                      (e.currentTarget as HTMLElement).style.background = 'rgba(99, 102, 241, 0.05)';
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
-                    if (!active) (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)';
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                    if (!active) {
+                      (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 35%)';
+                      (e.currentTarget as HTMLElement).style.background = 'transparent';
+                    }
                   }}
                 >
                   <span>{item.label}</span>
@@ -272,10 +274,10 @@ export default function Navbar() {
                         fontFamily: 'JetBrains Mono, monospace',
                         fontSize: '0.65rem',
                         fontWeight: 700,
-                        padding: '1px 6px',
-                        borderRadius: '10px',
+                        padding: '2px 7px',
+                        borderRadius: '12px',
                         background: active ? 'hsl(243, 75%, 59%)' : 'hsl(228, 20%, 82%)',
-                        color: active ? 'white' : 'hsl(230, 25%, 25%)',
+                        color: active ? 'white' : 'hsl(230, 25%, 30%)',
                       }}
                     >
                       {badgeCount}
