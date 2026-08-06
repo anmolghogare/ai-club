@@ -65,16 +65,27 @@ const LinkedInIcon = () => (
 );
 
 /** Renders a member's avatar — photo if available, initials otherwise */
+function getDirectImageUrl(url: string): string {
+  if (!url) return '';
+  const driveMatch = url.match(/(?:id=|\/d\/|src=)([a-zA-Z0-9_-]{25,})/);
+  if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com') || url.includes('googleusercontent.com'))) {
+    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+  }
+  return url;
+}
+
 function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   const [imgError, setImgError] = useState(false);
+  const imageUrl = getDirectImageUrl(photo);
   const initials = name
     .split(' ')
     .map((n: string) => n[0])
+    .filter(Boolean)
     .join('')
     .slice(0, 2)
     .toUpperCase();
 
-  if (photo && !imgError) {
+  if (imageUrl && !imgError) {
     return (
       <motion.div
         className="w-[84px] h-[84px] rounded-full mx-auto mb-4 overflow-hidden ring-2 ring-primary/30 ring-offset-2 ring-offset-card"
@@ -82,7 +93,7 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
         transition={{ type: 'spring', stiffness: 300 }}
       >
         <img
-          src={photo}
+          src={imageUrl}
           alt={name}
           className="w-full h-full object-cover object-top"
           onError={() => setImgError(true)}
