@@ -69,23 +69,33 @@ const MEMBER_PHOTO_OVERRIDES: Record<string, string> = {
   'Anmol Ghogare': 'https://lh3.googleusercontent.com/d/1ff8W6U26StDc86Im77NNMcUd6jCLxCgx',
 };
 
-function getDirectImageUrl(url: string): string {
-  if (!url) return '';
+function getDriveUrls(url: string): string[] {
+  if (!url) return [];
   const driveMatch = url.match(/(?:id=|\/d\/|src=)([a-zA-Z0-9_-]{25,})/);
-  if (driveMatch && (url.includes('drive.google.com') || url.includes('docs.google.com') || url.includes('googleusercontent.com'))) {
-    return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+  if (driveMatch) {
+    const id = driveMatch[1];
+    return [
+      `https://lh3.googleusercontent.com/d/${id}`,
+      `https://drive.google.com/thumbnail?id=${id}&sz=w800`,
+      `https://drive.google.com/uc?export=view&id=${id}`,
+    ];
   }
-  return url;
+  return [url];
 }
 
 function MemberAvatar({ name, photo }: { name: string; photo: string }) {
-  const [imgError, setImgError] = useState(false);
+  const [urlIndex, setUrlIndex] = useState(0);
   const normalizedName = (name || '').trim().toLowerCase();
-  const overridePhoto = Object.entries(MEMBER_PHOTO_OVERRIDES).find(
-    ([k]) => k.toLowerCase() === normalizedName
-  )?.[1];
+  
+  const isAnmol = normalizedName.includes('anmol') || normalizedName.includes('ghogare');
+  const overridePhoto = isAnmol
+    ? 'https://lh3.googleusercontent.com/d/1ff8W6U26StDc86Im77NNMcUd6jCLxCgx'
+    : Object.entries(MEMBER_PHOTO_OVERRIDES).find(([k]) => k.toLowerCase() === normalizedName)?.[1];
+    
   const rawPhoto = photo || overridePhoto || '';
-  const imageUrl = getDirectImageUrl(rawPhoto);
+  const urls = getDriveUrls(rawPhoto);
+  const currentUrl = urls[urlIndex] || '';
+
   const initials = name
     .split(' ')
     .map((n: string) => n[0])
@@ -94,7 +104,7 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
     .slice(0, 2)
     .toUpperCase();
 
-  if (imageUrl && !imgError) {
+  if (currentUrl && urlIndex < urls.length) {
     return (
       <motion.div
         className="w-[84px] h-[84px] rounded-full mx-auto mb-4 overflow-hidden ring-2 ring-primary/30 ring-offset-2 ring-offset-card"
@@ -102,10 +112,10 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
         transition={{ type: 'spring', stiffness: 300 }}
       >
         <img
-          src={imageUrl}
+          src={currentUrl}
           alt={name}
           className="w-full h-full object-cover object-top"
-          onError={() => setImgError(true)}
+          onError={() => setUrlIndex((prev) => prev + 1)}
           referrerPolicy="no-referrer"
         />
       </motion.div>
