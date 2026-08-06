@@ -245,7 +245,12 @@ const Admin = () => {
   // Auth uses HttpOnly cookie set by the backend — credentials:'include' handles it automatically.
   // getAuthHeaders only carries content-type or other non-auth headers.
   const getAuthHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
-    return { ...extra };
+    const token = localStorage.getItem('access_token');
+    const headers: Record<string, string> = { ...extra };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    return headers;
   };
 
   const fetchAchievementsList = async () => {
@@ -433,6 +438,9 @@ const Admin = () => {
       if (syncRes.ok) {
         const syncData = await syncRes.json();
         if (syncData.status === 'success' && syncData.user) {
+          if (syncData.access_token) {
+            localStorage.setItem('access_token', syncData.access_token);
+          }
           const isAdmin = !!syncData.user.is_admin;
           setAuthState({
             isLoading: false,
@@ -831,21 +839,28 @@ const Admin = () => {
   const fetchAdminMembers = async () => {
     setLoadingMembers(true);
     try {
-      const { data, error } = await supabase
-        .from('club_members')
-        .select('*');
-      if (error) {
-        showToast('Failed to fetch members list: ' + error.message, 'error');
-      } else {
-        // Sort by role hierarchy automatically
-        const sorted = [...(data || [])].sort((a, b) => {
-          const rA = MEMBER_ROLE_ORDER[a.role] ?? 99;
-          const rB = MEMBER_ROLE_ORDER[b.role] ?? 99;
-          if (rA !== rB) return rA - rB;
-          return a.name.localeCompare(b.name);
-        });
-        setAdminMembers(sorted);
+      let membersData: any[] = [];
+      try {
+        const res = await fetch(getApiUrl('/api/members'));
+        if (res.ok) {
+          membersData = await res.json();
+        }
+      } catch (_) {}
+
+      if (!membersData || membersData.length === 0) {
+        const { data, error } = await supabase
+          .from('club_members')
+          .select('*');
+        if (data) membersData = data;
       }
+
+      const sorted = [...(membersData || [])].sort((a, b) => {
+        const rA = MEMBER_ROLE_ORDER[a.role] ?? 99;
+        const rB = MEMBER_ROLE_ORDER[b.role] ?? 99;
+        if (rA !== rB) return rA - rB;
+        return (a.name || '').localeCompare(b.name || '');
+      });
+      setAdminMembers(sorted);
     } catch (e: any) {
       console.error(e);
       showToast('Error loading members: ' + e.message, 'error');
@@ -859,23 +874,21 @@ const Admin = () => {
     setIsSubmitting(true);
     try {
       const isEdit = !!editingMember;
-      
-      let error;
-      if (isEdit) {
-        const { error: err } = await supabase
-          .from('club_members')
-          .update(memberForm)
-          .eq('id', editingMember.id);
-        error = err;
-      } else {
-        const { error: err } = await supabase
-          .from('club_members')
-          .insert([memberForm]);
-        error = err;
-      }
+      const url = isEdit
+        ? getApiUrl(`/api/members/admin/${editingMember.id}`)
+        : getApiUrl('/api/members/admin');
+      const method = isEdit ? 'PUT' : 'POST';
 
-      if (error) {
-        throw new Error(error.message);
+      const res = await fetch(url, {
+        method,
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(memberForm),
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Failed to save member');
       }
 
       showToast(isEdit ? 'Member updated successfully!' : 'Member added successfully!', 'success');
@@ -918,15 +931,17 @@ const Admin = () => {
       'Are you sure you want to delete this member? Their project mappings will not be deleted but they will no longer display in the team list.',
       async () => {
         try {
-          const { error } = await supabase
-            .from('club_members')
-            .delete()
-            .eq('id', memberId);
-          if (!error) {
+          const res = await fetch(getApiUrl(`/api/members/admin/${memberId}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include',
+          });
+          if (res.ok) {
             showToast('Member deleted successfully.', 'success');
             fetchAdminMembers();
           } else {
-            showToast('Deletion failed: ' + error.message, 'error');
+            const errData = await res.json().catch(() => ({}));
+            showToast('Deletion failed: ' + (errData.detail || 'Server error'), 'error');
           }
         } catch (e: any) {
           showToast('Error: ' + e.message, 'error');
@@ -1093,8 +1108,18 @@ const Admin = () => {
         supabase.from('club_projects').select('id', { count: 'exact', head: true }),
         supabase.from('past_events').select('id', { count: 'exact', head: true }),
       ]);
+      let memberCount = mem.count ?? 0;
+      if (memberCount === 0) {
+        try {
+          const res = await fetch(getApiUrl('/api/members'));
+          if (res.ok) {
+            const data = await res.json();
+            memberCount = data.length || 0;
+          }
+        } catch (_) {}
+      }
       setSupabaseCounts({
-        members: mem.count ?? 0,
+        members: memberCount,
         projects: proj.count ?? 0,
         pastEvents: past.count ?? 0,
       });

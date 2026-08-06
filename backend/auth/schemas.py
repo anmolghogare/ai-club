@@ -51,10 +51,11 @@ class UserPublicResponse(BaseModel):
 
 
 class AuthSuccessResponse(BaseModel):
-    """Returned on a successful login. Token is set as an HttpOnly cookie only."""
+    """Returned on a successful login. Token is delivered via cookie and returned in body for Bearer auth."""
     status: str = "success"
     message: str
     user: UserPublicResponse
+    access_token: Optional[str] = None
 
 
 class AuthMeResponse(BaseModel):

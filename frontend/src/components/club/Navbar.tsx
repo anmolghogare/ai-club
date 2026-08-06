@@ -94,11 +94,16 @@ export default function Navbar() {
     fetchCounts();
   }, []);
 
-  // Auth check — uses HttpOnly cookie set by backend; no localStorage needed
+  // Auth check — uses HttpOnly cookie and/or localStorage Bearer token
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
+        const token = localStorage.getItem('access_token');
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include', headers });
         if (res.ok) {
           const data = await res.json();
           if (data.authenticated && data.user) {
@@ -117,7 +122,7 @@ export default function Navbar() {
     checkAuth();
   }, []);
 
-  // Google OAuth login — exchanges Google credential for backend JWT cookie
+  // Google OAuth login — exchanges Google credential for backend JWT
   const googleLogin = useGoogleLogin({
     flow: 'implicit',
     onSuccess: async (tokenResponse) => {
@@ -130,7 +135,7 @@ export default function Navbar() {
         if (!userInfoRes.ok) throw new Error('Failed to get user info');
         const googleUser = await userInfoRes.json();
 
-        // Exchange with backend (backend needs id_token; use access_token as fallback)
+        // Exchange with backend
         const authRes = await fetch(getApiUrl('/api/auth/google'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -140,6 +145,9 @@ export default function Navbar() {
 
         if (authRes.ok) {
           const data = await authRes.json();
+          if (data.access_token) {
+            localStorage.setItem('access_token', data.access_token);
+          }
           if (data.user) {
             setUser({
               name: data.user.name,
@@ -164,6 +172,7 @@ export default function Navbar() {
   });
 
   const logout = async () => {
+    localStorage.removeItem('access_token');
     try {
       await fetch(getApiUrl('/api/auth/logout'), {
         method: 'POST',
@@ -195,14 +204,14 @@ export default function Navbar() {
   };
 
   const dropdownItem = (href: string, icon: React.ReactNode, label: string) => (
-    <a
-      href={href}
+    <Link
+      to={href}
       style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', fontSize: '0.8rem', color: 'hsl(230,25%,12%)', textDecoration: 'none', transition: 'background 0.15s' }}
       onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(228,20%,96%)'}
       onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
     >
       {icon} {label}
-    </a>
+    </Link>
   );
 
   return (
@@ -409,13 +418,13 @@ export default function Navbar() {
                 </div>
                 <div style={{ marginLeft: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
                   {user.is_admin && (
-                    <a href="/admin" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(243,75%,59%)', textDecoration: 'none' }}>
+                    <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(243,75%,59%)', textDecoration: 'none' }}>
                       <Shield size={12} /> Admin
-                    </a>
+                    </Link>
                   )}
-                  <a href="/my-registrations" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(230,20%,40%)', textDecoration: 'none' }}>
+                  <Link to="/my-registrations" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem', color: 'hsl(230,20%,40%)', textDecoration: 'none' }}>
                     <ClipboardList size={12} /> My Regs
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}

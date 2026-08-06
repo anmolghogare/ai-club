@@ -15,7 +15,12 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
 
   const checkAuth = async () => {
     try {
-      const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
+      const token = localStorage.getItem('access_token');
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      const res = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include', headers });
       if (res.ok) {
         const data = await res.json();
         if (data.authenticated && data.user) {
@@ -48,12 +53,15 @@ export default function AuthBarrier({ children }: AuthBarrierProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_token: credentialResponse.credential }),
-        credentials: 'include',  // Cookie is set by the server, no token in response body
+        credentials: 'include',  // Cookie is set by the server
       });
 
       if (syncRes.ok) {
         const syncData = await syncRes.json();
         if (syncData.status === 'success') {
+          if (syncData.access_token) {
+            localStorage.setItem('access_token', syncData.access_token);
+          }
           setIsAuthenticated(true);
         } else {
           setErrorMsg(syncData.message || 'Failed to authenticate with backend.');

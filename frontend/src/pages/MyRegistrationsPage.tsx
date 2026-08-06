@@ -156,7 +156,13 @@ export default function MyRegistrationsPage() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const meRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
+        const token = localStorage.getItem('access_token');
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const meRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include', headers });
         if (!meRes.ok) {
           setIsLoggedIn(false);
           setAuthChecked(true);
@@ -172,7 +178,7 @@ export default function MyRegistrationsPage() {
         }
         setIsLoggedIn(true);
 
-        const regRes = await fetch(getApiUrl('/api/user/registrations'), { credentials: 'include' });
+        const regRes = await fetch(getApiUrl('/api/user/registrations'), { credentials: 'include', headers });
         if (!regRes.ok) throw new Error('Failed to fetch registrations');
         const data = await regRes.json();
         setRegistrations(data.registrations || []);
