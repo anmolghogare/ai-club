@@ -36,12 +36,12 @@ type Line = {
 };
 
 const teamMembers = [
-  { name: 'Vedant Shah', image: '/vedant-shah.jpg' },
-  { name: 'Parth Agrawal', image: '/parth-agrawal.png' },
-  { name: 'Meet Virugama', image: '/meet-virugama.png' },
-  { name: 'Madhav Thesiya' },
-  { name: 'Bhagyashree Khemwani', image: '/bhagyashree-khemwani.png' },
-  { name: 'Manal Patel', image: '/manal-patel.png' },
+  { name: 'Vedant Shah', image: '/vedant-shah.jpg', linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331a/', github: 'https://github.com/Vedant-1016' },
+  { name: 'Parth Agrawal', image: '/parth-agrawal.png', linkedin: 'https://www.linkedin.com/in/parth-agrawal-368869325/', github: 'https://github.com/ParthAgrawal-07' },
+  { name: 'Meet Virugama', image: '/meet-virugama.png', linkedin: 'https://www.linkedin.com/in/meet-virugama-76a107320/', github: 'https://github.com/Meetvirugama' },
+  { name: 'Madhav Thesiya', image: '/madhav-thesiya.png', linkedin: 'https://www.linkedin.com/in/madhavthesiya/', github: 'https://github.com/madhavthesiya' },
+  { name: 'Bhagyashree Khemwani', image: '/bhagyashree-khemwani.png', linkedin: 'https://www.linkedin.com/in/bhagyashree-khemwani/', github: 'https://github.com/bhagy-shr' },
+  { name: 'Manal Patel', image: '/manal-patel.png', linkedin: 'https://www.linkedin.com/in/manal-patel-a87b11382/', github: 'https://github.com/manalPatel2557' },
 ];
 
 const facultyMembers = [
@@ -725,8 +725,16 @@ const AuraPage = () => {
                   </p>
                   
                   <div className="flex gap-4 w-full">
-                    <button className="flex-1 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors text-sm font-medium text-white/80">GitHub</button>
-                    <button className="flex-1 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors text-sm font-medium text-white/80">LinkedIn</button>
+                    {nodes[selectedNode].github && (
+                      <a href={nodes[selectedNode].github} target="_blank" rel="noreferrer" className="flex-1">
+                        <button className="w-full py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors text-sm font-medium text-white/80">GitHub</button>
+                      </a>
+                    )}
+                    {nodes[selectedNode].linkedin && (
+                      <a href={nodes[selectedNode].linkedin} target="_blank" rel="noreferrer" className="flex-1">
+                        <button className="w-full py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-colors text-sm font-medium text-white/80">LinkedIn</button>
+                      </a>
+                    )}
                   </div>
                 </div>
               </motion.div>
