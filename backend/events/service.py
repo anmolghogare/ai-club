@@ -229,8 +229,15 @@ async def list_events(
     count_query = select(func.count(ClubEvent.id))
 
     if status_filter:
-        query = query.where(ClubEvent.status == status_filter)
-        count_query = count_query.where(ClubEvent.status == status_filter)
+        sf = status_filter.lower().strip()
+        if sf in ("all", ""):
+            pass
+        elif sf == "active":
+            query = query.where(ClubEvent.status.in_(["registration_open", "upcoming", "active"]))
+            count_query = count_query.where(ClubEvent.status.in_(["registration_open", "upcoming", "active"]))
+        else:
+            query = query.where(ClubEvent.status == sf)
+            count_query = count_query.where(ClubEvent.status == sf)
 
     if category_filter:
         query = query.where(

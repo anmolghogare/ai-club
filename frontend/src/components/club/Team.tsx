@@ -6,7 +6,8 @@ export type MemberRole =
   | 'Member'
   | 'Ex Convenor'
   | 'Ex Deputy Convenor'
-  | 'Ex Core Member';
+  | 'Ex Core Member'
+  | 'Alumni';
 
 export interface Member {
   id: number;
@@ -36,6 +37,7 @@ const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
   'Ex Convenor':          { label: 'Ex Convenor',          classes: 'bg-amber-100/70 text-amber-800 border border-amber-300' },
   'Ex Deputy Convenor':     { label: 'Ex Deputy Convenor',     classes: 'bg-blue-100/70 text-blue-800 border border-blue-300' },
   'Ex Core Member':         { label: 'Ex Core Member',         classes: 'bg-indigo-100/70 text-indigo-800 border border-indigo-300' },
+  'Alumni':                 { label: 'Alumni',                 classes: 'bg-emerald-100/80 text-emerald-800 border border-emerald-300' },
 };
 
 const RoleBadge = ({ role }: { role: MemberRole }) => {
@@ -160,6 +162,7 @@ const ROLE_ORDER: Record<string, number> = {
   'Ex Convenor':          6,
   'Ex Deputy Convenor':     7,
   'Ex Core Member':         8,
+  'Alumni':                 9,
 };
 
 export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
@@ -216,7 +219,7 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
     } else if (roleFilter === 'member') {
       return m.role === 'Member';
     } else if (roleFilter === 'alumni') {
-      return m.role === 'Ex Convenor' || m.role === 'Ex Deputy Convenor' || m.role === 'Ex Core Member';
+      return m.role === 'Alumni' || m.role === 'Ex Convenor' || m.role === 'Ex Deputy Convenor' || m.role === 'Ex Core Member';
     }
 
     return true;

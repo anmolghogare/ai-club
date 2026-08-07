@@ -2864,6 +2864,7 @@ const Admin = () => {
                       <option value="Ex Convenor">Ex Convenor</option>
                       <option value="Ex Deputy Convenor">Ex Deputy Convenor</option>
                       <option value="Ex Core Member">Ex Core Member</option>
+                      <option value="Alumni">Alumni</option>
                     </select>
                   </div>
                   <div>

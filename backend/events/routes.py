@@ -178,7 +178,7 @@ async def list_events_endpoint(
         default=None,
         alias="status",
         description="Filter by event status.",
-        pattern="^(upcoming|registration_open|registration_closed|completed)$",
+        pattern="^(upcoming|registration_open|registration_closed|completed|active|all)$",
     ),
     category: Optional[str] = Query(
         default=None,

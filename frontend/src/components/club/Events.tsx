@@ -64,7 +64,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
   
   // Filter state (full-page only)
   const [statusFilter, setStatusFilter] = useState<string>('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
   
   const [selectedEvent, setSelectedEvent] = useState<EventModel | null>(null);
   
@@ -735,10 +735,9 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                 onChange={(e) => setStatusFilter(e.target.value)}
                 style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid hsl(228,20%,80%)', fontSize: '0.8rem', fontFamily: 'Inter, sans-serif', outline: 'none' }}
               >
-                <option value="">All Active/Upcoming</option>
-                <option value="registration_open">Registration Open</option>
+                <option value="">All</option>
+                <option value="active">Active</option>
                 <option value="upcoming">Upcoming</option>
-                <option value="registration_closed">Registration Closed</option>
                 <option value="completed">Completed</option>
               </select>
             </div>
