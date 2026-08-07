@@ -47,21 +47,21 @@ const teamMembers = [
 const facultyMembers = [
   {
     id: 'f1',
-    name: 'Prof. G. Venkatesh',
-    designation: 'Professor',
+    name: 'Dr. G. Venkatesh',
+    designation: 'Professor of Practice',
     department: 'Computer Science',
     roleInAura: 'Vision',
-    specialization: 'Artificial Intelligence, Machine Learning, Data Science',
-    researchAreas: ['AI', 'ML', 'Computer Vision', 'Analytics'],
-    experience: '20+ Years',
-    education: 'Ph.D. in Computer Science',
-    email: 'g_venkatesh@dau.edu',
+    specialization: 'Embedded Systems Design, Technology Management',
+    researchAreas: ['Embedded Systems', 'Computational Economics', 'Technology & Policy'],
+    experience: '30+ Years',
+    education: 'Ph.D. in CS (TIFR), B.Tech (IIT Madras)',
+    email: 'venkatesh_g@dau.ac.in',
     office: 'Block 2, Room 412',
     quote: "Technology should solve real problems for real students.",
     linkedin: 'https://in.linkedin.com/in/venkatesh-g-a02a58',
     photo: '/venkatesh-g.png',
     contributions: ['Project Vision', 'Research Direction', 'Mentoring', 'Technical Guidance'],
-    skills: ['AI Vision', 'Academic Leadership', 'System Design']
+    skills: ['Strategic Thinking', 'Technology Management', 'Policy & Education']
   },
   {
     id: 'f2',
