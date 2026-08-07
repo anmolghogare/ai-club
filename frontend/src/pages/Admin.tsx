@@ -833,7 +833,8 @@ const Admin = () => {
   // ── Member Management Handlers ─────────────────────────────────────────────
   const MEMBER_ROLE_ORDER: Record<string, number> = {
     'Convenor': 1, 'Deputy Convenor': 2,
-    'Core Member': 3, 'Extended Core Member': 4, 'Member': 5
+    'Core Member': 3, 'Extended Core Member': 4, 'Member': 5,
+    'Ex Convenor': 6, 'Ex Deputy Convenor': 7, 'Ex Core Member': 8
   };
 
   const fetchAdminMembers = async () => {
@@ -1285,18 +1286,18 @@ const Admin = () => {
         title: eventForm.title.trim(),
         description: eventForm.description.trim(),
         category: eventForm.category,
-        venue: eventForm.venue.trim(),
-        contact_email: eventForm.contact_email.trim(),
+        venue: eventForm.venue.trim() || null,
+        contact_email: eventForm.contact_email.trim() || null,
         event_type: eventForm.event_type,
         min_team_size: eventForm.event_type === 'team' ? Number(eventForm.min_team_size) : null,
         max_team_size: eventForm.event_type === 'team' ? Number(eventForm.max_team_size) : null,
-        event_date: eventForm.event_start_date, // base date
-        event_start_date: eventForm.event_start_date,
-        event_end_date: eventForm.event_end_date,
-        start_time: eventForm.start_time.includes(':') && eventForm.start_time.split(':').length === 2 ? `${eventForm.start_time}:00` : eventForm.start_time,
-        end_time: eventForm.end_time.includes(':') && eventForm.end_time.split(':').length === 2 ? `${eventForm.end_time}:00` : eventForm.end_time,
-        registration_start: new Date(eventForm.registration_start).toISOString(),
-        registration_end: new Date(eventForm.registration_end).toISOString(),
+        event_date: eventForm.event_start_date || null,
+        event_start_date: eventForm.event_start_date || null,
+        event_end_date: eventForm.event_end_date || null,
+        start_time: eventForm.start_time ? (eventForm.start_time.includes(':') && eventForm.start_time.split(':').length === 2 ? `${eventForm.start_time}:00` : eventForm.start_time) : null,
+        end_time: eventForm.end_time ? (eventForm.end_time.includes(':') && eventForm.end_time.split(':').length === 2 ? `${eventForm.end_time}:00` : eventForm.end_time) : null,
+        registration_start: eventForm.registration_start ? new Date(eventForm.registration_start).toISOString() : null,
+        registration_end: eventForm.registration_end ? new Date(eventForm.registration_end).toISOString() : null,
         winners: eventForm.winners.trim() || null,
         winner_link: eventForm.winner_link.trim() || null,
         registration_link: eventForm.registration_link.trim() || null
@@ -1817,10 +1818,9 @@ const Admin = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Venue / Online Link</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Venue / Online Link (Optional)</label>
                         <input
                           type="text"
-                          required
                           value={eventForm.venue}
                           onChange={(e) => setEventForm({...eventForm, venue: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -1828,10 +1828,9 @@ const Admin = () => {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Contact Email</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Contact Email (Optional)</label>
                         <input
                           type="email"
-                          required
                           value={eventForm.contact_email}
                           onChange={(e) => setEventForm({...eventForm, contact_email: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -1880,40 +1879,36 @@ const Admin = () => {
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event Start Date</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event Start Date (Optional)</label>
                         <input
                           type="date"
-                          required
                           value={eventForm.event_start_date}
                           onChange={(e) => setEventForm({...eventForm, event_start_date: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event End Date</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event End Date (Optional)</label>
                         <input
                           type="date"
-                          required
                           value={eventForm.event_end_date}
                           onChange={(e) => setEventForm({...eventForm, event_end_date: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Start Time</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Start Time (Optional)</label>
                         <input
                           type="time"
-                          required
                           value={eventForm.start_time}
                           onChange={(e) => setEventForm({...eventForm, start_time: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">End Time</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">End Time (Optional)</label>
                         <input
                           type="time"
-                          required
                           value={eventForm.end_time}
                           onChange={(e) => setEventForm({...eventForm, end_time: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -1923,20 +1918,18 @@ const Admin = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration Start Date</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration Start Date (Optional)</label>
                         <input
                           type="datetime-local"
-                          required
                           value={eventForm.registration_start}
                           onChange={(e) => setEventForm({...eventForm, registration_start: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration End Date</label>
+                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration End Date (Optional)</label>
                         <input
                           type="datetime-local"
-                          required
                           value={eventForm.registration_end}
                           onChange={(e) => setEventForm({...eventForm, registration_end: e.target.value})}
                           className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -2907,6 +2900,9 @@ const Admin = () => {
                       <option value="Core Member">Core Member</option>
                       <option value="Extended Core Member">Extended Core Member</option>
                       <option value="Member">Member</option>
+                      <option value="Ex Convenor">Ex Convenor</option>
+                      <option value="Ex Deputy Convenor">Ex Deputy Convenor</option>
+                      <option value="Ex Core Member">Ex Core Member</option>
                     </select>
                   </div>
                   <div>

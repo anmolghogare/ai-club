@@ -39,7 +39,7 @@ const socials = [
 const navLinks = [
   { label: 'About',        href: '/#about' },
   { label: 'Events',       href: '/#events' },
-  { label: 'Tracks',       href: '/#projects' },
+  { label: 'Projects',     href: '/#projects' },
   { label: 'Resources',    href: '/#resources' },
   { label: 'Team',         href: '/team' },
   { label: 'Achievements', href: '/achievements' },

@@ -1,4 +1,12 @@
-export type MemberRole = 'Convenor' | 'Deputy Convenor' | 'Core Member' | 'Extended Core Member' | 'Member';
+export type MemberRole = 
+  | 'Convenor' 
+  | 'Deputy Convenor' 
+  | 'Core Member' 
+  | 'Extended Core Member' 
+  | 'Member'
+  | 'Ex Convenor'
+  | 'Ex Deputy Convenor'
+  | 'Ex Core Member';
 
 export interface Member {
   id: number;
@@ -25,6 +33,9 @@ const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
   'Core Member':          { label: 'Core Member',          classes: 'bg-indigo-50 text-indigo-700 border border-indigo-200' },
   'Extended Core Member': { label: 'Extended Core Member', classes: 'bg-purple-50 text-purple-700 border border-purple-200' },
   'Member':               { label: 'Member',               classes: 'bg-gray-100 text-gray-600 border border-gray-200' },
+  'Ex Convenor':          { label: 'Ex Convenor',          classes: 'bg-amber-100/70 text-amber-800 border border-amber-300' },
+  'Ex Deputy Convenor':     { label: 'Ex Deputy Convenor',     classes: 'bg-blue-100/70 text-blue-800 border border-blue-300' },
+  'Ex Core Member':         { label: 'Ex Core Member',         classes: 'bg-indigo-100/70 text-indigo-800 border border-indigo-300' },
 };
 
 const RoleBadge = ({ role }: { role: MemberRole }) => {
@@ -139,20 +150,23 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   );
 }
 
-// Role display order — Convenor first, Members last
+// Role display order — Convenor first, Alumni last
 const ROLE_ORDER: Record<string, number> = {
   'Convenor':             1,
   'Deputy Convenor':      2,
   'Core Member':          3,
   'Extended Core Member': 4,
   'Member':               5,
+  'Ex Convenor':          6,
+  'Ex Deputy Convenor':     7,
+  'Ex Core Member':         8,
 };
 
 export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
   const [memberList, setMemberList] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'convenor', 'core', 'extended', 'member'
+  const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'convenor', 'core', 'extended', 'member', 'alumni'
 
   useEffect(() => {
     const fetchMembers = async () => {
@@ -201,6 +215,8 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
       return m.role === 'Extended Core Member';
     } else if (roleFilter === 'member') {
       return m.role === 'Member';
+    } else if (roleFilter === 'alumni') {
+      return m.role === 'Ex Convenor' || m.role === 'Ex Deputy Convenor' || m.role === 'Ex Core Member';
     }
 
     return true;
@@ -264,6 +280,7 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
                 { id: 'core', label: 'Core' },
                 { id: 'extended', label: 'Extended Core' },
                 { id: 'member', label: 'Members' },
+                { id: 'alumni', label: 'Alumni / Past Leads' },
               ].map((pill) => (
                 <button
                   key={pill.id}

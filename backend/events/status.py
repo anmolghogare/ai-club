@@ -31,49 +31,35 @@ EventStatus = Literal["upcoming", "registration_open", "registration_closed", "c
 
 
 def compute_status(
-    event_end_date: date,
-    end_time: time,
-    registration_start: datetime,
-    registration_end: datetime,
+    event_end_date: Optional[date] = None,
+    end_time: Optional[time] = None,
+    registration_start: Optional[datetime] = None,
+    registration_end: Optional[datetime] = None,
     now: Optional[datetime] = None,
 ) -> EventStatus:
     """
     Compute the correct event status for the given UTC moment.
-
-    Args:
-        event_end_date:     The calendar date when the event ends.
-        end_time:           The wall-clock time when the event ends.
-        registration_start: Timezone-aware datetime when registration opens.
-        registration_end:   Timezone-aware datetime when registration closes.
-        now:                Override the current time (useful for testing).
-                            Defaults to datetime.now(UTC).
-
-    Returns:
-        One of: 'upcoming', 'registration_open', 'registration_closed', 'completed'.
+    Handles optional date and time bounds gracefully.
     """
     if now is None:
         now = datetime.now(timezone.utc)
 
-    # Build a timezone-aware datetime for when the event actually ends
-    event_end_dt = datetime.combine(event_end_date, end_time).replace(tzinfo=timezone.utc)
-
     # Rule 1 — event is over
-    if now > event_end_dt:
-        return "completed"
-
-    # Normalise registration datetimes to UTC for safe comparison
-    reg_start = _to_utc(registration_start)
-    reg_end   = _to_utc(registration_end)
+    if event_end_date and end_time:
+        event_end_dt = datetime.combine(event_end_date, end_time).replace(tzinfo=timezone.utc)
+        if now > event_end_dt:
+            return "completed"
 
     # Rule 2 — registration is currently open
-    if reg_start <= now <= reg_end:
-        return "registration_open"
+    if registration_start and registration_end:
+        reg_start = _to_utc(registration_start)
+        reg_end   = _to_utc(registration_end)
+        if reg_start <= now <= reg_end:
+            return "registration_open"
+        if now > reg_end:
+            return "registration_closed"
 
-    # Rule 3 — registration has closed but event hasn't started
-    if now > reg_end:
-        return "registration_closed"
-
-    # Rule 4 — registration hasn't opened yet
+    # Rule 4 — fallback status
     return "upcoming"
 
 

@@ -470,10 +470,16 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               </p>
             ) : (
               displayedUpcomingEvents.map((ev) => {
-                const dateObj = new Date(ev.event_start_date || ev.event_date);
-                const day = dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-                const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
-                const date = dateObj.getDate();
+                const hasDate = Boolean(ev.event_start_date || ev.event_date);
+                const dateObj = hasDate ? new Date((ev.event_start_date || ev.event_date)!) : null;
+                const day = dateObj ? dateObj.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase() : 'TBA';
+                const month = dateObj ? dateObj.toLocaleDateString('en-US', { month: 'short' }) : '';
+                const date = dateObj ? dateObj.getDate() : '';
+                
+                const metaParts = [];
+                if (ev.venue) metaParts.push(ev.venue);
+                if (ev.start_time) metaParts.push(ev.start_time);
+                if (ev.event_type) metaParts.push(ev.event_type);
                 return (
                   <div
                     key={ev.id}
@@ -523,7 +529,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                           lineHeight: 1.1,
                         }}
                       >
-                        {month} {date}
+                        {month ? `${month} ${date}` : 'TBA'}
                       </p>
                     </div>
 
@@ -560,10 +566,9 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                           color: 'hsl(230, 15%, 48%)',
                         }}
                       >
-                        {ev.venue} · {ev.start_time} ·{' '}
-                        <span style={{ textTransform: 'capitalize' }}>{ev.event_type}</span>
+                        {metaParts.join(' · ')}
                         {ev.status === 'registration_open' && (
-                          <span style={{ color: 'hsl(243, 75%, 59%)', marginLeft: 8 }}>· Open for registration</span>
+                          <span style={{ color: 'hsl(243, 75%, 59%)', marginLeft: metaParts.length > 0 ? 8 : 0 }}>· Open for registration</span>
                         )}
                       </p>
 
@@ -849,14 +854,22 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                   </div>
                   <div>
                     <div className="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-border text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1.5">
-                        {card.event_start_date && card.event_end_date && card.event_start_date !== card.event_end_date
-                          ? `${card.event_start_date} to ${card.event_end_date}`
-                          : card.event_start_date || card.event_date}
-                      </span>
-                      <span className="w-1 h-1 bg-muted-foreground rounded-full" />
-                      <span className="flex items-center gap-1.5">{card.venue}</span>
-                      <span className="w-1 h-1 bg-muted-foreground rounded-full" />
+                      {(card.event_start_date || card.event_date) && (
+                        <>
+                          <span className="flex items-center gap-1.5">
+                            {card.event_start_date && card.event_end_date && card.event_start_date !== card.event_end_date
+                              ? `${card.event_start_date} to ${card.event_end_date}`
+                              : card.event_start_date || card.event_date}
+                          </span>
+                          <span className="w-1 h-1 bg-muted-foreground rounded-full" />
+                        </>
+                      )}
+                      {card.venue && (
+                        <>
+                          <span className="flex items-center gap-1.5">{card.venue}</span>
+                          <span className="w-1 h-1 bg-muted-foreground rounded-full" />
+                        </>
+                      )}
                       <span className="flex items-center gap-1.5 capitalize">{card.event_type} Event</span>
                     </div>
 

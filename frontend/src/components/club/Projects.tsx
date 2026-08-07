@@ -130,7 +130,7 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
               marginBottom: '0.6rem',
             }}
           >
-            Four tracks
+            Projects
           </h2>
           <p
             style={{

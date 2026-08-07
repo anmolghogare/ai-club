@@ -93,7 +93,7 @@ async def create_event(
         banner             = data.banner,
         category           = data.category,
         venue              = data.venue,
-        contact_email      = str(data.contact_email),
+        contact_email      = str(data.contact_email) if data.contact_email else None,
         event_type         = data.event_type,
         min_team_size      = data.min_team_size if data.event_type == "team" else None,
         max_team_size      = data.max_team_size if data.event_type == "team" else None,
@@ -107,6 +107,7 @@ async def create_event(
         status             = status,
         winners            = data.winners,
         winner_link        = data.winner_link,
+        registration_link  = data.registration_link,
         created_at         = datetime.now(timezone.utc),
     )
 

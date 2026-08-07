@@ -21,7 +21,7 @@ interface NavCounts {
 const navItems = [
   { label: 'About', href: '/#about' },
   { label: 'Events', href: '/#events', pagePath: '/events' },
-  { label: 'Tracks', href: '/#projects', pagePath: '/projects' },
+  { label: 'Projects', href: '/#projects', pagePath: '/projects' },
   { label: 'Resources', href: '/#resources' },
   { label: 'Team', href: '/#team', pagePath: '/team' },
   { label: 'Achievements', href: '/achievements', pagePath: '/achievements' },
@@ -242,7 +242,7 @@ export default function Navbar() {
           <ul style={{ display: 'flex', alignItems: 'center', gap: '4px', listStyle: 'none', margin: 0, padding: 0 }}>
           {navItems.map((item) => {
             const active = isActive(item);
-            const badgeCount = item.label === 'Events' ? counts.events : item.label === 'Tracks' ? counts.projects : item.label === 'Team' ? counts.members : 0;
+            const badgeCount = item.label === 'Events' ? counts.events : item.label === 'Projects' ? counts.projects : item.label === 'Team' ? counts.members : 0;
             return (
               <li key={item.label}>
                 <a

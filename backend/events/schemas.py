@@ -38,7 +38,7 @@ ALLOWED_CATEGORIES = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 class EventCreateRequest(BaseModel):
-    """Payload for POST /api/admin/events — all fields required."""
+    """Payload for POST /api/admin/events — optional venue, contact_email, dates, and times."""
 
     title: str = Field(..., min_length=3, max_length=255,
                        description="Public event title.")
@@ -47,9 +47,9 @@ class EventCreateRequest(BaseModel):
     banner: Optional[str] = Field(None, max_length=500,
                                   description="URL to the event banner image.")
     category: str = Field(..., description=f"One of: {', '.join(sorted(ALLOWED_CATEGORIES))}")
-    venue: str = Field(..., min_length=3, max_length=500,
-                       description="Physical address or online meeting link.")
-    contact_email: EmailStr = Field(..., description="Organiser contact e-mail.")
+    venue: Optional[str] = Field(None, max_length=500,
+                                 description="Physical address or online meeting link.")
+    contact_email: Optional[EmailStr] = Field(None, description="Organiser contact e-mail.")
 
     event_type: EventType = Field(..., description="'individual' or 'team'.")
     min_team_size: Optional[int] = Field(None, ge=2, le=100,
@@ -57,13 +57,13 @@ class EventCreateRequest(BaseModel):
     max_team_size: Optional[int] = Field(None, ge=2, le=100,
                                          description="Required when event_type='team'.")
 
-    event_date: date           = Field(..., description="Date the event takes place (YYYY-MM-DD).")
-    event_start_date: date     = Field(..., description="Date the event starts (YYYY-MM-DD).")
-    event_end_date: date       = Field(..., description="Date the event ends (YYYY-MM-DD).")
-    start_time: time           = Field(..., description="Event start time (HH:MM:SS).")
-    end_time:   time           = Field(..., description="Event end time (HH:MM:SS).")
-    registration_start: datetime = Field(..., description="When registration opens (ISO 8601 with TZ).")
-    registration_end:   datetime = Field(..., description="When registration closes (ISO 8601 with TZ).")
+    event_date: Optional[date]           = Field(None, description="Date the event takes place (YYYY-MM-DD).")
+    event_start_date: Optional[date]     = Field(None, description="Date the event starts (YYYY-MM-DD).")
+    event_end_date: Optional[date]       = Field(None, description="Date the event ends (YYYY-MM-DD).")
+    start_time: Optional[time]           = Field(None, description="Event start time (HH:MM:SS).")
+    end_time:   Optional[time]           = Field(None, description="Event end time (HH:MM:SS).")
+    registration_start: Optional[datetime] = Field(None, description="When registration opens (ISO 8601 with TZ).")
+    registration_end:   Optional[datetime] = Field(None, description="When registration closes (ISO 8601 with TZ).")
     winners:            Optional[str]      = Field(None, description="Winners of the event.")
     winner_link:        Optional[str]      = Field(None, max_length=500, description="URL/Link to the event winner document, PDF, or leaderboard.")
     registration_link:  Optional[str]      = Field(None, max_length=500, description="External URL for event registration (e.g. Google Form).")
@@ -100,21 +100,25 @@ class EventCreateRequest(BaseModel):
     def validate_dates_and_team(self) -> "EventCreateRequest":
         errors: list[str] = []
 
-        # 1. start_time must be before end_time on single day events
-        if self.event_start_date == self.event_end_date and self.start_time >= self.end_time:
-            errors.append("start_time must be before end_time on single day events.")
+        # 1. start_time must be before end_time on single day events if both set
+        if self.event_start_date and self.event_end_date and self.start_time and self.end_time:
+            if self.event_start_date == self.event_end_date and self.start_time >= self.end_time:
+                errors.append("start_time must be before end_time on single day events.")
 
-        # 2. event_start_date must be on or before event_end_date
-        if self.event_start_date > self.event_end_date:
-            errors.append("event_start_date must be on or before event_end_date.")
+        # 2. event_start_date must be on or before event_end_date if both set
+        if self.event_start_date and self.event_end_date:
+            if self.event_start_date > self.event_end_date:
+                errors.append("event_start_date must be on or before event_end_date.")
 
-        # 3. registration window must be ordered
-        if self.registration_start >= self.registration_end:
-            errors.append("registration_start must be before registration_end.")
+        # 3. registration window must be ordered if both set
+        if self.registration_start and self.registration_end:
+            if self.registration_start >= self.registration_end:
+                errors.append("registration_start must be before registration_end.")
 
-        # 4. registration must close on or before the event start date
-        if self.registration_end.date() > self.event_start_date:
-            errors.append("registration_end cannot be after event_start_date.")
+        # 4. registration must close on or before the event start date if both set
+        if self.registration_end and self.event_start_date:
+            if self.registration_end.date() > self.event_start_date:
+                errors.append("registration_end cannot be after event_start_date.")
 
         # 4. team fields required for team events
         if self.event_type == "team":
@@ -204,18 +208,18 @@ class EventResponse(BaseModel):
     description:        str
     banner:             Optional[str]
     category:           str
-    venue:              str
-    contact_email:      str
+    venue:              Optional[str] = None
+    contact_email:      Optional[str] = None
     event_type:         str
-    min_team_size:      Optional[int]
-    max_team_size:      Optional[int]
-    event_date:         date
-    event_start_date:   date
-    event_end_date:     date
-    start_time:         time
-    end_time:           time
-    registration_start: datetime
-    registration_end:   datetime
+    min_team_size:      Optional[int] = None
+    max_team_size:      Optional[int] = None
+    event_date:         Optional[date] = None
+    event_start_date:   Optional[date] = None
+    event_end_date:     Optional[date] = None
+    start_time:         Optional[time] = None
+    end_time:           Optional[time] = None
+    registration_start: Optional[datetime] = None
+    registration_end:   Optional[datetime] = None
     status:             str
     winners:            Optional[str] = None
     winner_link:        Optional[str] = None
