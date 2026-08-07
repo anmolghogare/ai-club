@@ -40,18 +40,18 @@ ALLOWED_CATEGORIES = {
 class EventCreateRequest(BaseModel):
     """Payload for POST /api/admin/events — optional venue, contact_email, dates, and times."""
 
-    title: str = Field(..., min_length=3, max_length=255,
+    title: Optional[str] = Field(None, max_length=255,
                        description="Public event title.")
-    description: str = Field(..., min_length=10,
+    description: Optional[str] = Field(None,
                               description="Full event description.")
     banner: Optional[str] = Field(None, max_length=500,
                                   description="URL to the event banner image.")
-    category: str = Field(..., description=f"One of: {', '.join(sorted(ALLOWED_CATEGORIES))}")
+    category: Optional[str] = Field(None, description=f"One of: {', '.join(sorted(ALLOWED_CATEGORIES))}")
     venue: Optional[str] = Field(None, max_length=500,
                                  description="Physical address or online meeting link.")
     contact_email: Optional[EmailStr] = Field(None, description="Organiser contact e-mail.")
 
-    event_type: EventType = Field(..., description="'individual' or 'team'.")
+    event_type: Optional[EventType] = Field(None, description="'individual' or 'team'.")
     min_team_size: Optional[int] = Field(None, ge=2, le=100,
                                          description="Required when event_type='team'.")
     max_team_size: Optional[int] = Field(None, ge=2, le=100,
@@ -72,12 +72,13 @@ class EventCreateRequest(BaseModel):
 
     @field_validator("category")
     @classmethod
-    def category_must_be_valid(cls, v: str) -> str:
-        v = v.lower().strip()
-        if v not in ALLOWED_CATEGORIES:
-            raise ValueError(
-                f"Invalid category '{v}'. Allowed: {', '.join(sorted(ALLOWED_CATEGORIES))}"
-            )
+    def category_must_be_valid(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            v = v.lower().strip()
+            if v not in ALLOWED_CATEGORIES:
+                raise ValueError(
+                    f"Invalid category '{v}'. Allowed: {', '.join(sorted(ALLOWED_CATEGORIES))}"
+                )
         return v
 
     @field_validator("banner")
@@ -204,13 +205,13 @@ class EventResponse(BaseModel):
     """Full event object returned by the API."""
 
     id:                 int
-    title:              str
-    description:        str
+    title:              Optional[str] = None
+    description:        Optional[str] = None
     banner:             Optional[str]
-    category:           str
+    category:           Optional[str] = None
     venue:              Optional[str] = None
     contact_email:      Optional[str] = None
-    event_type:         str
+    event_type:         Optional[str] = None
     min_team_size:      Optional[int] = None
     max_team_size:      Optional[int] = None
     event_date:         Optional[date] = None

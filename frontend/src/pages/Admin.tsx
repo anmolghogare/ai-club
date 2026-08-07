@@ -215,7 +215,8 @@ const Admin = () => {
     student: '',
     description: '',
     category: '',
-    icon: 'Award'
+    icon: 'Award',
+    image_url: ''
   });
 
   // Create Event Form State (Matching Backend ClubEvent constraints)
@@ -2578,7 +2579,7 @@ const Admin = () => {
                     <button
                       onClick={() => {
                         setEditingAchievement(null);
-                        setAchievementForm({ title: '', student: '', description: '', category: '', icon: 'Award' });
+                        setAchievementForm({ title: '', student: '', description: '', category: '', icon: 'Award', image_url: '' });
                         setIsAchievementModalOpen(true);
                       }}
                       className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-xs font-semibold rounded-lg hover:bg-primary/95 transition-colors"
@@ -2617,7 +2618,7 @@ const Admin = () => {
                                   <button
                                     onClick={() => {
                                       setEditingAchievement(ach);
-                                      setAchievementForm({ title: ach.title, student: ach.student, description: ach.description, category: ach.category, icon: ach.icon });
+                                      setAchievementForm({ title: ach.title || '', student: ach.student || '', description: ach.description || '', category: ach.category || '', icon: ach.icon || 'Award', image_url: ach.image_url || '' });
                                       setIsAchievementModalOpen(true);
                                     }}
                                     className="p-1.5 text-muted-foreground hover:text-primary rounded-lg hover:bg-primary/10 transition-colors"
@@ -2695,15 +2696,19 @@ const Admin = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="col-span-2">
                       <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Title</label>
-                      <input required value={achievementForm.title} onChange={e => setAchievementForm({...achievementForm, title: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
+                      <input value={achievementForm.title} onChange={e => setAchievementForm({...achievementForm, title: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Student/Team Name</label>
-                      <input required value={achievementForm.student} onChange={e => setAchievementForm({...achievementForm, student: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
+                      <input value={achievementForm.student} onChange={e => setAchievementForm({...achievementForm, student: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
                     </div>
                     <div>
                       <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Category</label>
-                      <input required value={achievementForm.category} onChange={e => setAchievementForm({...achievementForm, category: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" placeholder="e.g. Hackathon, Research" />
+                      <input value={achievementForm.category} onChange={e => setAchievementForm({...achievementForm, category: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" placeholder="e.g. Hackathon, Research" />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Image URL</label>
+                      <input value={achievementForm.image_url} onChange={e => setAchievementForm({...achievementForm, image_url: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
                     </div>
                     <div className="col-span-2">
                       <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Icon</label>
@@ -2716,7 +2721,7 @@ const Admin = () => {
                     </div>
                     <div className="col-span-2">
                       <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Description</label>
-                      <textarea required value={achievementForm.description} onChange={e => setAchievementForm({...achievementForm, description: e.target.value})} rows={3} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary resize-none" />
+                      <textarea value={achievementForm.description} onChange={e => setAchievementForm({...achievementForm, description: e.target.value})} rows={3} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary resize-none" />
                     </div>
                   </div>
                   <button type="submit" disabled={isSubmitting} className="w-full py-2.5 mt-4 text-sm font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/95 flex justify-center items-center gap-2">
@@ -2824,7 +2829,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Name</label>
                   <input
                     type="text"
-                    required
                     value={memberForm.name}
                     onChange={(e) => setMemberForm({ ...memberForm, name: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -2854,7 +2858,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Order No</label>
                     <input
                       type="number"
-                      required
                       value={memberForm.order_no}
                       onChange={(e) => setMemberForm({ ...memberForm, order_no: Number(e.target.value) })}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -2962,7 +2965,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Project Title</label>
                   <input
                     type="text"
-                    required
                     value={projectForm.title}
                     onChange={(e) => setProjectForm({ ...projectForm, title: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -2975,7 +2977,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Author Name</label>
                     <input
                       type="text"
-                      required
                       value={projectForm.author}
                       onChange={(e) => setProjectForm({ ...projectForm, author: e.target.value })}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3001,7 +3002,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">GitHub Repository Link</label>
                   <input
                     type="text"
-                    required
                     value={projectForm.github_link}
                     onChange={(e) => setProjectForm({ ...projectForm, github_link: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3024,7 +3024,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Description</label>
                   <textarea
                     rows={4}
-                    required
                     value={projectForm.description}
                     onChange={(e) => setProjectForm({ ...projectForm, description: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors resize-none"
@@ -3087,7 +3086,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Event Title</label>
                   <input
                     type="text"
-                    required
                     value={pastEventForm.title}
                     onChange={(e) => setPastEventForm({ ...pastEventForm, title: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3115,7 +3113,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Event Date (Label)</label>
                     <input
                       type="text"
-                      required
                       value={pastEventForm.date_label}
                       onChange={(e) => setPastEventForm({ ...pastEventForm, date_label: e.target.value })}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3195,7 +3192,6 @@ const Admin = () => {
                   <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Description</label>
                   <textarea
                     rows={3}
-                    required
                     value={pastEventForm.description}
                     onChange={(e) => setPastEventForm({ ...pastEventForm, description: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors resize-none"
@@ -3265,7 +3261,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event Title</label>
                     <input
                       type="text"
-                      required
                       value={editForm.title}
                       onChange={(e) => setEditForm({...editForm, title: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3304,7 +3299,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Venue / Online Link</label>
                     <input
                       type="text"
-                      required
                       value={editForm.venue}
                       onChange={(e) => setEditForm({...editForm, venue: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3314,7 +3308,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Contact Email</label>
                     <input
                       type="email"
-                      required
                       value={editForm.contact_email}
                       onChange={(e) => setEditForm({...editForm, contact_email: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3366,7 +3359,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event Start Date</label>
                     <input
                       type="date"
-                      required
                       value={editForm.event_start_date}
                       onChange={(e) => setEditForm({...editForm, event_start_date: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3376,7 +3368,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Event End Date</label>
                     <input
                       type="date"
-                      required
                       value={editForm.event_end_date}
                       onChange={(e) => setEditForm({...editForm, event_end_date: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3386,7 +3377,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Start Time</label>
                     <input
                       type="time"
-                      required
                       value={editForm.start_time}
                       onChange={(e) => setEditForm({...editForm, start_time: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3396,7 +3386,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">End Time</label>
                     <input
                       type="time"
-                      required
                       value={editForm.end_time}
                       onChange={(e) => setEditForm({...editForm, end_time: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3409,7 +3398,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration Start Date</label>
                     <input
                       type="datetime-local"
-                      required
                       value={editForm.registration_start}
                       onChange={(e) => setEditForm({...editForm, registration_start: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3419,7 +3407,6 @@ const Admin = () => {
                     <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Registration End Date</label>
                     <input
                       type="datetime-local"
-                      required
                       value={editForm.registration_end}
                       onChange={(e) => setEditForm({...editForm, registration_end: e.target.value})}
                       className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
@@ -3430,7 +3417,6 @@ const Admin = () => {
                 <div>
                   <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Description</label>
                   <textarea
-                    required
                     value={editForm.description}
                     onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                     rows={4}

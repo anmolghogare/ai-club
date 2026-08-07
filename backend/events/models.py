@@ -69,13 +69,13 @@ class ClubEvent(Base):
     )
 
     id                 = Column(Integer, primary_key=True, index=True)
-    title              = Column(String(255), nullable=False, index=True)
-    description        = Column(Text,        nullable=False)
+    title              = Column(String(255), nullable=True, index=True)
+    description        = Column(Text,        nullable=True)
     banner             = Column(String(500), nullable=True)
-    category           = Column(String(100), nullable=False, index=True)
+    category           = Column(String(100), nullable=True, index=True)
     venue              = Column(String(500), nullable=True)
     contact_email      = Column(String(255), nullable=True)
-    event_type         = Column(String(20),  nullable=False)          # 'individual' | 'team'
+    event_type         = Column(String(20),  nullable=True)          # 'individual' | 'team'
     min_team_size      = Column(Integer,     nullable=True)
     max_team_size      = Column(Integer,     nullable=True)
     event_date         = Column(Date,        nullable=True, index=True)
@@ -85,7 +85,7 @@ class ClubEvent(Base):
     end_time           = Column(Time,        nullable=True)
     registration_start = Column(DateTime(timezone=True), nullable=True)
     registration_end   = Column(DateTime(timezone=True), nullable=True)
-    status             = Column(String(30),  nullable=False, default="upcoming", index=True)
+    status             = Column(String(30),  nullable=True, default="upcoming", index=True)
     winners            = Column(Text,        nullable=True)
     winner_link        = Column(String(500), nullable=True)
     registration_link  = Column(String(500), nullable=True)

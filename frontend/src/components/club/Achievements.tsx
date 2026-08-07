@@ -11,6 +11,7 @@ interface AchievementModel {
   description: string;
   category: string;
   icon: string;
+  image_url?: string;
 }
 
 export default function Achievements() {
@@ -94,15 +95,20 @@ export default function Achievements() {
                 transition={{ type: 'spring', stiffness: 350, damping: 22 }}
                 className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 hover:border-indigo-400 hover:shadow-xl transition-all cursor-pointer group"
               >
+                {item.image_url && (
+                  <div className="w-full h-48 mb-4 rounded-xl overflow-hidden bg-secondary">
+                    <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  </div>
+                )}
                 <div className="flex items-start gap-4">
-                  <div className="p-3 bg-secondary/80 rounded-xl group-hover:scale-110 transition-transform">
+                  <div className="p-3 bg-secondary/80 rounded-xl group-hover:scale-110 transition-transform flex-shrink-0">
                     {renderIcon(item.icon)}
                   </div>
                   <div>
-                    <div className="text-xs font-mono text-primary mb-1 uppercase tracking-wider">{item.category}</div>
-                    <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>
-                    <p className="text-sm font-semibold text-foreground/80 mb-2">By {item.student}</p>
-                    <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>
+                    {item.category && <div className="text-xs font-mono text-primary mb-1 uppercase tracking-wider">{item.category}</div>}
+                    {item.title && <h3 className="text-xl font-bold text-foreground mb-2">{item.title}</h3>}
+                    {item.student && <p className="text-sm font-semibold text-foreground/80 mb-2">By {item.student}</p>}
+                    {item.description && <p className="text-muted-foreground text-sm leading-relaxed">{item.description}</p>}
                   </div>
                 </div>
               </motion.div>

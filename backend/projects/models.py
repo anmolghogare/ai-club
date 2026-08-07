@@ -9,12 +9,12 @@ class ClubProject(Base):
     __tablename__ = "club_projects"
 
     id          = Column(Integer, primary_key=True, index=True)
-    title       = Column(String(255), nullable=False)
-    author      = Column(String(255), nullable=False)
+    title       = Column(String(255), nullable=True)
+    author      = Column(String(255), nullable=True)
     author_id   = Column(Integer, nullable=True, index=True)
-    description = Column(Text, nullable=False)
+    description = Column(Text, nullable=True)
     tags        = Column(Text, nullable=True)  # JSON-serialised array of tags
-    github_link = Column(String(255), nullable=False)
+    github_link = Column(String(255), nullable=True)
     created_at  = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
     def __repr__(self) -> str:

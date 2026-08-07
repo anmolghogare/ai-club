@@ -9,8 +9,8 @@ class ClubMember(Base):
     __tablename__ = "club_members"
 
     id          = Column(Integer, primary_key=True, index=True)
-    name        = Column(String(255), nullable=False)
-    role        = Column(String(100), nullable=False)  # 'Convenor' | 'Core Member' | 'Extended Core Member' | 'Member'
+    name        = Column(String(255), nullable=True)
+    role        = Column(String(100), nullable=True)  # 'Convenor' | 'Core Member' | 'Extended Core Member' | 'Member'
     photo       = Column(String(500), nullable=True)
     description = Column(Text, nullable=True)
     github      = Column(String(255), nullable=True)
