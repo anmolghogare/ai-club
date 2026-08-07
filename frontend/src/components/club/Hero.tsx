@@ -122,10 +122,10 @@ export default function Hero() {
               whileTap={{ scale: 0.95 }}
             >
               <Link
-                to="/events"
+                to="/aura"
                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-slate-800 font-mono text-sm font-bold rounded-xl border border-slate-300 hover:border-orange-500 hover:bg-orange-50/60 hover:text-orange-600 shadow-sm hover:shadow-md transition-colors duration-200"
               >
-                <span>See what's on</span>
+                <span>About AURA</span>
               </Link>
             </motion.div>
 
