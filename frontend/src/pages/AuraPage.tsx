@@ -36,8 +36,8 @@ type Line = {
 };
 
 const teamMembers = [
-  { name: 'Vedant Shah' },
-  { name: 'Parth Agrawal' },
+  { name: 'Vedant Shah', image: '/vedant-shah.jpg' },
+  { name: 'Parth Agrawal', image: '/parth-agrawal.png' },
   { name: 'Meet Virugama', image: '/meet-virugama.png' },
   { name: 'Khushi Gandhi' },
   { name: 'Bhagyashree Khemwani' },
