@@ -89,7 +89,7 @@ const facultyMembers = [
     roleInAura: 'Infrastructure Setup',
     specialization: 'System & Network Administration, VMware',
     researchAreas: [],
-    experience: 'Industry Expert',
+    experience: '16+ Years',
     education: '',
     email: '',
     office: '',
