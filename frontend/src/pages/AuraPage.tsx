@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { motion, useReducedMotion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
-import { ArrowLeft, Sparkles, Network, Fingerprint, Activity, Zap } from 'lucide-react';
+import { motion, useReducedMotion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import { ArrowLeft, Sparkles, Fingerprint, Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const teamMembers = [
@@ -52,11 +52,10 @@ const getInitials = (name: string) => {
 
 const LivingBackground = () => {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#05070F]">
-      {/* Deep Space Noise */}
-      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#050505]">
+      <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.04] mix-blend-overlay" />
       
-      {/* Cinematic Ambient Orbs */}
+      {/* Cinematic Ambient Orbs (Orange/Black Theme) */}
       <motion.div
         animate={{ 
           x: ['-20%', '10%', '-20%'], 
@@ -65,7 +64,7 @@ const LivingBackground = () => {
           opacity: [0.15, 0.25, 0.15]
         }}
         transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[10%] left-[20%] w-[50vw] h-[50vw] rounded-full blur-[150px] bg-indigo-600/30 mix-blend-screen"
+        className="absolute top-[10%] left-[20%] w-[50vw] h-[50vw] rounded-full blur-[150px] bg-orange-600/30 mix-blend-screen"
       />
       <motion.div
         animate={{ 
@@ -75,21 +74,10 @@ const LivingBackground = () => {
           opacity: [0.1, 0.2, 0.1]
         }}
         transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full blur-[180px] bg-cyan-600/20 mix-blend-screen"
-      />
-      <motion.div
-        animate={{ 
-          x: ['-10%', '10%', '-10%'], 
-          y: ['-10%', '10%', '-10%'],
-          scale: [1, 1.1, 1],
-          opacity: [0.05, 0.15, 0.05]
-        }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[40%] left-[40%] w-[40vw] h-[40vw] rounded-full blur-[120px] bg-magenta-600/20 mix-blend-screen"
+        className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full blur-[180px] bg-amber-600/20 mix-blend-screen"
       />
       
-      {/* Light Rays */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#05070F] via-transparent to-[#05070F] z-10" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-10" />
     </div>
   );
 };
@@ -101,24 +89,24 @@ const AuraCore = () => {
       <motion.div
         animate={{ opacity: [0.3, 0.6, 0.3], scale: [0.8, 1.2, 0.8] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute inset-0 bg-cyan-500/30 blur-[60px] rounded-full"
+        className="absolute inset-0 bg-orange-500/30 blur-[60px] rounded-full"
       />
       <motion.div
         animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.5, 1] }}
         transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-        className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full"
+        className="absolute inset-0 bg-amber-500/20 blur-[80px] rounded-full"
       />
 
       {/* Orbiting Rings */}
       {[1, 2, 3].map((i) => (
         <motion.div
           key={`core-ring-${i}`}
-          className="absolute inset-0 rounded-full border border-cyan-400/20"
+          className="absolute inset-0 rounded-full border border-orange-400/20"
           style={{ width: `${100 + i * 40}%`, height: `${100 + i * 40}%`, left: `-${i * 20}%`, top: `-${i * 20}%` }}
           animate={{ rotateX: [60, 60], rotateY: [0, 360], rotateZ: [0, 360] }}
           transition={{ duration: 10 + i * 5, repeat: Infinity, ease: 'linear', direction: i % 2 === 0 ? 'reverse' : 'normal' }}
         >
-           <div className="w-2 h-2 rounded-full bg-cyan-400 absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_15px_#22d3ee]" />
+           <div className="w-2 h-2 rounded-full bg-orange-400 absolute top-0 left-1/2 -translate-x-1/2 shadow-[0_0_15px_#f97316]" />
         </motion.div>
       ))}
 
@@ -126,9 +114,9 @@ const AuraCore = () => {
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="relative z-20 w-32 h-32 md:w-40 md:h-40 bg-black/40 backdrop-blur-xl rounded-full border border-white/20 p-6 flex items-center justify-center shadow-[0_0_50px_rgba(34,211,238,0.2)]"
+        className="relative z-20 w-32 h-32 md:w-40 md:h-40 bg-black/60 backdrop-blur-xl rounded-full border border-orange-500/30 p-6 flex items-center justify-center shadow-[0_0_50px_rgba(249,115,22,0.2)] overflow-hidden"
       >
-        <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-contain filter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+        <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-cover scale-110" />
       </motion.div>
     </div>
   );
@@ -187,16 +175,16 @@ const AuraPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#05070F] text-white font-sans relative overflow-x-hidden selection:bg-cyan-500/30 selection:text-cyan-50">
+    <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden selection:bg-orange-500/30 selection:text-orange-50">
       
       <LivingBackground />
 
       <motion.div 
-        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 origin-left z-[60]"
+        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-600 via-orange-400 to-amber-400 origin-left z-[60]"
         style={{ scaleX }}
       />
 
-      <header className="fixed top-0 w-full z-50 bg-[#05070F]/50 backdrop-blur-2xl border-b border-white/5 transition-all duration-300">
+      <header className="fixed top-0 w-full z-50 bg-[#050505]/50 backdrop-blur-2xl border-b border-white/5 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
           <Link
             to="/"
@@ -209,10 +197,10 @@ const AuraPage = () => {
           </Link>
           <div className="flex items-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
             </span>
-            <span className="text-xs font-mono text-emerald-400/80 uppercase tracking-widest">System Active</span>
+            <span className="text-xs font-mono text-orange-400/80 uppercase tracking-widest">System Active</span>
           </div>
         </div>
       </header>
@@ -228,8 +216,8 @@ const AuraPage = () => {
             transition={{ duration: 1, delay: 0.2 }}
             className="flex items-center gap-3 mb-6 bg-white/5 border border-white/10 px-4 py-1.5 rounded-full backdrop-blur-md"
           >
-            <Sparkles size={14} className="text-cyan-400" />
-            <span className="text-xs font-mono text-cyan-200 tracking-widest uppercase">University Intelligence</span>
+            <Sparkles size={14} className="text-orange-400" />
+            <span className="text-xs font-mono text-orange-200 tracking-widest uppercase">University Intelligence</span>
           </motion.div>
 
           <motion.h1
@@ -238,7 +226,7 @@ const AuraPage = () => {
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
             className="text-6xl sm:text-7xl md:text-[110px] font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-white to-white/20 mb-8 text-center leading-[0.9]"
           >
-            Meet <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">AURA</span>
+            Meet <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400">AURA</span>
           </motion.h1>
 
           <motion.p
@@ -261,8 +249,8 @@ const AuraPage = () => {
                 whileTap={{ scale: 0.95 }}
                 className="relative group px-10 py-4 bg-transparent border-none rounded-full"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full blur-[10px] group-hover:blur-[20px] transition-all duration-300 opacity-60 group-hover:opacity-100" />
-                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-full" />
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full blur-[10px] group-hover:blur-[20px] transition-all duration-300 opacity-60 group-hover:opacity-100" />
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-500 rounded-full" />
                 <div className="relative flex items-center gap-3 text-white font-medium text-lg">
                   <Activity size={18} /> Initialize AURA
                 </div>
@@ -282,15 +270,15 @@ const AuraPage = () => {
             >
               The Architecture
             </motion.h2>
-            <p className="text-cyan-400 font-mono tracking-widest uppercase text-sm">Neural Network • v1.0</p>
+            <p className="text-orange-400 font-mono tracking-widest uppercase text-sm">Neural Network • v1.0</p>
           </div>
 
           <div className="hidden md:block relative w-full max-w-[1000px] mx-auto aspect-square">
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
               <defs>
                 <linearGradient id="gradient-active" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#22d3ee" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#818cf8" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#f97316" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
                 </linearGradient>
                 <linearGradient id="gradient-inactive" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#ffffff" stopOpacity="0.2" />
@@ -313,9 +301,9 @@ const AuraPage = () => {
               className="absolute top-1/2 left-1/2 w-40 h-40 flex items-center justify-center z-20"
               style={{ x: "-50%", y: "-50%" }}
             >
-              <div className="absolute inset-0 bg-cyan-500/20 blur-2xl rounded-full" />
-              <div className="relative w-28 h-28 bg-black/80 backdrop-blur-xl border border-cyan-500/30 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(34,211,238,0.2)]">
-                <img src="/aura-logo.png" alt="AURA" className="w-16 h-16 object-contain filter drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
+              <div className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full" />
+              <div className="relative w-28 h-28 bg-black/80 backdrop-blur-xl border border-orange-500/30 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(249,115,22,0.2)] overflow-hidden">
+                <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-cover scale-110" />
               </div>
             </motion.div>
 
@@ -329,8 +317,8 @@ const AuraPage = () => {
                   style={{ left: `calc(${node.x}% - 7rem)`, top: `calc(${node.y}% - 4rem)` }}
                   animate={{
                     scale: isActive ? 1.05 : 1,
-                    borderColor: isActive ? 'rgba(34,211,238,0.5)' : 'rgba(255,255,255,0.1)',
-                    boxShadow: isActive ? '0 0 40px rgba(34,211,238,0.15)' : '0 10px 30px rgba(0,0,0,0.5)',
+                    borderColor: isActive ? 'rgba(249,115,22,0.5)' : 'rgba(255,255,255,0.1)',
+                    boxShadow: isActive ? '0 0 40px rgba(249,115,22,0.15)' : '0 10px 30px rgba(0,0,0,0.5)',
                     y: [0, -8, 0]
                   }}
                   transition={{ 
@@ -349,14 +337,14 @@ const AuraPage = () => {
                     )}
                   </div>
                   <span className="text-sm font-bold text-white mb-1">{node.name}</span>
-                  <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-widest text-center">{node.role}</span>
+                  <span className="text-[10px] font-mono text-orange-400 uppercase tracking-widest text-center">{node.role}</span>
                 </motion.div>
               );
             })}
           </div>
 
           {/* Mobile Layout Fallback */}
-          <div className="md:hidden flex flex-col gap-6 px-6 w-full">
+          <div className="md:hidden flex flex-col gap-6 px-6 w-full mt-10">
             {nodes.map((node, i) => (
               <div key={node.name} onClick={() => setSelectedNode(i)} className="p-6 bg-white/5 border border-white/10 rounded-3xl flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden shrink-0 border border-white/20">
@@ -364,7 +352,7 @@ const AuraPage = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">{node.name}</h3>
-                  <p className="text-xs font-mono text-cyan-400 uppercase">{node.role}</p>
+                  <p className="text-xs font-mono text-orange-400 uppercase">{node.role}</p>
                 </div>
               </div>
             ))}
@@ -372,12 +360,12 @@ const AuraPage = () => {
         </section>
 
         {/* FACULTY EXPERTS */}
-        <section className="relative w-full min-h-screen py-32 bg-[#05070F] z-10 px-6">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-indigo-900/5 to-transparent pointer-events-none" />
+        <section className="relative w-full min-h-screen py-32 bg-[#050505] z-10 px-6">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-orange-900/5 to-transparent pointer-events-none" />
           
           <div className="text-center mb-20 relative z-20">
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-4">Command Module</h2>
-            <p className="text-indigo-400 font-mono tracking-widest uppercase text-sm">Faculty & Infrastructure</p>
+            <p className="text-orange-400 font-mono tracking-widest uppercase text-sm">Faculty & Infrastructure</p>
           </div>
 
           <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -391,9 +379,9 @@ const AuraPage = () => {
                 className="group relative rounded-[40px] p-[1px] overflow-hidden bg-white/5"
               >
                 {/* Animated Border Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-cyan-400 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
-                <div className="relative h-full bg-[#080A14] rounded-[39px] p-8 flex flex-col z-10">
+                <div className="relative h-full bg-[#080808] rounded-[39px] p-8 flex flex-col z-10">
                   <div className="flex items-center gap-5 mb-8">
                     <div className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 shrink-0">
                       {faculty.photo ? (
@@ -404,7 +392,7 @@ const AuraPage = () => {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-white mb-1">{faculty.name}</h3>
-                      <p className="text-sm text-cyan-400 font-medium mb-1">{faculty.designation}</p>
+                      <p className="text-sm text-orange-400 font-medium mb-1">{faculty.designation}</p>
                       <p className="text-xs text-white/40">{faculty.department}</p>
                     </div>
                   </div>
@@ -424,7 +412,7 @@ const AuraPage = () => {
                     <p className="text-[10px] text-white/40 uppercase font-mono tracking-wider mb-3">Expertise</p>
                     <div className="flex flex-wrap gap-2">
                       {faculty.skills.map((skill, index) => (
-                        <span key={index} className="px-3 py-1.5 text-xs text-white/80 bg-indigo-500/10 border border-indigo-500/20 rounded-full">
+                        <span key={index} className="px-3 py-1.5 text-xs text-white/80 bg-orange-500/10 border border-orange-500/20 rounded-full">
                           {skill}
                         </span>
                       ))}
@@ -449,17 +437,17 @@ const AuraPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <motion.div className="absolute inset-0 bg-[#05070F]/80 backdrop-blur-3xl" onClick={() => setSelectedNode(null)} />
+              <motion.div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-3xl" onClick={() => setSelectedNode(null)} />
               
               <motion.div
-                className="relative w-full max-w-2xl bg-[#0A0D1A] border border-cyan-500/20 rounded-[40px] p-10 overflow-hidden shadow-[0_0_100px_rgba(34,211,238,0.1)]"
+                className="relative w-full max-w-2xl bg-[#0a0a0a] border border-orange-500/20 rounded-[40px] p-10 overflow-hidden shadow-[0_0_100px_rgba(249,115,22,0.1)]"
                 initial={{ scale: 0.9, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
                 exit={{ scale: 0.9, y: 20, opacity: 0 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-indigo-500" />
-                <div className="absolute -top-32 -right-32 w-64 h-64 bg-cyan-500/20 blur-[80px] rounded-full pointer-events-none" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-amber-500" />
+                <div className="absolute -top-32 -right-32 w-64 h-64 bg-orange-500/20 blur-[80px] rounded-full pointer-events-none" />
                 
                 <button
                   onClick={() => setSelectedNode(null)}
@@ -480,8 +468,8 @@ const AuraPage = () => {
                   
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <Fingerprint size={16} className="text-cyan-400" />
-                      <span className="text-xs font-mono text-cyan-400 uppercase tracking-widest">{nodes[selectedNode].role}</span>
+                      <Fingerprint size={16} className="text-orange-400" />
+                      <span className="text-xs font-mono text-orange-400 uppercase tracking-widest">{nodes[selectedNode].role}</span>
                     </div>
                     <h3 className="text-4xl font-bold text-white mb-6 tracking-tight">{nodes[selectedNode].name}</h3>
                     
@@ -497,12 +485,12 @@ const AuraPage = () => {
                       )}
                       {nodes[selectedNode].linkedin && (
                         <a href={nodes[selectedNode].linkedin} target="_blank" rel="noreferrer" className="flex-1 min-w-[120px]">
-                          <button className="w-full py-3.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 hover:bg-cyan-500/20 transition-all text-sm font-medium text-cyan-300 shadow-lg">LinkedIn</button>
+                          <button className="w-full py-3.5 rounded-full bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 transition-all text-sm font-medium text-orange-300 shadow-lg">LinkedIn</button>
                         </a>
                       )}
                       {(nodes[selectedNode] as any).website && (
                         <a href={(nodes[selectedNode] as any).website} target="_blank" rel="noreferrer" className="flex-1 min-w-[120px]">
-                          <button className="w-full py-3.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 transition-all text-sm font-medium text-indigo-300 shadow-lg">Website</button>
+                          <button className="w-full py-3.5 rounded-full bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 transition-all text-sm font-medium text-amber-300 shadow-lg">Website</button>
                         </a>
                       )}
                     </div>
