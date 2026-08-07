@@ -1,4 +1,4 @@
-import React, { useState, useRef, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useRef, useLayoutEffect, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -138,6 +138,17 @@ const AuraPage = () => {
     show: { clipPath: 'inset(0 0 0 0)', transition: { duration: 0.6, ease: 'easeInOut' } },
   };
 
+  const [hasScrolled, setHasScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setHasScrolled(true);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-[100dvh] bg-[var(--aura-cream-base)] text-[var(--aura-ink)] font-sans relative overflow-x-hidden selection:bg-[var(--aura-accent)] selection:text-white">
       {/* Header */}
@@ -222,8 +233,8 @@ const AuraPage = () => {
           {/* Scroll cue — shortened from 2s to 1.2s so it doesn't lag the sequence */}
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
+            animate={{ opacity: hasScrolled ? 0 : 1 }}
+            transition={{ delay: hasScrolled ? 0 : 1.2 }}
             className="mt-20 text-[var(--aura-outline-soft)] animate-bounce"
           >
             ↓
@@ -389,24 +400,21 @@ const AuraPage = () => {
             {/* Right: Quote */}
             <div className="flex-1 py-4 md:py-8">
               <div className="aura-eyebrow text-[var(--aura-slate)] mb-6">A NOTE FROM THEM</div>
-              <div className="space-y-6 text-xl md:text-2xl font-serif leading-[1.4] text-[var(--aura-ink)]">
+              <div className="relative space-y-6 text-xl md:text-2xl font-serif leading-[1.4] text-[var(--aura-ink)] p-4 md:p-6 rounded-2xl overflow-hidden">
+                <motion.div
+                  variants={sweepEnter}
+                  initial="hidden"
+                  whileInView="show"
+                  viewport={{ once: true, margin: '-10%' }}
+                  className="absolute inset-0 bg-[var(--aura-accent)]/10 -z-10"
+                  style={{ clipPath: 'inset(0 100% 0 0)' }}
+                />
                 <p>
                   "From day-to-day searches to timetable confusion, AURA brings everything students
                   need at DAU into one intelligent assistant.
                 </p>
                 <p>
-                  <span className="relative inline-block">
-                    <motion.span
-                      variants={sweepEnter}
-                      initial="hidden"
-                      whileInView="show"
-                      viewport={{ once: true, margin: '-10%' }}
-                      className="absolute inset-0 bg-[var(--aura-cream-deep)] -z-10"
-                      style={{ clipPath: 'inset(0 100% 0 0)' }}
-                    />
-                    This is only Version 1.
-                  </span>{' '}
-                  More capabilities, more team members, and more faculty mentors will shape what
+                  This is only Version 1. More capabilities, more team members, and more faculty mentors will shape what
                   comes next."
                 </p>
               </div>
@@ -430,10 +438,9 @@ const AuraPage = () => {
 
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-6 py-2 border border-[var(--aura-outline-soft)] rounded-full text-sm font-medium hover:bg-[var(--aura-surface)] transition-colors group"
+            className="inline-flex items-center gap-2 px-6 py-2 border border-[var(--aura-outline-soft)] rounded-full text-sm font-medium hover:bg-[var(--aura-surface)] transition-colors group whitespace-nowrap"
           >
-            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back
-            to AURA
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform shrink-0" /> Back to AURA
           </Link>
 
           <div className="flex items-center justify-center gap-3 text-xs text-[var(--aura-slate)] mt-6">
