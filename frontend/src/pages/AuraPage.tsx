@@ -457,10 +457,10 @@ const AuraPage = () => {
 
           {/* Scroll Indicator */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, x: "-50%" }}
+            animate={{ opacity: 1, x: "-50%" }}
             transition={{ delay: 1.5, duration: 1 }}
-            className="absolute bottom-8 left-1/2 -translate-x-1/2 flex justify-center"
+            className="absolute bottom-8 left-1/2 flex justify-center"
           >
             <div className="w-6 h-10 border-2 border-white/10 rounded-full flex justify-center pt-2">
               <motion.div
@@ -560,12 +560,15 @@ const AuraPage = () => {
 
             {/* Center Node */}
             <motion.div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center z-20 shadow-[0_0_40px_rgba(232,121,46,0.3)]"
+              className="absolute top-1/2 left-1/2 w-32 h-32 rounded-full bg-gradient-to-br from-orange-500 to-orange-800 flex items-center justify-center z-20 shadow-[0_0_40px_rgba(232,121,46,0.3)]"
+              style={{ x: "-50%", y: "-50%" }}
               animate={{
                 boxShadow: hoveredNode !== null
                   ? '0 0 60px rgba(232,121,46,0.6)'
                   : '0 0 40px rgba(232,121,46,0.3)',
-                scale: selectedNode !== null ? 1.1 : 1
+                scale: selectedNode !== null ? 1.1 : 1,
+                x: "-50%",
+                y: "-50%"
               }}
               transition={{ duration: 0.3 }}
             >
