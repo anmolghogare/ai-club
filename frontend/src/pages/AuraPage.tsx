@@ -47,21 +47,21 @@ const teamMembers = [
 const facultyMembers = [
   {
     id: 'f1',
-    name: 'Dr. G. Venkatesh',
-    designation: 'Professor of Practice',
-    department: 'Computer Science',
+    name: 'Dr. G Venkatesh',
+    designation: 'Associate Professor',
+    department: 'Chemistry',
     roleInAura: 'Vision',
-    specialization: 'Embedded Systems Design, Technology Management',
-    researchAreas: ['Embedded Systems', 'Computational Economics', 'Technology & Policy'],
-    experience: '30+ Years',
-    education: 'Ph.D. in CS (TIFR), B.Tech (IIT Madras)',
+    specialization: 'Materials Science, Molecular Modelling',
+    researchAreas: ['Supramolecular Nano Materials', 'Materials Science', 'Molecular Modelling'],
+    experience: 'Experienced',
+    education: 'Ph.D. in Chemistry (Annamalai University)',
     email: 'venkatesh_g@dau.ac.in',
     office: 'Block 2, Room 412',
     quote: "Technology should solve real problems for real students.",
     linkedin: 'https://in.linkedin.com/in/venkatesh-g-a02a58',
     photo: '/venkatesh-g.png',
     contributions: ['Project Vision', 'Research Direction', 'Mentoring', 'Technical Guidance'],
-    skills: ['Strategic Thinking', 'Technology Management', 'Policy & Education']
+    skills: ['Materials Science', 'Molecular Modelling', 'Chemistry']
   },
   {
     id: 'f2',
