@@ -294,7 +294,7 @@ const AuraPage = () => {
 
   const nodes = teamMembers.map((member, i) => {
     const angle = (i * Math.PI * 2) / teamMembers.length - Math.PI / 2;
-    const role = ['AI Engineer', 'ML Engineer', 'Frontend Developer', 'Backend Engineer', 'Research Lead', 'Infrastructure', 'Partner Club'][i];
+    const role = ['AI Club', 'AI Club', 'AI Club', 'Programming Club', 'AI Club', 'AI Club', 'Google Developer Groups'][i];
     const x = 50 + Math.cos(angle) * 38; 
     const y = 50 + Math.sin(angle) * 38;
     return { ...member, role, x, y };
