@@ -196,7 +196,7 @@ const CurvedConnection = ({ startX, startY, endX, endY, isActive }: any) => {
       <motion.path
         d={path} fill="none" stroke={isActive ? "url(#gradient-active)" : "url(#gradient-inactive)"}
         strokeWidth={isActive ? "2" : "1.5"} strokeDasharray="4 8"
-        animate={{ strokeDashoffset: [0, -100] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        animate={{ strokeDashoffset: [0, 100] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
         style={{ opacity: isActive ? 1 : 0.3 }}
       />
     </g>
