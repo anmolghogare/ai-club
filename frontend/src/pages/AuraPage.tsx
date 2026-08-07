@@ -509,84 +509,85 @@ const AuraPage = () => {
                   ))}
                 </div>
               </div>
-              {/* Modal */}
-              <AnimatePresence>
-                {selectedNode !== null && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/60 backdrop-blur-2xl"
-                    onClick={() => setSelectedNode(null)}
-                  >
-                    <motion.div
-                      initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                      animate={{ scale: 1, opacity: 1, y: 0 }}
-                      exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                      transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                      className="w-full max-w-lg bg-[#0A0A0A]/90 border border-white/10 rounded-[32px] p-8 relative overflow-hidden"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent pointer-events-none" />
-                      
-                      <button 
-                        onClick={() => setSelectedNode(null)}
-                        className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors z-20"
-                      >
-                        <X size={20} />
-                      </button>
-
-                      <div className="flex items-center gap-6 mb-8 relative z-10">
-                        <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-white/5 shrink-0">
-                          {nodes[selectedNode].image ? (
-                            <img src={nodes[selectedNode].image} alt={nodes[selectedNode].name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
-                              {getInitials(nodes[selectedNode].name)}
-                            </div>
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="text-2xl font-bold text-white mb-2">{nodes[selectedNode].name}</h3>
-                          <p className="text-sm font-mono text-orange-400 uppercase tracking-widest">{nodes[selectedNode].role}</p>
-                        </div>
-                      </div>
-
-                      <div className="relative z-10 space-y-6">
-                        <p className="text-white/70 leading-relaxed text-sm">
-                          {nodes[selectedNode].bio}
-                        </p>
-                        
-                        <div className="flex gap-4 pt-4 border-t border-white/10">
-                          {nodes[selectedNode].linkedin && (
-                            <a href={nodes[selectedNode].linkedin} target="_blank" rel="noreferrer" className="flex-1">
-                              <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
-                                LinkedIn
-                              </button>
-                            </a>
-                          )}
-                          {nodes[selectedNode].github && (
-                            <a href={nodes[selectedNode].github} target="_blank" rel="noreferrer" className="flex-1">
-                              <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
-                                GitHub
-                              </button>
-                            </a>
-                          )}
-                          {nodes[selectedNode].website && (
-                            <a href={nodes[selectedNode].website} target="_blank" rel="noreferrer" className="flex-1">
-                              <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
-                                Website
-                              </button>
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </section>
           </main>
+
+          {/* Modal */}
+          <AnimatePresence>
+            {selectedNode !== null && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/60 backdrop-blur-2xl"
+                onClick={() => setSelectedNode(null)}
+              >
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                  className="w-full max-w-lg bg-[#0A0A0A]/90 border border-white/10 rounded-[32px] p-8 relative overflow-hidden"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent pointer-events-none" />
+                  
+                  <button 
+                    onClick={() => setSelectedNode(null)}
+                    className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors z-20"
+                  >
+                    <X size={20} />
+                  </button>
+
+                  <div className="flex items-center gap-6 mb-8 relative z-10">
+                    <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-white/5 shrink-0">
+                      {nodes[selectedNode].image ? (
+                        <img src={nodes[selectedNode].image} alt={nodes[selectedNode].name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
+                          {getInitials(nodes[selectedNode].name)}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold text-white mb-2">{nodes[selectedNode].name}</h3>
+                      <p className="text-sm font-mono text-orange-400 uppercase tracking-widest">{nodes[selectedNode].role}</p>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 space-y-6">
+                    <p className="text-white/70 leading-relaxed text-sm">
+                      {nodes[selectedNode].bio}
+                    </p>
+                    
+                    <div className="flex gap-4 pt-4 border-t border-white/10">
+                      {nodes[selectedNode].linkedin && (
+                        <a href={nodes[selectedNode].linkedin} target="_blank" rel="noreferrer" className="flex-1">
+                          <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                            LinkedIn
+                          </button>
+                        </a>
+                      )}
+                      {nodes[selectedNode].github && (
+                        <a href={nodes[selectedNode].github} target="_blank" rel="noreferrer" className="flex-1">
+                          <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                            GitHub
+                          </button>
+                        </a>
+                      )}
+                      {nodes[selectedNode].website && (
+                        <a href={nodes[selectedNode].website} target="_blank" rel="noreferrer" className="flex-1">
+                          <button className="w-full py-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                            Website
+                          </button>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       )}
     </>
