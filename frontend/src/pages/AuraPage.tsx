@@ -38,7 +38,7 @@ type Line = {
 const teamMembers = [
   { name: 'Vedant Shah' },
   { name: 'Parth Agrawal' },
-  { name: 'Meet Virugama' },
+  { name: 'Meet Virugama', image: '/meet-virugama.png' },
   { name: 'Khushi Gandhi' },
   { name: 'Bhagyashree Khemwani' },
   { name: 'Manal Patel' },
@@ -606,8 +606,12 @@ const AuraPage = () => {
                   }}
                 >
                   <div className="absolute inset-0 rounded-2xl border border-orange-500/0 group-hover:border-orange-500/50 transition-colors duration-300" />
-                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:bg-orange-500/20 group-hover:border-orange-500/50 transition-all duration-300">
-                    <span className="font-bold text-white/90">{getInitials(node.name)}</span>
+                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:bg-orange-500/20 group-hover:border-orange-500/50 transition-all duration-300 overflow-hidden">
+                    {node.image ? (
+                      <img src={node.image} alt={node.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-bold text-white/90">{getInitials(node.name)}</span>
+                    )}
                   </div>
                   <span className="text-sm font-medium text-white/90 text-center leading-tight whitespace-nowrap">{node.name}</span>
                   <span className="text-[10px] text-orange-400/80 uppercase tracking-widest mt-1 text-center">{node.role}</span>
@@ -661,8 +665,12 @@ const AuraPage = () => {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-3 bg-white/5">
-                  <span className="font-bold text-white/90">{getInitials(node.name)}</span>
+                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-3 bg-white/5 overflow-hidden">
+                  {node.image ? (
+                    <img src={node.image} alt={node.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="font-bold text-white/90">{getInitials(node.name)}</span>
+                  )}
                 </div>
                 <span className="font-medium text-white/90 text-lg">{node.name}</span>
                 <span className="text-xs text-orange-400 uppercase tracking-widest mt-1">{node.role}</span>
@@ -702,8 +710,12 @@ const AuraPage = () => {
                 </button>
                 
                 <div className="relative z-10 flex flex-col items-center text-center mt-2">
-                  <div className="w-20 h-20 rounded-full border border-orange-500/30 flex items-center justify-center bg-black mb-5 shadow-[0_0_30px_rgba(232,121,46,0.2)]">
-                    <span className="text-2xl font-bold text-white">{getInitials(nodes[selectedNode].name)}</span>
+                  <div className="w-20 h-20 rounded-full border border-orange-500/30 flex items-center justify-center bg-black mb-5 shadow-[0_0_30px_rgba(232,121,46,0.2)] overflow-hidden">
+                    {nodes[selectedNode].image ? (
+                      <img src={nodes[selectedNode].image} alt={nodes[selectedNode].name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-2xl font-bold text-white">{getInitials(nodes[selectedNode].name)}</span>
+                    )}
                   </div>
                   <h3 className="text-2xl font-bold text-white mb-1">{nodes[selectedNode].name}</h3>
                   <p className="text-orange-400 uppercase tracking-widest text-[11px] mb-6 font-mono">{nodes[selectedNode].role}</p>
