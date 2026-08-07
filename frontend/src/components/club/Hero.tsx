@@ -87,14 +87,14 @@ export default function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="border-l-4 border-indigo-600 pl-6 space-y-4"
+            className="border-l-4 border-orange-500 pl-6 space-y-4"
           >
             <h1 className="font-serif font-extrabold text-4xl sm:text-6xl lg:text-7xl text-slate-900 leading-[1.08] tracking-tight">
-              We meet to read the paper <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600">nobody assigned.</span>
+              One Assistant for <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-amber-500">Everything at DAU.</span>
             </h1>
 
             <p className="font-sans text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-              Then we build the thing in it. A student-run club at Dhirubhai Ambani University for builders who would rather train a small model badly this week than read about a large one forever.
+              Built by students, for everyone. AURA is the official AI assistant of Dhirubhai Ambani University, bringing everything students need into one intelligent platform.
             </p>
           </motion.div>
 
@@ -106,14 +106,14 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-4 pt-2"
           >
             <motion.a
-              href="https://discord.gg/bU7JdWa6"
+              href="https://aura.dau.ac.in"
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.06, y: -4 }}
               whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-slate-900 text-white font-mono text-sm font-bold rounded-xl hover:bg-indigo-600 shadow-md hover:shadow-xl hover:shadow-indigo-500/30 transition-colors duration-200 group"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-slate-900 text-white font-mono text-sm font-bold rounded-xl hover:bg-orange-500 shadow-md hover:shadow-xl hover:shadow-orange-500/30 transition-colors duration-200 group"
             >
-              <span>Join the club</span>
+              <span>Try AURA</span>
               <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform" />
             </motion.a>
 
@@ -123,117 +123,33 @@ export default function Hero() {
             >
               <Link
                 to="/events"
-                className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-slate-800 font-mono text-sm font-bold rounded-xl border border-slate-300 hover:border-indigo-500 hover:bg-indigo-50/60 hover:text-indigo-600 shadow-sm hover:shadow-md transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-slate-800 font-mono text-sm font-bold rounded-xl border border-slate-300 hover:border-orange-500 hover:bg-orange-50/60 hover:text-orange-600 shadow-sm hover:shadow-md transition-colors duration-200"
               >
                 <span>See what's on</span>
               </Link>
             </motion.div>
 
             <div className="w-full sm:w-auto flex items-center gap-2 text-xs font-mono text-slate-500 pt-2 sm:pt-0 sm:ml-4">
-              <Sparkles size={15} className="text-indigo-500 animate-spin duration-[6000ms]" />
-              <span>Weekly Workshops & Open Source</span>
+              <Sparkles size={15} className="text-orange-500 animate-spin duration-[6000ms]" />
+              <span>University AI Assistant</span>
             </div>
           </motion.div>
         </div>
 
-        {/* Right Column: Animated AI Hub Card */}
+        {/* Right Column: AURA Logo */}
         <motion.div
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4, duration: 0.7 }}
-          className="lg:col-span-5 relative flex justify-center"
+          className="lg:col-span-5 relative flex justify-center items-center"
         >
-          <div className="w-full max-w-md bg-white/95 backdrop-blur-xl border border-indigo-100 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
-            
-            <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/10 via-purple-500/10 to-cyan-500/10 rounded-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6 relative z-10">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-display font-extrabold text-sm shadow-md">
-                  AI
-                </div>
-                <div>
-                  <h3 className="font-display font-extrabold text-sm text-slate-900">DA-IICT AI Club</h3>
-                  <p className="text-[10px] text-slate-500 font-mono">Dhirubhai Ambani University</p>
-                </div>
-              </div>
-              <span className="font-mono text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" /> ONLINE
-              </span>
-            </div>
-
-            {/* Neural Net Layer Visualizer */}
-            <div className="relative h-64 bg-slate-900 rounded-2xl p-4 overflow-hidden border border-slate-800 flex flex-col justify-between shadow-inner">
-              <div className="flex justify-between items-center relative z-10 text-[11px] font-mono">
-                <motion.span 
-                  whileHover={{ scale: 1.08 }}
-                  className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2.5 py-1 rounded-md cursor-pointer"
-                >
-                  Layer: MultiHeadAttention
-                </motion.span>
-                <motion.span 
-                  whileHover={{ scale: 1.08 }}
-                  className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-2.5 py-1 rounded-md cursor-pointer"
-                >
-                  Loss: 0.042 ↓
-                </motion.span>
-              </div>
-
-              {/* Network Node Constellation */}
-              <div className="relative my-auto py-4 flex items-center justify-center gap-5">
-                {[
-                  { name: 'Data', color: 'bg-indigo-500' },
-                  { name: 'Model', color: 'bg-purple-500' },
-                  { name: 'Train', color: 'bg-cyan-500' },
-                  { name: 'Deploy', color: 'bg-emerald-500' },
-                ].map((node, i) => (
-                  <motion.div
-                    key={node.name}
-                    animate={{
-                      y: activeNode === i ? [-6, 6, -6] : [0, 0, 0],
-                      scale: activeNode === i ? 1.15 : 1,
-                    }}
-                    transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
-                    whileHover={{ scale: 1.25, rotate: 4 }}
-                    className="flex flex-col items-center gap-1.5 cursor-pointer z-10"
-                  >
-                    <div className={`w-11 h-11 rounded-2xl ${node.color} flex items-center justify-center text-white shadow-lg font-bold text-xs border-2 border-white/20`}>
-                      {i === 0 && <Database size={16} />}
-                      {i === 1 && <Cpu size={16} />}
-                      {i === 2 && <Activity size={16} />}
-                      {i === 3 && <Zap size={16} />}
-                    </div>
-                    <span className="font-mono text-[10px] text-slate-300 font-semibold">{node.name}</span>
-                  </motion.div>
-                ))}
-              </div>
-
-              <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-[11px] font-mono text-slate-300 flex items-center justify-between relative z-10">
-                <span className="text-indigo-400 font-bold">&gt; import torch; model.fit()</span>
-                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <Sparkles size={12} className="animate-spin" /> Active
-                </span>
-              </div>
-            </div>
-
-            {/* Bottom Interactive Feature Chips */}
-            <div className="grid grid-cols-3 gap-2.5 mt-4">
-              {[
-                { title: 'DA-IICT', desc: 'Gandhinagar' },
-                { title: 'Open Source', desc: 'GitHub First' },
-                { title: 'Hands On', desc: 'Weekly Code' },
-              ].map((item) => (
-                <motion.div
-                  key={item.title}
-                  whileHover={{ y: -4, scale: 1.05 }}
-                  className="bg-indigo-50/70 border border-indigo-100 p-2.5 rounded-xl text-center cursor-pointer shadow-sm"
-                >
-                  <p className="font-bold text-xs text-indigo-900">{item.title}</p>
-                  <p className="text-[10px] text-indigo-600 font-mono mt-0.5">{item.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-
+          <div className="w-full max-w-lg relative group">
+            <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-500/20 to-yellow-500/20 rounded-3xl blur-3xl group-hover:blur-2xl transition-all duration-500 opacity-50" />
+            <img 
+              src="/aura-logo.png" 
+              alt="AURA Logo" 
+              className="relative z-10 w-full h-auto object-contain drop-shadow-2xl scale-110 md:scale-125"
+            />
           </div>
         </motion.div>
       </div>
