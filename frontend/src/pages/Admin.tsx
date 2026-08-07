@@ -247,7 +247,10 @@ const Admin = () => {
   // getAuthHeaders only carries content-type or other non-auth headers.
   const getAuthHeaders = (extra: Record<string, string> = {}): Record<string, string> => {
     const token = localStorage.getItem('access_token');
-    const headers: Record<string, string> = { ...extra };
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...extra
+    };
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
@@ -286,10 +289,19 @@ const Admin = () => {
         setIsAchievementModalOpen(false);
         fetchAchievementsList();
       } else {
-        showToast('Failed to save achievement.', 'error');
+        const errorData = await res.json().catch(() => ({}));
+        let message = 'Failed to save achievement.';
+        if (errorData.detail) {
+          message = typeof errorData.detail === 'string' ? errorData.detail : JSON.stringify(errorData.detail);
+        } else if (res.status === 403) {
+          message = 'Forbidden: Your account does not have admin permissions.';
+        } else if (res.status === 401) {
+          message = 'Unauthorized: Please log in again.';
+        }
+        showToast(message, 'error');
       }
     } catch (err) {
-      showToast('Error saving achievement.', 'error');
+      showToast('Error saving achievement. Network error or server offline.', 'error');
     } finally {
       setIsSubmitting(false);
     }
