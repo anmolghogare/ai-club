@@ -39,9 +39,9 @@ const teamMembers = [
   { name: 'Vedant Shah', image: '/vedant-shah.jpg' },
   { name: 'Parth Agrawal', image: '/parth-agrawal.png' },
   { name: 'Meet Virugama', image: '/meet-virugama.png' },
-  { name: 'Khushi Gandhi' },
-  { name: 'Bhagyashree Khemwani' },
-  { name: 'Manal Patel' },
+  { name: 'Madhav Thesiya' },
+  { name: 'Bhagyashree Khemwani', image: '/bhagyashree-khemwani.png' },
+  { name: 'Manal Patel', image: '/manal-patel.png' },
 ];
 
 const facultyMembers = [
