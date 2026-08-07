@@ -42,6 +42,7 @@ const teamMembers = [
   { name: 'Madhav Thesiya', image: '/madhav-thesiya.png', linkedin: 'https://www.linkedin.com/in/madhavthesiya/', github: 'https://github.com/madhavthesiya', bio: 'Codeforces Expert, LeetCode Knight, and CodeChef 4-Star with 2000+ problems solved. I enjoy building scalable backend systems focusing on caching, concurrency, database optimization, and performance engineering using C++, Java, Spring Boot, and Redis.' },
   { name: 'Bhagyashree Khemwani', image: '/bhagyashree-khemwani.png', linkedin: 'https://www.linkedin.com/in/bhagyashree-khemwani/', github: 'https://github.com/bhagy-shr', bio: 'I am a B.Tech ICT student at DAU, passionate about AI/ML and everything in between. Core Member of AI Club DAU and a Google Gemini Student Ambassador, exploring how AI can solve real, everyday problems.' },
   { name: 'Manal Patel', image: '/manal-patel.png', linkedin: 'https://www.linkedin.com/in/manal-patel-a87b11382/', github: 'https://github.com/manalPatel2557', bio: 'I am a student at DAU with a strong passion for software development. I enjoy building diverse projects spanning observability platforms in Python, QR code scanners in C++, and database management systems in C.' },
+  { name: 'GDG DAU', image: '', linkedin: '', github: '', bio: 'The Google Developer Group (GDG) club at DAU is a student-run organization fostering development in ML, Android, Web, and UI/UX. Led by Convener Abhishek Abbi, GDG partners with AURA for major tech initiatives like SLoP and Dev-o-lution.' },
 ];
 
 const facultyMembers = [
@@ -293,7 +294,7 @@ const AuraPage = () => {
 
   const nodes = teamMembers.map((member, i) => {
     const angle = (i * Math.PI * 2) / teamMembers.length - Math.PI / 2;
-    const role = ['AI Engineer', 'ML Engineer', 'Frontend Developer', 'Backend Engineer', 'Research Lead', 'Infrastructure'][i];
+    const role = ['AI Engineer', 'ML Engineer', 'Frontend Developer', 'Backend Engineer', 'Research Lead', 'Infrastructure', 'Partner Club'][i];
     const x = 50 + Math.cos(angle) * 38; 
     const y = 50 + Math.sin(angle) * 38;
     return { ...member, role, x, y };
