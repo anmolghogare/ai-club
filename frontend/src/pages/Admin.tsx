@@ -1426,9 +1426,9 @@ const Admin = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row">
+      <div className="md:h-screen md:overflow-hidden min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row">
         {/* Left Sidebar Navigation */}
-        <aside className="w-full md:w-64 shrink-0 bg-slate-900 text-slate-100 border-b md:border-b-0 md:border-r border-slate-800 md:sticky md:top-0 md:h-screen flex flex-col justify-between p-6">
+        <aside className="w-full md:w-64 shrink-0 bg-slate-900 text-slate-100 border-b md:border-b-0 md:border-r border-slate-800 md:h-screen md:overflow-y-auto flex flex-col justify-between p-6">
           <div className="space-y-6">
             {/* Header / Logo */}
             <div className="flex items-center gap-3 py-2 border-b border-slate-800">
@@ -1501,8 +1501,8 @@ const Admin = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 p-6 md:p-10 flex flex-col justify-between">
-          <div className="max-w-[1200px] w-full">
+        <main className="flex-1 min-w-0 p-6 md:p-10 flex flex-col justify-between md:h-screen md:overflow-y-auto">
+          <div className="max-w-[1200px] w-full mx-auto">
             {/* Header bar */}
             <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
               <div>
