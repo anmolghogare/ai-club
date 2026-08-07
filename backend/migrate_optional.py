@@ -19,7 +19,9 @@ async def migrate():
         await conn.execute("ALTER TABLE club_achievements ALTER COLUMN category DROP NOT NULL;")
         await conn.execute("ALTER TABLE club_achievements ALTER COLUMN icon DROP NOT NULL;")
         try:
-            await conn.execute("ALTER TABLE club_achievements ADD COLUMN image_url VARCHAR(500);")
+            await conn.execute("ALTER TABLE club_achievements ADD COLUMN IF NOT EXISTS image_url TEXT;")
+            await conn.execute("ALTER TABLE club_achievements ALTER COLUMN image_url TYPE TEXT;")
+            await conn.execute("ALTER TABLE club_achievements ALTER COLUMN title TYPE TEXT;")
             print("Added image_url to club_achievements")
         except asyncpg.exceptions.DuplicateColumnError:
             print("image_url already exists in club_achievements")

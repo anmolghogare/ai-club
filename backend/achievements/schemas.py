@@ -3,20 +3,20 @@ from datetime import datetime
 from typing import Optional
 
 class AchievementCreate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    student: Optional[str] = Field(None, max_length=255)
+    title: Optional[str] = None
+    student: Optional[str] = None
     description: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=100)
-    icon: Optional[str] = Field(None, max_length=50)
-    image_url: Optional[str] = Field(None, max_length=500)
+    category: Optional[str] = None
+    icon: Optional[str] = None
+    image_url: Optional[str] = None
 
 class AchievementUpdate(BaseModel):
-    title: Optional[str] = Field(None, max_length=255)
-    student: Optional[str] = Field(None, max_length=255)
+    title: Optional[str] = None
+    student: Optional[str] = None
     description: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=100)
-    icon: Optional[str] = Field(None, max_length=50)
-    image_url: Optional[str] = Field(None, max_length=500)
+    category: Optional[str] = None
+    icon: Optional[str] = None
+    image_url: Optional[str] = None
 
 class AchievementResponse(BaseModel):
     id: int
