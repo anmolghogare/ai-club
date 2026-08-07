@@ -2730,61 +2730,6 @@ const Admin = () => {
       </AnimatePresence>
       
 
-      {/* Achievement Form Modal */}
-      <AnimatePresence>
-        {isAchievementModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm"
-              onClick={() => setIsAchievementModalOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg bg-card border border-border shadow-2xl rounded-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]"
-            >
-              <div className="p-6 border-b border-border flex justify-between items-center bg-secondary/10">
-                <h3 className="font-display font-bold text-lg">{editingAchievement ? 'Edit Achievement' : 'Add New Achievement'}</h3>
-                <button onClick={() => setIsAchievementModalOpen(false)} className="text-muted-foreground hover:text-foreground">✕</button>
-              </div>
-              <div className="p-6 overflow-y-auto">
-                <form onSubmit={handleAchievementSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Title</label>
-                      <input required value={achievementForm.title} onChange={e => setAchievementForm({...achievementForm, title: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Student/Team Name</label>
-                      <input required value={achievementForm.student} onChange={e => setAchievementForm({...achievementForm, student: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Category</label>
-                      <input required value={achievementForm.category} onChange={e => setAchievementForm({...achievementForm, category: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary" placeholder="e.g. Hackathon, Research" />
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Icon Type</label>
-                      <select value={achievementForm.icon} onChange={e => setAchievementForm({...achievementForm, icon: e.target.value})} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary">
-                        <option value="Award">Award</option>
-                        <option value="Trophy">Trophy</option>
-                        <option value="Medal">Medal</option>
-                        <option value="Star">Star</option>
-                      </select>
-                    </div>
-                    <div className="col-span-2">
-                      <label className="block text-xs font-mono text-muted-foreground uppercase mb-1">Description</label>
-                      <textarea required value={achievementForm.description} onChange={e => setAchievementForm({...achievementForm, description: e.target.value})} rows={3} className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary resize-none" />
-                    </div>
-                  </div>
-                  <button type="submit" disabled={isSubmitting} className="w-full py-2.5 mt-4 text-sm font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/95 flex justify-center items-center gap-2">
-                    {isSubmitting ? 'Saving...' : 'Save Achievement'}
-                  </button>
-                </form>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
       
 {/* Custom Confirmation Modal */}
       <AnimatePresence>

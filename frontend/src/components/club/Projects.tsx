@@ -60,8 +60,6 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const [trackList, setTrackList] = useState<Track[]>([]);
-
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -92,21 +90,8 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
       } finally { setLoading(false); }
     };
 
-    const fetchTracks = async () => {
-      try {
-        const res = await fetch(getApiUrl('/api/tracks'));
-        if (res.ok) setTrackList(await res.json());
-      } catch (e) {
-        console.error(e);
-      }
-    };
-
-    if (isHomepage) {
-      fetchTracks();
-    } else {
-      fetchProjects();
-    }
-  }, [isHomepage]);
+    fetchProjects();
+  }, []);
 
   // ── Homepage: show Tracks grid ──────────────────────────────────
   if (isHomepage) {
@@ -145,71 +130,82 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
             Pick one for a semester. They run in parallel and share the same Wednesday slot on alternate weeks.
           </p>
 
-          {/* 2×2 grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 py-4">
-            {trackList.length === 0 ? (
+          {/* Top 3 Projects grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-4">
+            {projectList.length === 0 && !loading ? (
               <div style={{ padding: '2rem' }}>
                 <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>
-                  No tracks available.
+                  No projects available.
                 </p>
               </div>
-            ) : trackList.map((track) => (
-              <div
-                key={track.title}
-                style={{
-                  padding: '2rem',
-                  border: '1.5px solid hsl(228, 20%, 82%)',
-                  borderRadius: '20px',
-                  background: 'white',
-                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px) scale(1.02)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 32px -8px rgba(99, 102, 241, 0.2)';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  (e.currentTarget as HTMLElement).style.borderColor = 'hsl(228, 20%, 82%)';
-                }}
-              >
-                <h3
+            ) : projectList.slice(0, 3).map((p) => {
+              const { tagClass, label } = getPrimaryTag(p.tags);
+              const gitLink = (p as any).github_link || p.githubLink || '';
+              return (
+                <div
+                  key={p.id}
                   style={{
-                    fontFamily: 'Playfair Display, Georgia, serif',
-                    fontSize: '1.25rem',
-                    fontWeight: 700,
-                    color: 'hsl(230, 25%, 12%)',
-                    marginBottom: '0.75rem',
-                    letterSpacing: '-0.01em',
+                    padding: '1.75rem',
+                    background: 'white',
+                    borderRadius: '16px',
+                    border: '1px solid hsl(228,20%,84%)',
+                    transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    cursor: 'pointer',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(-5px) scale(1.02)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 24px -6px rgba(99, 102, 241, 0.18)';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(243, 75%, 59%)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                    (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                    (e.currentTarget as HTMLElement).style.borderColor = 'hsl(228,20%,84%)';
                   }}
                 >
-                  {track.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '0.9rem',
-                    color: 'hsl(230, 15%, 38%)',
-                    lineHeight: 1.65,
-                    marginBottom: '1rem',
-                  }}
-                >
-                  {track.description}
-                </p>
-                <p
-                  style={{
-                    fontFamily: 'JetBrains Mono, monospace',
-                    fontSize: '0.72rem',
-                    color: 'hsl(330, 45%, 50%)',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  {track.audience}
-                </p>
-              </div>
-            ))}
+                  <span className={`${tagClass}`} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    {label}
+                  </span>
+                  <h4
+                    style={{
+                      fontFamily: 'Playfair Display, Georgia, serif',
+                      fontSize: '1.1rem',
+                      fontWeight: 700,
+                      color: 'hsl(230,25%,12%)',
+                      marginTop: '0.75rem',
+                      marginBottom: '0.25rem',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {p.title}
+                  </h4>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: 'hsl(230,15%,50%)', marginBottom: '0.6rem' }}>by {p.author}</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: 'hsl(230,15%,38%)', lineHeight: 1.6, marginBottom: '1rem' }}>{p.description}</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '1rem' }}>
+                    {p.tags.slice(0, 4).map((tag) => (
+                      <span key={tag} style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '0.62rem', padding: '2px 7px', border: '1px solid hsl(228,20%,78%)', borderRadius: 2, color: 'hsl(230,15%,45%)' }}>
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  {gitLink && (
+                    <a
+                      href={gitLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 5,
+                        fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem',
+                        color: 'hsl(243,75%,59%)', textDecoration: 'none',
+                        border: '1px solid hsl(243,75%,80%)', padding: '4px 10px', borderRadius: 2,
+                      }}
+                    >
+                      <ExternalLink size={11} /> GitHub
+                    </a>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           {/* Link to all projects */}
