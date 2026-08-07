@@ -1501,10 +1501,10 @@ const Admin = () => {
         </aside>
 
         {/* Main Content Area */}
-        <main className="flex-1 min-w-0 p-6 md:p-10 flex flex-col justify-between md:h-screen md:overflow-y-auto">
-          <div className="max-w-[1200px] w-full mx-auto">
+        <main className="flex-1 min-w-0 p-6 md:p-10 flex flex-col md:h-screen md:overflow-hidden">
+          <div className="max-w-[1200px] w-full mx-auto flex flex-col h-full">
             {/* Header bar */}
-            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6">
+            <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 shrink-0">
               <div>
                 <p className="text-[10px] font-mono tracking-widest text-indigo-600 uppercase font-bold">Club Control Panel</p>
                 <h2 className="font-display font-extrabold text-slate-900 text-2xl md:text-3xl mt-1 tracking-tight">
@@ -1522,7 +1522,7 @@ const Admin = () => {
             </header>
 
             {/* Metrics summary cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 mb-8 shrink-0">
               {[
                 { label: 'Total Events', val: metrics?.total_events ?? '—', icon: <Calendar size={16} />, iconColor: 'text-blue-600', loading: loadingMetrics },
                 { label: 'Registrations', val: metrics?.total_registrations ?? '—', icon: <Users size={16} />, iconColor: 'text-emerald-600', loading: loadingMetrics },
@@ -1548,7 +1548,7 @@ const Admin = () => {
             </div>
 
             {/* Content panel */}
-            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm">
+            <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm flex-1 overflow-y-auto min-h-0">
               <AnimatePresence mode="wait">
                 {activeTab === 'dashboard' && (
                   <motion.div key="overview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-6">
