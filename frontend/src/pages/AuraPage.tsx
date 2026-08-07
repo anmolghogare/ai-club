@@ -696,14 +696,14 @@ const AuraPage = () => {
             </svg>
 
             <motion.div
-              className="w-24 h-24 rounded-full bg-gradient-to-br from-orange-500 to-orange-800 shadow-[0_0_40px_rgba(232,121,46,0.3)] flex items-center justify-center z-10"
+              className="w-24 h-24 rounded-full bg-black border-2 border-orange-500 shadow-[0_0_40px_rgba(232,121,46,0.3)] flex items-center justify-center z-10 overflow-hidden relative"
               initial={{ scale: 0, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
               transition={{ type: 'spring', bounce: 0.4 }}
             >
               <div className="absolute inset-0 rounded-full border border-white/20 animate-[ping_3s_ease-in-out_infinite] opacity-50" />
-              <span className="font-bold tracking-widest text-white">AURA</span>
+              <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-cover scale-110" />
             </motion.div>
 
             {nodes.map((node, i) => (
