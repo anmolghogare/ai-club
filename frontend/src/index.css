@@ -16,6 +16,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 230 25% 12%;
 
+    /* AURA Tokens */
+    --aura-cream-base: #FBF1E4;
+    --aura-cream-deep: #F7E6CC;
+    --aura-surface: #FFFDF9;
+    --aura-ink: #1E2A44;
+    --aura-slate: #5B6472;
+    --aura-accent: #E8792E;
+    --aura-accent-deep: #C85F1B;
+    --aura-outline-soft: #F0C89A;
+
     /* Blue-violet accent (dates, links, highlights) */
     --primary: 243 75% 59%;            /* #5b5bd6 indigo */
     --primary-foreground: 0 0% 100%;
@@ -166,6 +176,18 @@
     text-transform: uppercase;
     color: hsl(var(--muted-foreground));
     @apply mb-6;
+  }
+
+  /* AURA Specific Typography */
+  .aura-eyebrow {
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+    font-variant-caps: small-caps;
+    letter-spacing: 0.12em;
+    font-size: 0.75rem;
+  }
+  
+  .aura-heading {
+    font-family: 'Fraunces', 'Freight Display', 'Lora', Georgia, serif;
   }
 
   /* Primary CTA button — solid dark */
