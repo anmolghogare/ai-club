@@ -2649,7 +2649,6 @@ const Admin = () => {
               )}
             </AnimatePresence>
           </div>
-          <Footer />
         </div>
       </main>
     </div>
