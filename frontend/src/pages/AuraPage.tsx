@@ -422,15 +422,6 @@ const AuraPage = () => {
                   </span>
                 </motion.button>
               </a>
-              <a href="https://github.com/anmolghogare/ai-club" target="_blank" rel="noreferrer" className="w-full sm:w-auto">
-                <motion.button
-                  whileHover={{ y: -2, scale: 1.02, backgroundColor: 'rgba(255,255,255,0.05)' }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full sm:w-auto px-8 py-4 bg-white/5 backdrop-blur-md border border-white/10 text-white/80 hover:text-white rounded-full font-medium tracking-wide transition-colors"
-                >
-                  View GitHub
-                </motion.button>
-              </a>
             </motion.div>
 
             {/* Stats Cards */}
