@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from
 import { motion, useReducedMotion, AnimatePresence, useScroll, useSpring, useTransform, useAnimationFrame, useInView } from 'framer-motion';
 import { ArrowLeft, Sparkles, Fingerprint, Activity, Network, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { AnimatedAuraCore } from '../components/AnimatedAuraCore';
 
 const teamMembers = [
   { name: 'Vedant Shah', image: '/vedant-shah.jpg', linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331a/', github: 'https://github.com/Vedant-1016', bio: 'Building at the intersection of Machine Learning, NLP, RL, RAG and Deep Learning. Driven to challenge and redesign systems with a focus on intelligence and scalability.' },
@@ -262,108 +263,7 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
   );
 };
 
-const LivingAuraCore = ({ hitCount, isHovered }: { hitCount: number, isHovered: boolean }) => {
-  const [ripples, setRipples] = useState<number[]>([]);
-  const [words, setWords] = useState<{id: number, text: string, angle: number}[]>([]);
-
-  useEffect(() => {
-    if (hitCount > 0) {
-      const id = Date.now();
-      setRipples(r => [...r, id]);
-      setTimeout(() => setRipples(r => r.filter(rip => rip !== id)), 1000);
-    }
-  }, [hitCount]);
-
-  useEffect(() => {
-    const wordList = ["AI", "ML", "RAG", "DATA", "LLM", "SEARCH"];
-    const interval = setInterval(() => {
-      if (Math.random() > 0.5) {
-        const id = Date.now();
-        setWords(w => [...w, { id, text: wordList[Math.floor(Math.random() * wordList.length)], angle: Math.random() * Math.PI * 2 }]);
-        setTimeout(() => setWords(w => w.filter(word => word.id !== id)), 2000);
-      }
-    }, 12000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <motion.div 
-      className="absolute top-1/2 left-1/2 w-64 h-64 flex items-center justify-center z-20 pointer-events-none" 
-      style={{ x: "-50%", y: "-50%" }}
-    >
-      {/* Breathing Shadow */}
-      <motion.div 
-        animate={{ scale: isHovered ? 1.1 : [0.9, 1.05, 0.9], opacity: isHovered ? 0.8 : [0.3, 0.5, 0.3] }} 
-        transition={{ duration: isHovered ? 0.3 : 4, repeat: isHovered ? 0 : Infinity, ease: 'easeInOut' }} 
-        className="absolute inset-0 bg-orange-600/20 blur-3xl rounded-full" 
-      />
-
-      {/* Outer Ring (Clockwise) */}
-      <motion.div 
-        animate={{ rotate: 360, scale: isHovered ? 1.05 : 1 }} 
-        transition={{ rotate: { duration: isHovered ? 20 : 60, repeat: Infinity, ease: "linear" }, scale: { duration: 0.3 } }}
-        className="absolute inset-8 rounded-full border border-dashed border-orange-500/20"
-      />
-      
-      {/* Middle Ring (Counter-Clockwise) */}
-      <motion.div 
-        animate={{ rotate: -360, scale: isHovered ? 1.02 : 1 }} 
-        transition={{ rotate: { duration: isHovered ? 15 : 40, repeat: Infinity, ease: "linear" }, scale: { duration: 0.3 } }}
-        className="absolute inset-12 rounded-full border-[2px] border-dotted border-amber-500/30"
-      />
-
-      {/* Ambient Words */}
-      <AnimatePresence>
-        {words.map(w => (
-          <motion.div
-            key={w.id}
-            initial={{ opacity: 0, x: Math.cos(w.angle) * 120, y: Math.sin(w.angle) * 120, scale: 0.5 }}
-            animate={{ opacity: [0, 1, 0], x: 0, y: 0, scale: [0.5, 1, 0] }}
-            transition={{ duration: 2, ease: "easeInOut" }}
-            className="absolute text-[10px] font-mono text-orange-400 font-bold tracking-widest drop-shadow-[0_0_5px_rgba(249,115,22,1)]"
-          >
-            {w.text}
-          </motion.div>
-        ))}
-      </AnimatePresence>
-
-      {/* Hit Ripples */}
-      <AnimatePresence>
-        {ripples.map(r => (
-          <motion.div
-            key={r}
-            initial={{ scale: 0.5, opacity: 0.8, borderWidth: "2px" }}
-            animate={{ scale: 3, opacity: 0, borderWidth: "0px" }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="absolute inset-20 rounded-full border-orange-400/50"
-          />
-        ))}
-      </AnimatePresence>
-
-      {/* Core Logo (Breathing) */}
-      <motion.div 
-        animate={{ 
-          scale: isHovered ? 1.15 : [1, 1.03, 1], 
-          filter: isHovered 
-            ? "drop-shadow(0 0 30px rgba(249,115,22,0.8)) brightness(1.2)" 
-            : ["drop-shadow(0 0 10px rgba(249,115,22,0.3)) brightness(1)", "drop-shadow(0 0 20px rgba(249,115,22,0.6)) brightness(1.1)", "drop-shadow(0 0 10px rgba(249,115,22,0.3)) brightness(1)"] 
-        }} 
-        transition={{ duration: isHovered ? 0.3 : 4, repeat: isHovered ? 0 : Infinity, ease: 'easeInOut' }}
-        className="relative w-32 h-32 flex items-center justify-center z-10"
-      >
-        {/* Flash on Hit */}
-        <motion.div 
-          initial={false}
-          animate={{ opacity: hitCount > 0 ? [0.8, 0] : 0, scale: hitCount > 0 ? [1, 1.2] : 1 }}
-          transition={{ duration: 0.4 }}
-          className="absolute inset-0 bg-orange-400 blur-xl rounded-full mix-blend-screen"
-        />
-        <img src="/aura-logo.png" alt="Living AURA Brain" className="w-full h-full object-contain pointer-events-auto" />
-      </motion.div>
-    </motion.div>
-  );
-};
+// Removed LivingAuraCore to use AnimatedAuraCore
 
 
 const CurvedConnection = ({ startX, startY, endX, endY, isActive }: any) => {
@@ -567,7 +467,7 @@ const AuraPage = () => {
 
                 {/* Core Node */}
                 <div onMouseEnter={() => setIsCoreHovered(true)} onMouseLeave={() => setIsCoreHovered(false)} className="absolute top-1/2 left-1/2 w-40 h-40 z-20 pointer-events-auto cursor-pointer" style={{ transform: "translate(-50%, -50%)" }}>
-                    <LivingAuraCore hitCount={coreHit} isHovered={isCoreHovered} />
+                    <AnimatedAuraCore hitCount={coreHit} isHovered={isCoreHovered} />
                 </div>
 
                 {/* Floating Member Cards */}
