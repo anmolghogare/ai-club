@@ -83,21 +83,21 @@ const facultyMembers = [
   },
   {
     id: 'f3',
-    name: 'Mr. Ashwin Chaudhary',
-    designation: 'Technical Staff',
-    department: 'Technical Staff',
+    name: 'Mr. Ashvin Chaudhari',
+    designation: 'System Administrator',
+    department: 'IT & Infrastructure',
     roleInAura: 'Infrastructure Setup',
-    specialization: 'Infrastructure, Deployment, Networking',
+    specialization: 'System & Network Administration, VMware',
     researchAreas: [],
-    experience: '10+ Years',
-    education: 'M.Tech in Network Engineering',
-    email: 'ashwin_c@dau.edu',
-    office: 'Block 3, Server Room',
-    quote: "Strong infrastructure makes innovation possible.",
+    experience: 'Industry Expert',
+    education: '',
+    email: '',
+    office: '',
+    quote: "Building the resilient infrastructure that powers AURA.",
     linkedin: 'https://in.linkedin.com/in/ashvin-chaudhari-64a20661',
     photo: '/ashwin-chaudhary.png',
-    contributions: ['Server Setup', 'Infrastructure', 'Deployment', 'CI/CD'],
-    skills: ['DevOps', 'Networking', 'Server Administration']
+    contributions: ['Infrastructure Setup', 'Deployment', 'Server Config'],
+    skills: ['VMware', 'Linux Admin', 'Windows Admin', 'Networking']
   }
 ];
 
