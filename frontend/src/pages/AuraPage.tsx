@@ -359,7 +359,7 @@ const AuraPage = () => {
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             src="/aura-logo.png"
             alt="AURA"
-            className="h-7 md:h-8 w-auto opacity-90 grayscale hover:grayscale-0 transition-all duration-300"
+            className="h-14 md:h-16 w-auto opacity-100 transition-all duration-300"
           />
         </div>
       </header>
