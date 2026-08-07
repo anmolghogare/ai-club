@@ -45,9 +45,60 @@ const teamMembers = [
 ];
 
 const facultyMembers = [
-  { name: 'Prof. G. Venkatesh', role: 'Vision' },
-  { name: 'Prof. Arpit Rana', role: 'System Architecture & Project Supervision' },
-  { name: 'Mr. Ashwin Chaudhary', role: 'Infrastructure Setup' },
+  {
+    id: 'f1',
+    name: 'Prof. G. Venkatesh',
+    designation: 'Professor',
+    department: 'Computer Science',
+    roleInAura: 'Vision',
+    specialization: 'Artificial Intelligence, Machine Learning, Data Science',
+    researchAreas: ['AI', 'ML', 'Computer Vision', 'Analytics'],
+    experience: '20+ Years',
+    education: 'Ph.D. in Computer Science',
+    email: 'g_venkatesh@dau.edu',
+    office: 'Block 2, Room 412',
+    quote: "Technology should solve real problems for real students.",
+    linkedin: 'https://in.linkedin.com/in/venkatesh-g-a02a58',
+    photo: '/venkatesh-g.png',
+    contributions: ['Project Vision', 'Research Direction', 'Mentoring', 'Technical Guidance'],
+    skills: ['AI Vision', 'Academic Leadership', 'System Design']
+  },
+  {
+    id: 'f2',
+    name: 'Prof. Arpit Rana',
+    designation: 'Professor',
+    department: 'Computer Science',
+    roleInAura: 'System Architecture & Project Supervision',
+    specialization: 'Software Engineering, Distributed Systems, Cloud',
+    researchAreas: ['Software Architecture', 'Backend Systems', 'AI Systems'],
+    experience: '15+ Years',
+    education: 'Ph.D. in Software Engineering',
+    email: 'arpit_rana@dau.edu',
+    office: 'Block 2, Room 305',
+    quote: "A good architecture survives future requirements.",
+    linkedin: 'https://in.linkedin.com/in/arpitrana',
+    photo: '/arpit-rana.png',
+    contributions: ['Architecture', 'Backend', 'Code Reviews', 'Project Supervision'],
+    skills: ['System Architecture', 'Distributed Systems', 'Cloud Native']
+  },
+  {
+    id: 'f3',
+    name: 'Mr. Ashwin Chaudhary',
+    designation: 'Technical Staff',
+    department: 'Technical Staff',
+    roleInAura: 'Infrastructure Setup',
+    specialization: 'Infrastructure, Deployment, Networking',
+    researchAreas: [],
+    experience: '10+ Years',
+    education: 'M.Tech in Network Engineering',
+    email: 'ashwin_c@dau.edu',
+    office: 'Block 3, Server Room',
+    quote: "Strong infrastructure makes innovation possible.",
+    linkedin: 'https://in.linkedin.com/in/ashvin-chaudhari-64a20661',
+    photo: '',
+    contributions: ['Server Setup', 'Infrastructure', 'Deployment', 'CI/CD'],
+    skills: ['DevOps', 'Networking', 'Server Administration']
+  }
 ];
 
 const getInitials = (name: string) => {
@@ -741,6 +792,173 @@ const AuraPage = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Faculty & Mentors */}
+        <section className="relative w-full min-h-[100dvh] py-24 flex flex-col items-center justify-center overflow-hidden">
+          {/* Background Glow */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none -z-10">
+            <motion.div 
+              animate={{ opacity: [0.01, 0.05, 0.01], scale: [1, 1.2, 1] }}
+              transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-[100vw] h-[100vw] rounded-full bg-orange-500/10 blur-[120px]"
+            />
+          </div>
+
+          <div className="text-center mb-24 relative z-20 px-6">
+            <motion.div 
+              initial={{ clipPath: 'inset(0 100% 0 0)' }}
+              whileInView={{ clipPath: 'inset(0 0 0 0)' }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="text-orange-400 font-mono tracking-[0.2em] uppercase text-sm mb-4 inline-block"
+            >
+              FACULTY & MENTORS
+            </motion.div>
+            <motion.div className="overflow-hidden">
+              <motion.h2 
+                initial={{ y: '100%' }}
+                whileInView={{ y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+                className="text-5xl md:text-7xl font-bold tracking-tight text-white mb-6"
+              >
+                Guided by Experience
+              </motion.h2>
+            </motion.div>
+            <motion.div className="overflow-hidden max-w-2xl mx-auto">
+              <motion.p 
+                initial={{ y: '100%', opacity: 0 }}
+                whileInView={{ y: 0, opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+                className="text-white/50 text-xl font-serif italic leading-relaxed"
+              >
+                "The faculty members and mentors who transformed AURA from an idea into a scalable university AI platform."
+              </motion.p>
+            </motion.div>
+          </div>
+
+          <div className="relative z-20 w-full max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {facultyMembers.map((faculty, i) => (
+              <motion.div
+                key={faculty.id}
+                initial={{ opacity: 0, y: 40, filter: 'blur(10px)', scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)', scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: i * 0.15 }}
+                className="group relative rounded-[32px] bg-[#0A0A0A]/60 border border-white/10 backdrop-blur-xl p-8 hover:border-orange-500/30 transition-colors duration-500 flex flex-col"
+              >
+                <div className="absolute inset-0 rounded-[32px] bg-gradient-to-br from-orange-500/0 via-orange-500/0 to-orange-500/0 group-hover:from-orange-500/10 group-hover:to-transparent transition-all duration-500 opacity-0 group-hover:opacity-100" />
+                <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700 ease-out origin-left" />
+
+                <div className="relative z-10 flex items-start gap-4 mb-6">
+                  <div className="w-16 h-16 shrink-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden group-hover:scale-110 transition-transform duration-500">
+                    {faculty.photo ? (
+                      <img src={faculty.photo} alt={faculty.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-xl font-bold text-white/90">{getInitials(faculty.name)}</span>
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">{faculty.name}</h3>
+                    <p className="text-sm text-white/70 font-medium">{faculty.designation}</p>
+                    <p className="text-xs text-white/40">{faculty.department}</p>
+                  </div>
+                </div>
+
+                <div className="relative z-10 mb-6 flex items-center justify-between border-b border-white/5 pb-4">
+                  <div>
+                    <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Role</p>
+                    <p className="text-sm text-orange-400 font-medium">{faculty.roleInAura}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[10px] text-white/40 uppercase tracking-widest mb-1">Experience</p>
+                    <p className="text-sm text-white/90 font-medium">{faculty.experience}</p>
+                  </div>
+                </div>
+
+                <div className="relative z-10 mb-6">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-2">Research Areas</p>
+                  <p className="text-xs text-white/70 leading-relaxed">{faculty.researchAreas.join(' • ') || faculty.specialization}</p>
+                </div>
+
+                <div className="relative z-10 mb-8 flex-grow">
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mb-3">Contributions</p>
+                  <div className="flex flex-wrap gap-2">
+                    {faculty.contributions.map((contribution, index) => (
+                      <span key={index} className="px-3 py-1 text-[11px] font-medium text-white/70 bg-white/5 border border-white/10 rounded-full">
+                        {contribution}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative z-10 mt-auto pt-6 border-t border-white/10">
+                  <p className="text-white/60 font-serif italic text-sm leading-relaxed mb-6 group-hover:text-white/90 transition-colors">
+                    "{faculty.quote}"
+                  </p>
+                  <div className="flex gap-3">
+                    {faculty.email && (
+                      <a href={`mailto:${faculty.email}`} className="flex-1">
+                        <button className="w-full py-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white text-xs font-medium text-white/60 transition-colors">
+                          Email
+                        </button>
+                      </a>
+                    )}
+                    {faculty.linkedin && faculty.linkedin !== '#' && (
+                      <a href={faculty.linkedin} target="_blank" rel="noreferrer" className="flex-1">
+                        <button className="w-full py-2.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white text-xs font-medium text-white/60 transition-colors">
+                          LinkedIn
+                        </button>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Timeline Animation */}
+          <div className="relative z-20 w-full max-w-4xl mx-auto mt-32 px-6 pb-20">
+            <div className="flex justify-between items-center relative">
+              <div className="absolute top-1/2 left-0 w-full h-[1px] bg-white/10 -translate-y-1/2" />
+              <motion.div 
+                className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-orange-600 via-orange-400 to-orange-600 -translate-y-1/2"
+                initial={{ width: 0 }}
+                whileInView={{ width: '100%' }}
+                viewport={{ once: true }}
+                transition={{ duration: 2, ease: [0.22, 1, 0.36, 1] }}
+              />
+              
+              {['Vision', 'Architecture', 'Infrastructure', 'Launch'].map((step, i) => (
+                <div key={step} className="relative z-10 flex flex-col items-center gap-4">
+                  <motion.div 
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.5 + 0.2, type: 'spring', bounce: 0.5 }}
+                    className="w-4 h-4 rounded-full bg-[#0A0A0A] border-2 border-orange-500 relative"
+                  >
+                    <motion.div 
+                      className="absolute inset-0 rounded-full bg-orange-500"
+                      animate={{ scale: [1, 1.5, 1], opacity: [1, 0, 1] }}
+                      transition={{ duration: 2, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  </motion.div>
+                  <motion.span 
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.5 + 0.4 }}
+                    className="text-xs font-mono tracking-widest text-white/50 uppercase absolute top-8 whitespace-nowrap"
+                  >
+                    {step}
+                  </motion.span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
 
     </div>
