@@ -95,7 +95,7 @@ const facultyMembers = [
     office: 'Block 3, Server Room',
     quote: "Strong infrastructure makes innovation possible.",
     linkedin: 'https://in.linkedin.com/in/ashvin-chaudhari-64a20661',
-    photo: '',
+    photo: '/ashwin-chaudhary.png',
     contributions: ['Server Setup', 'Infrastructure', 'Deployment', 'CI/CD'],
     skills: ['DevOps', 'Networking', 'Server Administration']
   }
