@@ -36,7 +36,7 @@ type Line = {
 };
 
 const teamMembers = [
-  { name: 'Vedant Shah', image: '/vedant-shah.jpg', linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331a/', github: 'https://github.com/Vedant-1016' },
+  { name: 'Vedant Shah', image: '/vedant-shah.jpg', linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331a/', github: 'https://github.com/Vedant-1016', bio: 'Building at the intersection of Machine Learning, NLP, RL, RAG and Deep Learning. Driven to challenge and redesign systems with a focus on intelligence and scalability.' },
   { name: 'Parth Agrawal', image: '/parth-agrawal.png', linkedin: 'https://www.linkedin.com/in/parth-agrawal-368869325/', github: 'https://github.com/ParthAgrawal-07' },
   { name: 'Meet Virugama', image: '/meet-virugama.png', linkedin: 'https://www.linkedin.com/in/meet-virugama-76a107320/', github: 'https://github.com/Meetvirugama' },
   { name: 'Madhav Thesiya', image: '/madhav-thesiya.png', linkedin: 'https://www.linkedin.com/in/madhavthesiya/', github: 'https://github.com/madhavthesiya' },
@@ -772,7 +772,7 @@ const AuraPage = () => {
                   <p className="text-orange-400 uppercase tracking-widest text-[11px] mb-6 font-mono">{nodes[selectedNode].role}</p>
                   
                   <p className="text-white/60 mb-8 leading-relaxed text-sm">
-                    Instrumental in developing the core intelligence and scalable architecture that powers AURA across the university campus.
+                    {nodes[selectedNode].bio || "Instrumental in developing the core intelligence and scalable architecture that powers AURA across the university campus."}
                   </p>
                   
                   <div className="flex gap-4 w-full">
