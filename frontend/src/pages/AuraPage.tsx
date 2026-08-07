@@ -66,20 +66,20 @@ const facultyMembers = [
   {
     id: 'f2',
     name: 'Dr. Arpit Rana',
-    designation: 'Professor',
+    designation: 'Assistant Professor',
     department: 'Computer Science',
     roleInAura: 'System Architecture & Project Supervision',
     specialization: 'Applied Machine Learning, Recommendation Systems, Multimodality',
-    researchAreas: ['Recommendation Systems', 'Applied ML', 'Multimodal AI'],
-    experience: '6+ Years',
-    education: 'Ph.D. in CS (UCC, Ireland)',
+    researchAreas: ['Recommender Systems', 'Multimodality', 'Applied ML', 'Digital Innovation'],
+    experience: '10+ Years',
+    education: 'Ph.D. (UCC), M.Tech (LNMIIT)',
     email: 'arpitrana@da-iict.ac.in',
     office: 'Block 2, Room 305',
     quote: "A good architecture survives future requirements.",
     linkedin: 'https://in.linkedin.com/in/arpitrana',
     photo: '/arpit-rana.png',
     contributions: ['Architecture', 'Backend', 'Code Reviews', 'Project Supervision'],
-    skills: ['Recommendation Systems', 'Applied ML', 'Digital Innovation']
+    skills: ['Data Mining', 'Recommender Systems', 'Applied ML']
   },
   {
     id: 'f3',
