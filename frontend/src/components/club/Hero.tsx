@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Cpu, Terminal, Sparkles, Activity, Layers, ArrowRight, Zap, Code, Database } from 'lucide-react';
+import AuraLogo from './AuraLogo';
 
 const stats = [
   { label: 'FOUNDED', value: '2023' },
@@ -143,13 +144,11 @@ export default function Hero() {
           transition={{ delay: 0.4, duration: 0.7 }}
           className="lg:col-span-5 relative flex justify-center items-center"
         >
-          <div className="w-full max-w-lg relative group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-500/20 to-yellow-500/20 rounded-3xl blur-3xl group-hover:blur-2xl transition-all duration-500 opacity-50" />
-            <img 
-              src="/aura-logo.png" 
-              alt="AURA Logo" 
-              className="relative z-10 w-full h-auto object-contain drop-shadow-2xl scale-110 md:scale-125"
-            />
+          <div className="w-full max-w-lg relative group flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-500/20 to-yellow-500/20 rounded-3xl blur-3xl group-hover:blur-2xl transition-all duration-500 opacity-50 pointer-events-none" />
+            <div className="relative z-10 w-full transform scale-110 md:scale-125 pt-10">
+              <AuraLogo />
+            </div>
           </div>
         </motion.div>
       </div>
