@@ -658,7 +658,7 @@ const AuraPage = () => {
                   }}
                 >
                   <div className="absolute inset-0 rounded-2xl border border-orange-500/0 group-hover:border-orange-500/50 transition-colors duration-300" />
-                  <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:bg-orange-500/20 group-hover:border-orange-500/50 transition-all duration-300 overflow-hidden">
+                  <div className="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-2 group-hover:bg-orange-500/20 group-hover:border-orange-500/50 transition-all duration-300 overflow-hidden">
                     {node.image ? (
                       <img src={node.image} alt={node.name} className="w-full h-full object-cover" />
                     ) : (
@@ -717,7 +717,7 @@ const AuraPage = () => {
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: i * 0.1 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center mb-3 bg-white/5 overflow-hidden">
+                <div className="w-20 h-20 rounded-full border border-white/10 flex items-center justify-center mb-3 bg-white/5 overflow-hidden">
                   {node.image ? (
                     <img src={node.image} alt={node.name} className="w-full h-full object-cover" />
                   ) : (
