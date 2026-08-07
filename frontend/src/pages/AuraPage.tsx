@@ -386,7 +386,7 @@ const AuraPage = () => {
                 <motion.div className="absolute top-1/2 left-1/2 w-40 h-40 flex items-center justify-center z-20" style={{ x: "-50%", y: "-50%" }}>
                   <motion.div animate={{ scale: [0.9, 1.1, 0.9], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }} className="absolute inset-0 bg-orange-500/20 blur-2xl rounded-full" />
                   <div className="relative w-28 h-28 bg-[#050505]/80 backdrop-blur-2xl border border-orange-500/40 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(249,115,22,0.3)] overflow-hidden">
-                    <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-cover scale-110" />
+                    <img src="/aura-logo.png" alt="AURA Logo" className="w-full h-full object-contain p-4" />
                     <motion.div animate={{ rotate: 360 }} transition={{ duration: 10, repeat: Infinity, ease: "linear" }} className="absolute inset-0 border-[2px] border-dashed border-orange-500/30 rounded-full" />
                   </div>
                 </motion.div>
