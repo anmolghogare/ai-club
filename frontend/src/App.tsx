@@ -35,7 +35,7 @@ import { useLocation } from "react-router-dom";
 
 const HeaderNavbar = () => {
   const location = useLocation();
-  if (location.pathname.startsWith('/admin')) {
+  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/aura')) {
     return null;
   }
   return <Navbar />;
