@@ -1,620 +1,1281 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=IBM+Plex+Mono:wght@400;500;600&family=Playfair+Display:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 
-@layer base {
-  :root {
-    /* Editorial Light Palette */
-    --background: 228 30% 93%;         /* Soft blue-gray #e5e8f0 */
-    --foreground: 230 25% 12%;         /* Near-black #17192a */
+  @layer base {
+    :root {
+      /* Editorial Light Palette */
+      --background: 228 30% 93%;         /* Soft blue-gray #e5e8f0 */
+      --foreground: 230 25% 12%;         /* Near-black #17192a */
 
-    --card: 0 0% 100%;                 /* Pure white cards */
-    --card-foreground: 230 25% 12%;
+      --card: 0 0% 100%;                 /* Pure white cards */
+      --card-foreground: 230 25% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 230 25% 12%;
+      --popover: 0 0% 100%;
+      --popover-foreground: 230 25% 12%;
 
-    /* AURA Tokens */
-    --aura-cream-base: #FBF1E4;
-    --aura-cream-deep: #F7E6CC;
-    --aura-surface: #FFFDF9;
-    --aura-ink: #1E2A44;
-    --aura-slate: #5B6472;
-    --aura-accent: #E8792E;
-    --aura-accent-deep: #C85F1B;
-    --aura-outline-soft: #F0C89A;
+      /* AURA Tokens */
+      --aura-cream-base: #FBF1E4;
+      --aura-cream-deep: #F7E6CC;
+      --aura-surface: #FFFDF9;
+      --aura-ink: #1E2A44;
+      --aura-slate: #5B6472;
+      --aura-accent: #E8792E;
+      --aura-accent-deep: #C85F1B;
+      --aura-outline-soft: #F0C89A;
 
-    /* Blue-violet accent (dates, links, highlights) */
-    --primary: 243 75% 59%;            /* #5b5bd6 indigo */
-    --primary-foreground: 0 0% 100%;
+      /* Blue-violet accent (dates, links, highlights) */
+      --primary: 243 75% 59%;            /* #5b5bd6 indigo */
+      --primary-foreground: 0 0% 100%;
 
-    --secondary: 228 20% 88%;          /* Slightly darker bg for hover */
-    --secondary-foreground: 230 25% 20%;
+      --secondary: 228 20% 88%;          /* Slightly darker bg for hover */
+      --secondary-foreground: 230 25% 20%;
 
-    --muted: 228 15% 86%;
-    --muted-foreground: 230 15% 45%;
+      --muted: 228 15% 86%;
+      --muted-foreground: 230 15% 45%;
 
-    /* Muted rose/mauve for monospace footnotes */
-    --accent: 330 45% 50%;             /* muted rose */
-    --accent-foreground: 0 0% 100%;
+      /* Muted rose/mauve for monospace footnotes */
+      --accent: 330 45% 50%;             /* muted rose */
+      --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
+      --destructive: 0 70% 50%;
+      --destructive-foreground: 0 0% 100%;
 
-    --border: 228 20% 80%;
-    --input: 228 20% 88%;
-    --ring: 243 75% 59%;
+      --border: 228 20% 80%;
+      --input: 228 20% 88%;
+      --ring: 243 75% 59%;
 
-    --radius: 0.5rem;
+      --radius: 0.5rem;
 
-    --surface: 228 30% 93%;
-    --surface-2: 228 25% 89%;
+      --surface: 228 30% 93%;
+      --surface-2: 228 25% 89%;
 
-    /* Sidebar (for admin) */
-    --sidebar-background: 228 30% 93%;
-    --sidebar-foreground: 230 25% 12%;
-    --sidebar-primary: 243 75% 59%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 228 20% 88%;
-    --sidebar-accent-foreground: 230 25% 12%;
-    --sidebar-border: 228 20% 80%;
-    --sidebar-ring: 243 75% 59%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border box-border;
+      /* Sidebar (for admin) */
+      --sidebar-background: 228 30% 93%;
+      --sidebar-foreground: 230 25% 12%;
+      --sidebar-primary: 243 75% 59%;
+      --sidebar-primary-foreground: 0 0% 100%;
+      --sidebar-accent: 228 20% 88%;
+      --sidebar-accent-foreground: 230 25% 12%;
+      --sidebar-border: 228 20% 80%;
+      --sidebar-ring: 243 75% 59%;
+    }
   }
 
-  html {
-    scroll-behavior: smooth;
+  @layer base {
+    * {
+      @apply border-border box-border;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+      min-height: 100dvh;
+    }
+
+    body {
+      @apply bg-background text-foreground;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+      min-height: 100dvh;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', Georgia, serif;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    /* Minimal scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: hsl(var(--background)); }
+    ::-webkit-scrollbar-thumb {
+      background: hsl(var(--border));
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: hsl(var(--muted-foreground));
+    }
+
+    ::selection {
+      background: hsl(var(--primary) / 0.15);
+      color: hsl(var(--foreground));
+    }
+  }
+
+  @layer components {
+
+    /* Section layout: full-width container with left padding */
+    .section-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    /* Section divider */
+    .section-divider {
+      @apply border-t border-border;
+      margin: 0 2rem;
+    }
+
+    /* Large editorial headline */
+    .headline-xl {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: hsl(var(--foreground));
+    }
+
+    .headline-lg {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+      color: hsl(var(--foreground));
+    }
+
+    .headline-md {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(1.25rem, 2vw, 1.5rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+      color: hsl(var(--foreground));
+    }
+
+    /* Mono label */
+    .mono-label {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Mono detail text */
+    .mono-detail {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: hsl(var(--muted-foreground));
+    }
+
+    /* Section label above title */
+    .section-label {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: hsl(var(--muted-foreground));
+      @apply mb-6;
+    }
+
+    /* AURA Specific Typography */
+    .aura-eyebrow {
+      font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
+      font-variant-caps: small-caps;
+      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+    }
+    
+    .aura-heading {
+      font-family: 'Fraunces', 'Freight Display', 'Lora', Georgia, serif;
+    }
+
+    /* Primary CTA button — solid dark */
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      background: hsl(var(--foreground));
+      color: hsl(var(--background));
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      border: 1.5px solid hsl(var(--foreground));
+      border-radius: 2px;
+      transition: background 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-primary:hover {
+      background: hsl(var(--primary));
+      border-color: hsl(var(--primary));
+      color: white;
+    }
+
+    /* Secondary ghost button */
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      background: transparent;
+      color: hsl(var(--foreground));
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      border: 1.5px solid hsl(var(--border));
+      border-radius: 2px;
+      transition: border-color 0.2s ease, color 0.2s ease;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      border-color: hsl(var(--foreground));
+      color: hsl(var(--foreground));
+    }
+
+    /* Card — simple bordered box, no shadow */
+    .editorial-card {
+      border: 1.5px solid hsl(var(--border));
+      padding: 1.75rem;
+      background: hsl(var(--card));
+      transition: border-color 0.2s ease;
+    }
+    .editorial-card:hover {
+      border-color: hsl(var(--primary) / 0.5);
+    }
+
+    /* Event list row */
+    .event-row {
+      @apply py-6 border-t border-border flex gap-8 items-start;
+    }
+
+    /* Resource list row */
+    .resource-row {
+      @apply py-5 border-t border-border flex items-start justify-between gap-4;
+    }
+
+    /* Tag chips */
+    .chip-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid hsl(var(--border));
+      border-radius: 2px;
+      background: hsl(var(--background));
+      color: hsl(var(--muted-foreground));
+      display: inline-block;
+    }
+
+    .chip-accent {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.68rem;
+      padding: 0.25rem 0.6rem;
+      border: 1px solid hsl(var(--primary) / 0.3);
+      border-radius: 2px;
+      background: hsl(var(--primary) / 0.08);
+      color: hsl(var(--primary));
+      display: inline-block;
+    }
+
+    /* Blue date accent */
+    .date-accent {
+      color: hsl(var(--primary));
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    /* Gradient text (used sparingly) */
+    .gradient-text {
+      @apply bg-clip-text text-transparent;
+      background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(243 75% 75%));
+    }
+
+    /* Input styles */
+    .input-field {
+      @apply w-full px-4 py-2.5 bg-card border border-border text-foreground text-sm;
+      font-family: 'Inter', sans-serif;
+      border-radius: 2px;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+    .input-field:focus {
+      border-color: hsl(var(--primary));
+      box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+    }
+
+    /* Shimmer loading skeleton */
+    .shimmer {
+      background: linear-gradient(90deg,
+        hsl(var(--surface)) 25%,
+        hsl(var(--surface-2)) 50%,
+        hsl(var(--surface)) 75%
+      );
+      background-size: 400% 100%;
+      animation: shimmer 1.6s ease-in-out infinite;
+    }
+
+    /* Old dark theme compat — glass-card fallback */
+    .glass-card {
+      @apply editorial-card;
+    }
+
+    /* btn-glow fallback */
+    .btn-glow {
+      @apply btn-primary;
+    }
+
+    /* Tags fallback */
+    .tag-blue   { background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
+    .tag-green  { background: hsl(150 60% 40% / 0.1); color: hsl(150 60% 35%); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
+    .tag-pink   { background: hsl(var(--accent) / 0.1); color: hsl(var(--accent)); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
+    .tag-yellow { background: hsl(40 90% 45% / 0.1); color: hsl(40 90% 40%); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
+
+    .input-ring {
+      @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200;
+    }
+  }
+
+  /* Keyframes */
+  @keyframes shimmer {
+    0% { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+  }
+
+  @keyframes slide-up-fade {
+    0% { opacity: 0; transform: translateY(12px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+  }
+
+  @keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+  }
+
+  /* =========================================
+     AURA PAGE — CLEAN NEURAL SYSTEM
+     Replace the old AURA-specific CSS with this.
+  ========================================= */
+  
+  .aura-page {
+    --aura-bg: #050505;
+    --aura-panel: rgba(255, 255, 255, 0.045);
+    --aura-line: rgba(255, 146, 0, 0.22);
+    --aura-line-soft: rgba(255, 146, 0, 0.09);
+    --aura-orange: #ff9200;
+    --aura-amber: #ffc15a;
+    position: relative;
+    min-height: 100vh;
     overflow-x: hidden;
-    min-height: 100dvh;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-    min-height: 100dvh;
-    font-size: 16px;
-    line-height: 1.6;
-  }
-
-  h1, h2, h3, h4 {
-    font-family: 'Playfair Display', Georgia, serif;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-
-  /* Minimal scrollbar */
-  ::-webkit-scrollbar { width: 4px; }
-  ::-webkit-scrollbar-track { background: hsl(var(--background)); }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(var(--border));
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground));
-  }
-
-  ::selection {
-    background: hsl(var(--primary) / 0.15);
-    color: hsl(var(--foreground));
-  }
-}
-
-@layer components {
-
-  /* Section layout: full-width container with left padding */
-  .section-container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 5rem 2rem;
-  }
-
-  /* Section divider */
-  .section-divider {
-    @apply border-t border-border;
-    margin: 0 2rem;
-  }
-
-  /* Large editorial headline */
-  .headline-xl {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2.5rem, 6vw, 5rem);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    color: hsl(var(--foreground));
-  }
-
-  .headline-lg {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 700;
-    line-height: 1.1;
-    letter-spacing: -0.025em;
-    color: hsl(var(--foreground));
-  }
-
-  .headline-md {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: clamp(1.25rem, 2vw, 1.5rem);
-    font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.015em;
-    color: hsl(var(--foreground));
-  }
-
-  /* Mono label */
-  .mono-label {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
-  }
-
-  /* Mono detail text */
-  .mono-detail {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.78rem;
-    color: hsl(var(--muted-foreground));
-  }
-
-  /* Section label above title */
-  .section-label {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: hsl(var(--muted-foreground));
-    @apply mb-6;
-  }
-
-  /* AURA Specific Typography */
-  .aura-eyebrow {
-    font-family: 'IBM Plex Mono', 'JetBrains Mono', 'Courier New', monospace;
-    font-variant-caps: small-caps;
-    letter-spacing: 0.12em;
-    font-size: 0.75rem;
+    background:
+      radial-gradient(circle at 50% 22%, rgba(255, 120, 0, 0.075), transparent 30%),
+      #050505;
+    color: #fff;
   }
   
-  .aura-heading {
-    font-family: 'Fraunces', 'Freight Display', 'Lora', Georgia, serif;
+  .aura-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("/noise.png");
+    mix-blend-mode: overlay;
   }
-
-  /* Primary CTA button — solid dark */
-  .btn-primary {
+  
+  .aura-progress {
+    position: fixed;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 2px;
+    z-index: 100;
+    transform-origin: left;
+    background: linear-gradient(90deg, #ff6a00, #ff9200, #ffd166);
+  }
+  
+  .aura-cursor-glow {
+    position: fixed;
+    width: 500px;
+    height: 500px;
+    z-index: 1;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 130, 0, 0.09), transparent 68%);
+    filter: blur(4px);
+  }
+  
+  .aura-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 80;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(5, 5, 5, 0.72);
+    backdrop-filter: blur(18px);
+  }
+  
+  .aura-header-inner {
+    width: min(1280px, calc(100% - 48px));
+    height: 76px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .aura-back {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.75rem;
-    background: hsl(var(--foreground));
-    color: hsl(var(--background));
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    border: 1.5px solid hsl(var(--foreground));
-    border-radius: 2px;
-    transition: background 0.2s ease, color 0.2s ease;
-    cursor: pointer;
+    gap: 10px;
+    color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
+    font-size: 13px;
+    transition: color 180ms ease, transform 180ms ease;
   }
-  .btn-primary:hover {
-    background: hsl(var(--primary));
-    border-color: hsl(var(--primary));
-    color: white;
+  
+  .aura-back:hover {
+    color: #fff;
+    transform: translateX(-3px);
   }
-
-  /* Secondary ghost button */
-  .btn-secondary {
-    display: inline-flex;
+  
+  .aura-header-logo {
+    width: auto;
+    height: 42px;
+    object-fit: contain;
+  }
+  
+  .aura-hero {
+    position: relative;
+    z-index: 2;
+    min-height: 100svh;
+    padding: 150px 24px 100px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.75rem;
-    background: transparent;
-    color: hsl(var(--foreground));
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8rem;
+    justify-content: center;
+    text-align: center;
+    isolation: isolate;
+  }
+  
+  .hero-logo-wrap {
+    position: relative;
+    width: 116px;
+    height: 116px;
+    margin-bottom: 28px;
+  }
+  
+  .hero-logo-wrap img {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: aura-logo-float 6s ease-in-out infinite;
+  }
+  
+  .hero-logo-wrap span {
+    position: absolute;
+    inset: -45%;
+    z-index: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 130, 0, 0.32), transparent 67%);
+    animation: aura-breathe 4.5s ease-in-out infinite;
+  }
+  
+  .aura-eyebrow {
+    margin: 0 0 14px;
+    color: rgba(255, 168, 70, 0.9);
+    font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+    font-size: 11px;
     font-weight: 500;
-    letter-spacing: 0.05em;
-    border: 1.5px solid hsl(var(--border));
-    border-radius: 2px;
-    transition: border-color 0.2s ease, color 0.2s ease;
-    cursor: pointer;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  
+  .aura-hero h1 {
+    margin: 0;
+    max-width: 900px;
+    color: #fff;
+    font-family: "Fraunces", "Playfair Display", Georgia, serif;
+    font-size: clamp(56px, 9vw, 118px);
+    font-weight: 700;
+    line-height: 0.95;
+    letter-spacing: -0.055em;
+  }
+  
+  .hero-copy {
+    max-width: 680px;
+    margin: 28px auto 38px;
+    color: rgba(255, 255, 255, 0.48);
+    font-size: clamp(15px, 2vw, 18px);
+    line-height: 1.75;
+  }
+  
+  .aura-launch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 180, 80, 0.4);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #ff7a00, #d85f00);
+    color: #fff;
     text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 0 35px rgba(255, 120, 0, 0.22);
+    transition: transform 180ms ease, box-shadow 180ms ease;
   }
-  .btn-secondary:hover {
-    border-color: hsl(var(--foreground));
-    color: hsl(var(--foreground));
+  
+  .aura-launch::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.3), transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 500ms ease;
   }
-
-  /* Card — simple bordered box, no shadow */
-  .editorial-card {
-    border: 1.5px solid hsl(var(--border));
-    padding: 1.75rem;
-    background: hsl(var(--card));
-    transition: border-color 0.2s ease;
+  
+  .aura-launch:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 50px rgba(255, 120, 0, 0.35);
   }
-  .editorial-card:hover {
-    border-color: hsl(var(--primary) / 0.5);
+  
+  .aura-launch:hover::after {
+    transform: translateX(120%);
   }
-
-  /* Event list row */
-  .event-row {
-    @apply py-6 border-t border-border flex gap-8 items-start;
+  
+  .aura-stats {
+    width: min(900px, 100%);
+    margin-top: 72px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
   }
-
-  /* Resource list row */
-  .resource-row {
-    @apply py-5 border-t border-border flex items-start justify-between gap-4;
+  
+  .aura-stat {
+    padding: 22px 14px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 18px;
+    background: rgba(255,255,255,.035);
+    backdrop-filter: blur(16px);
   }
-
-  /* Tag chips */
-  .chip-mono {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    padding: 0.25rem 0.6rem;
-    border: 1px solid hsl(var(--border));
-    border-radius: 2px;
-    background: hsl(var(--background));
-    color: hsl(var(--muted-foreground));
-    display: inline-block;
+  
+  .aura-stat strong {
+    display: block;
+    margin-bottom: 6px;
+    color: rgba(255,255,255,.95);
+    font-size: 25px;
+    font-weight: 650;
   }
-
-  .chip-accent {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.68rem;
-    padding: 0.25rem 0.6rem;
-    border: 1px solid hsl(var(--primary) / 0.3);
-    border-radius: 2px;
-    background: hsl(var(--primary) / 0.08);
-    color: hsl(var(--primary));
-    display: inline-block;
+  
+  .aura-stat span {
+    color: rgba(255,255,255,.35);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
   }
-
-  /* Blue date accent */
-  .date-accent {
-    color: hsl(var(--primary));
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 1.1rem;
+  
+  .aura-network-section,
+  .faculty-section {
+    position: relative;
+    z-index: 2;
+    padding: 130px 24px;
+  }
+  
+  .aura-network-section {
+    min-height: 1050px;
+  }
+  
+  .section-intro {
+    position: relative;
+    z-index: 10;
+    width: min(780px, 100%);
+    margin: 0 auto 70px;
+    text-align: center;
+  }
+  
+  .section-intro h2 {
+    margin: 0 0 18px;
+    color: #fff;
+    font-family: "Fraunces", "Playfair Display", Georgia, serif;
+    font-size: clamp(42px, 6vw, 76px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -.045em;
+  }
+  
+  .section-intro > p:last-child {
+    margin: 0 auto;
+    max-width: 620px;
+    color: rgba(255,255,255,.42);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  
+  .desktop-network {
+    width: min(1000px, 100%);
+    margin: 0 auto;
+  }
+  
+  .aura-network {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    isolation: isolate;
+  }
+  
+  .aura-network::before {
+    content: "";
+    position: absolute;
+    inset: 15%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,120,0,.10), transparent 68%);
+    filter: blur(24px);
+    animation: aura-breathe 5s ease-in-out infinite;
+  }
+  
+  .flow-svg {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  
+  .flow-base,
+  .flow-active {
+    fill: none;
+    vector-effect: non-scaling-stroke;
+    stroke-linecap: round;
+  }
+  
+  .flow-base {
+    stroke: var(--aura-line-soft);
+    stroke-width: 1.2;
+  }
+  
+  .flow-base-secondary {
+    display: none;
+  }
+  
+  .flow-active {
+    stroke: rgba(255, 157, 36, .95);
+    stroke-width: 2.2;
+    stroke-dasharray: 12 24;
+    filter: url(#aura-flow-glow);
+  }
+  
+  .neural-node-container {
+    position: absolute;
+    z-index: 20;
+    width: 86px;
+    min-height: 86px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #fff;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    font: inherit;
+  }
+  
+  .neural-node-ring {
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(255,146,0,.28);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(255,120,0,.08);
+    animation: node-ring-spin 11s linear infinite;
+  }
+  
+  .neural-node-container:nth-of-type(2n) .neural-node-ring {
+    animation-direction: reverse;
+    animation-duration: 15s;
+  }
+  
+  .neural-node-portrait {
+    position: relative;
+    z-index: 3;
+    display: block;
+    width: 62px;
+    height: 62px;
+    margin: 12px auto;
+    border: 2px solid rgba(5,5,5,.95);
+    border-radius: 50%;
+    background: #101010;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px rgba(255,146,0,.18), 0 0 25px rgba(255,120,0,.08);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  
+  .neural-node-fallback {
+    display: grid;
+    place-items: center;
+    color: rgba(255,255,255,.8);
+    font-size: 13px;
     font-weight: 700;
   }
-
-  /* Gradient text (used sparingly) */
-  .gradient-text {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(var(--primary)), hsl(243 75% 75%));
+  
+  .neural-node-glow {
+    position: absolute;
+    inset: -12px;
+    z-index: 1;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,146,0,.28), transparent 68%);
+    opacity: 0;
+    transition: opacity 180ms ease;
   }
-
-  /* Input styles */
-  .input-field {
-    @apply w-full px-4 py-2.5 bg-card border border-border text-foreground text-sm;
-    font-family: 'Inter', sans-serif;
-    border-radius: 2px;
-    outline: none;
-    transition: border-color 0.2s ease;
+  
+  .neural-node-container:hover .neural-node-portrait,
+  .neural-node-container:focus-visible .neural-node-portrait {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 1px rgba(255,146,0,.35), 0 0 35px rgba(255,120,0,.2);
   }
-  .input-field:focus {
-    border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+  
+  .neural-node-container:hover .neural-node-glow,
+  .neural-node-container:focus-visible .neural-node-glow {
+    opacity: 1;
   }
-
-  /* Shimmer loading skeleton */
-  .shimmer {
-    background: linear-gradient(90deg,
-      hsl(var(--surface)) 25%,
-      hsl(var(--surface-2)) 50%,
-      hsl(var(--surface)) 75%
-    );
-    background-size: 400% 100%;
-    animation: shimmer 1.6s ease-in-out infinite;
+  
+  .neural-node-info {
+    position: absolute;
+    top: calc(100% - 2px);
+    left: 50%;
+    width: max-content;
+    max-width: 170px;
+    transform: translateX(-50%);
+    text-align: center;
   }
-
-  /* Old dark theme compat — glass-card fallback */
-  .glass-card {
-    @apply editorial-card;
+  
+  .neural-node-name,
+  .neural-node-role {
+    display: block;
   }
-
-  /* btn-glow fallback */
-  .btn-glow {
-    @apply btn-primary;
+  
+  .neural-node-name {
+    color: rgba(255,255,255,.9);
+    font-size: 11px;
+    font-weight: 600;
   }
-
-  /* Tags fallback */
-  .tag-blue   { background: hsl(var(--primary) / 0.1); color: hsl(var(--primary)); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
-  .tag-green  { background: hsl(150 60% 40% / 0.1); color: hsl(150 60% 35%); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
-  .tag-pink   { background: hsl(var(--accent) / 0.1); color: hsl(var(--accent)); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
-  .tag-yellow { background: hsl(40 90% 45% / 0.1); color: hsl(40 90% 40%); padding: 2px 8px; border-radius: 2px; font-size: 0.7rem; }
-
-  .input-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200;
+  
+  .neural-node-role {
+    margin-top: 4px;
+    color: rgba(255,146,0,.72);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 7px;
+    letter-spacing: .09em;
+    text-transform: uppercase;
   }
-}
-
-/* Keyframes */
-@keyframes shimmer {
-  0% { background-position: 100% 0; }
-  100% { background-position: -100% 0; }
-}
-
-@keyframes slide-up-fade {
-  0% { opacity: 0; transform: translateY(12px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes fade-in {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
-
-/* =========================================
-   AURA NEURAL FLOW (GSAP)
-========================================= */
-
-.background-glow {
-  position: absolute;
-  width: 650px;
-  height: 650px;
-  left: 50%;
-  top: 54%;
-  transform: translate(-50%, -50%);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 132, 0, 0.11), rgba(255, 100, 0, 0.035) 35%, transparent 70%);
-  filter: blur(15px);
-  pointer-events: none;
-  z-index: 0;
-  animation: breathingGlow 5s ease-in-out infinite;
-}
-
-@keyframes breathingGlow {
-  0%, 100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.65; }
-  50% { transform: translate(-50%, -50%) scale(1.08); opacity: 1; }
-}
-
-.flow-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.flow-base {
-  fill: none;
-  stroke: rgba(255, 145, 0, 0.4);
-  stroke-width: 3;
-  stroke-dasharray: 4 6;
-  vector-effect: non-scaling-stroke;
-}
-
-.flow-active {
-  fill: none;
-  stroke: rgba(255, 145, 0, 1);
-  stroke-width: 5;
-  stroke-linecap: round;
-  vector-effect: non-scaling-stroke;
-  filter: url(#flowGlow);
-  stroke-dasharray: 6 12;
-}
-
-.flow-particle {
-  fill: #ff9b00;
-  filter: url(#particleGlow);
-}
-
-.flow-particle-core {
-  fill: #fff1cf;
-}
-
-.aura-core {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 15;
-  pointer-events: none;
-}
-
-.aura-reactor-glow {
-  background: radial-gradient(circle, rgba(255, 120, 0, 0.25) 0%, transparent 70%);
-  animation: reactorPulse 6s ease-in-out infinite;
-}
-
-@keyframes reactorPulse {
-  0%, 100% { opacity: 0.5; transform: scale(0.95); }
-  50% { opacity: 0.7; transform: scale(1.05); }
-}
-
-.aura-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 147, 0, 0.15);
-}
-
-.aura-ring-outer {
-  width: 160px;
-  height: 160px;
-  animation: ringRotate 40s linear infinite;
-  border-left-color: rgba(255, 147, 0, 0.2);
-  border-right-color: rgba(255, 147, 0, 0.2);
-}
-
-.aura-ring-inner {
-  width: 130px;
-  height: 130px;
-  animation: ringRotateReverse 35s linear infinite;
-  border-top-color: rgba(255, 147, 0, 0.3);
-}
-
-.aura-ring-dashed {
-  width: 190px;
-  height: 190px;
-  border: 1px dashed rgba(255, 147, 0, 0.15);
-  animation: ringRotate 50s linear infinite;
-}
-
-.aura-vortex-particle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 3px;
-  height: 3px;
-  background: #ff9200;
-  border-radius: 50%;
-  box-shadow: 0 0 10px #ff9200;
-  opacity: 0;
-  animation: vortexSpin 5s ease-in-out infinite;
-  animation-delay: calc(var(--i) * -0.4s);
-}
-
-@keyframes vortexSpin {
-  0% { transform: rotate(calc(var(--i) * 30deg)) translateX(60px) scale(0.5); opacity: 0; }
-  30% { opacity: 0.6; }
-  70% { opacity: 0.6; }
-  100% { transform: rotate(calc(var(--i) * 30deg + 90deg)) translateX(0px) scale(1.2); opacity: 0; }
-}
-
-@keyframes ringRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes ringRotateReverse {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-.aura-logo {
-  position: relative;
-  z-index: 5;
-  text-align: center;
-}
-
-.aura-symbol {
-  font-size: 53px;
-  line-height: 48px;
-  font-weight: 800;
-  color: #ff9200;
-  text-shadow: 0 0 10px rgba(255, 145, 0, 0.5), 0 0 30px rgba(255, 120, 0, 0.25);
-}
-
-.aura-title {
-  font-size: 25px;
-  line-height: 27px;
-  font-weight: 500;
-  letter-spacing: 1px;
-}
-
-.aura-subtitle {
-  margin-top: 3px;
-  font-size: 6px;
-  letter-spacing: 0.7px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.aura-pulse-emitter {
-  position: absolute;
-  border: 2px solid rgba(255, 147, 0, 0.4);
-  opacity: 0;
-  transform: scale(0.5);
-  z-index: 1;
-}
-
-/* Neural Node Design */
-.neural-node-container {
-  position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 20;
-  cursor: pointer;
-  transform: translate(-50%, -50%);
-}
-
-.neural-node-ring {
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 146, 0, 0.3);
-  box-shadow: 0 0 15px rgba(255, 146, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.neural-node-portrait {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #111;
-  border: 2px solid rgba(0,0,0,0.8);
-  object-fit: cover;
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.neural-node-glow {
-  position: absolute;
-  inset: -10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 146, 0, 0.4) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 1;
-}
-
-.neural-node-info {
-  position: absolute;
-  top: calc(100% + 8px);
-  text-align: center;
-  width: max-content;
-}
-
-.neural-node-name {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #fff;
-  letter-spacing: 0.05em;
-}
-
-.neural-node-role {
-  font-size: 0.55rem;
-  color: rgba(255, 146, 0, 0.8);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 2px;
-}
-
-/* Hover States */
-.neural-node-container:hover .neural-node-ring {
-  border-color: rgba(255, 146, 0, 0.8);
-  box-shadow: 0 0 25px rgba(255, 146, 0, 0.4);
-  transform: scale(1.1);
-}
-.neural-node-container:hover .neural-node-glow {
-  opacity: 1;
-}
-.neural-node-container:hover .neural-node-portrait {
-  transform: scale(1.05);
-}
+  
+  .mobile-network {
+    display: none;
+  }
+  
+  .faculty-section {
+    background: linear-gradient(180deg, #050505, #070605 50%, #050505);
+  }
+  
+  .faculty-grid {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  
+  .faculty-card {
+    min-height: 430px;
+    padding: 28px;
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 28px;
+    background: rgba(255,255,255,.035);
+    backdrop-filter: blur(18px);
+    transition: border-color 200ms ease, box-shadow 200ms ease;
+  }
+  
+  .faculty-card:hover {
+    border-color: rgba(255,146,0,.28);
+    box-shadow: 0 20px 70px rgba(0,0,0,.28);
+  }
+  
+  .faculty-head {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 24px;
+  }
+  
+  .faculty-photo {
+    width: 68px;
+    height: 68px;
+    flex: 0 0 68px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 18px;
+    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.7);
+    font-weight: 700;
+  }
+  
+  .faculty-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .faculty-head h3 {
+    margin: 0 0 4px;
+    color: #fff;
+    font-size: 18px;
+    font-weight: 650;
+  }
+  
+  .faculty-head p,
+  .faculty-head span {
+    display: block;
+    margin: 0;
+    color: rgba(255,255,255,.52);
+    font-size: 12px;
+  }
+  
+  .faculty-head span {
+    margin-top: 2px;
+    color: rgba(255,255,255,.3);
+    font-size: 10px;
+  }
+  
+  .faculty-meta {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  
+  .faculty-meta > div {
+    padding: 13px;
+    border: 1px solid rgba(255,255,255,.06);
+    border-radius: 14px;
+    background: rgba(255,255,255,.025);
+  }
+  
+  .faculty-meta small {
+    display: block;
+    margin-bottom: 5px;
+    color: rgba(255,255,255,.28);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 8px;
+    letter-spacing: .08em;
+  }
+  
+  .faculty-meta strong {
+    display: block;
+    color: rgba(255,255,255,.8);
+    font-size: 11px;
+    line-height: 1.4;
+  }
+  
+  .faculty-meta > div:first-child strong {
+    color: rgba(255,157,36,.9);
+  }
+  
+  .faculty-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-height: 58px;
+  }
+  
+  .faculty-skills span {
+    align-self: flex-start;
+    padding: 6px 9px;
+    border: 1px solid rgba(255,146,0,.16);
+    border-radius: 999px;
+    background: rgba(255,146,0,.06);
+    color: rgba(255,255,255,.62);
+    font-size: 10px;
+  }
+  
+  .faculty-card blockquote {
+    margin: 26px 0 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,.07);
+    color: rgba(255,255,255,.48);
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 14px;
+    font-style: italic;
+    line-height: 1.6;
+  }
+  
+  .faculty-link {
+    color: rgba(255,157,36,.85);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  
+  .aura-timeline {
+    position: relative;
+    width: min(900px, 100%);
+    margin: 110px auto 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .aura-timeline::before {
+    content: "";
+    position: absolute;
+    top: 15px;
+    left: 12%;
+    right: 12%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,146,0,.45), transparent);
+  }
+  
+  .timeline-step {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .timeline-step span {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid rgba(255,146,0,.5);
+    border-radius: 50%;
+    background: #050505;
+    color: rgba(255,157,36,.9);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+  }
+  
+  .timeline-step strong {
+    color: rgba(255,255,255,.48);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+  }
+  
+  .aura-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(18px);
+  }
+  
+  .aura-modal {
+    position: relative;
+    width: min(540px, 100%);
+    padding: 30px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 28px;
+    background: rgba(10,10,10,.94);
+    box-shadow: 0 30px 100px rgba(0,0,0,.55);
+  }
+  
+  .aura-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    color: rgba(255,255,255,.55);
+    cursor: pointer;
+  }
+  
+  .modal-profile {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding-right: 42px;
+  }
+  
+  .modal-profile img,
+  .modal-profile > span {
+    width: 82px;
+    height: 82px;
+    flex: 0 0 82px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border: 1px solid rgba(255,146,0,.25);
+    border-radius: 22px;
+    background: rgba(255,255,255,.04);
+    object-fit: cover;
+    color: rgba(255,255,255,.8);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  
+  .modal-profile h3 {
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: 25px;
+    line-height: 1.1;
+  }
+  
+  .modal-bio {
+    margin: 28px 0;
+    color: rgba(255,255,255,.62);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  
+  .modal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  
+  .modal-links a {
+    padding: 9px 14px;
+    border: 1px solid rgba(255,255,255,.09);
+    border-radius: 999px;
+    color: rgba(255,255,255,.72);
+    text-decoration: none;
+    font-size: 11px;
+    transition: background 180ms ease, color 180ms ease;
+  }
+  
+  .modal-links a:hover {
+    background: rgba(255,146,0,.1);
+    color: #fff;
+  }
+  
+  .aura-loader {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  
+  .aura-loader-mark {
+    color: #ff9b26;
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(56px, 10vw, 110px);
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-shadow: 0 0 40px rgba(255,130,0,.25);
+    animation: loader-pulse 1.8s ease-in-out infinite;
+  }
+  
+  .aura-loader-line {
+    width: 120px;
+    height: 1px;
+    margin: 22px auto;
+    background: linear-gradient(90deg, transparent, #ff9200, transparent);
+  }
+  
+  .aura-loader p {
+    margin: 0;
+    color: rgba(255,146,0,.5);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+  }
+  
+  @keyframes aura-logo-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+  
+  @keyframes aura-breathe {
+    0%, 100% { transform: scale(.92); opacity: .55; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+  
+  @keyframes node-ring-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  @keyframes loader-pulse {
+    0%, 100% { opacity: .72; transform: scale(.98); }
+    50% { opacity: 1; transform: scale(1.02); }
+  }
+  
+  @media (max-width: 900px) {
+    .faculty-grid {
+      grid-template-columns: 1fr;
+      max-width: 620px;
+    }
+  
+    .faculty-card {
+      min-height: 0;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .aura-header-inner {
+      width: calc(100% - 28px);
+      height: 64px;
+    }
+  
+    .aura-back span {
+      display: none;
+    }
+  
+    .aura-header-logo {
+      height: 34px;
+    }
+  
+    .aura-hero {
+      min-height: auto;
+      padding-top: 130px;
+      padding-bottom: 90px;
+    }
+  
+    .hero-logo-wrap {
+      width: 88px;
+      height: 88px;
+    }
+  
+    .aura-hero h1 {
+      font-size: clamp(48px, 15vw, 76px);
+    }
+  
+    .aura-stats {
+      grid-template-columns: repeat(2, 1fr);
+      margin-top: 52px;
+    }
+  
+    .aura-network-section,
+    .faculty-section {
+      padding: 90px 16px;
+    }
+  
+    .aura-network-section {
+      min-height: auto;
+    }
+  
+    .section-intro {
+      margin-bottom: 48px;
+    }
+  
+    .section-intro h2 {
+      font-size: 45px;
+    }
+  
+    .desktop-network {
+      display: none;
+    }
+  
+    .mobile-network {
+      display: grid;
+      gap: 10px;
+      width: min(560px, 100%);
+      margin: 0 auto;
+    }
+  
+    .mobile-person {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      background: rgba(255,255,255,.035);
+      color: #fff;
+      text-align: left;
+      cursor: pointer;
+    }
+  
+    .mobile-person img,
+    .mobile-person > span {
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      border-radius: 50%;
+      background: #111;
+      border: 1px solid rgba(255,146,0,.2);
+      object-fit: cover;
+      color: rgba(255,255,255,.7);
+      font-size: 12px;
+      font-weight: 700;
+    }
+  
+    .mobile-person strong,
+    .mobile-person small {
+      display: block;
+    }
+  
+    .mobile-person strong {
+      font-size: 14px;
+    }
+  
+    .mobile-person small {
+      margin-top: 3px;
+      color: rgba(255,146,0,.7);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 8px;
+      text-transform: uppercase;
+    }
+  
+    .faculty-card {
+      padding: 22px;
+      border-radius: 22px;
+    }
+  
+    .aura-timeline {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px 0;
+    }
+  
+    .aura-timeline::before {
+      display: none;
+    }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    .hero-logo-wrap img,
+    .hero-logo-wrap span,
+    .neural-node-ring,
+    .aura-loader-mark {
+      animation: none;
+    }
+  
+    .aura-launch,
+    .neural-node-portrait {
+      transition: none;
+    }
+  }
