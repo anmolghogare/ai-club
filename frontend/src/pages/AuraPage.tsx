@@ -187,113 +187,118 @@ const AnimatedCounter = ({ value, duration = 2 }: { value: string, duration?: nu
   return <motion.span ref={ref}>{displayValue}</motion.span>;
 };
 
+const NeuralConnection = ({ startX, startY, endX, endY, isActive, onHit, index, triggerOutward }: any) => {
+  const [particles, setParticles] = useState<{ id: string, direction: 'in' | 'out' }[]>([]);
 
-const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) => {
-  const [particles, setParticles] = useState<any[]>([]);
-  const [pulse, setPulse] = useState(false);
-  
-  // Particle spawner
+  // Independent staggered inbound spawner
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.3) {
-        const id = Math.random();
-        const duration = Math.random() * 1.5 + 1.5; // 1.5 to 3.0s
-        setParticles(p => [...p, { id, duration }]);
-        
-        // Remove particle after travel and trigger hit
-        setTimeout(() => {
-          setParticles(p => p.filter(particle => particle.id !== id));
-          onHit();
-        }, duration * 1000);
-      }
-    }, Math.random() * 2000 + 1000);
-    return () => clearInterval(interval);
-  }, [onHit]);
+    let interval: any;
+    const startDelay = index * 400; // Staggered start
+    
+    const timeout = setTimeout(() => {
+      interval = setInterval(() => {
+        // Higher probability if hovered
+        if (Math.random() > (isActive ? 0.3 : 0.8)) {
+          const id = Date.now().toString() + 'in';
+          setParticles(p => [...p, { id, direction: 'in' }]);
+          
+          setTimeout(() => {
+            setParticles(p => p.filter(x => x.id !== id));
+            onHit(); // Particle reached core
+          }, 1200);
+        }
+      }, isActive ? 1200 : 3500);
+    }, startDelay);
 
-  // Neural pulse
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
+  }, [isActive, onHit, index]);
+
+  // Outward response listener
   useEffect(() => {
-    const pulseInterval = setInterval(() => {
-      if (Math.random() > 0.8) {
-        setPulse(true);
-        setTimeout(() => setPulse(false), 800);
-      }
-    }, Math.random() * 5000 + 3000);
-    return () => clearInterval(pulseInterval);
-  }, []);
+    if (triggerOutward === index) {
+      const id = Date.now().toString() + 'out';
+      setParticles(p => [...p, { id, direction: 'out' }]);
+      setTimeout(() => {
+        setParticles(p => p.filter(x => x.id !== id));
+      }, 1200);
+    }
+  }, [triggerOutward, index]);
 
+  // Geometric Anchors
   const dx = endX - startX;
   const dy = endY - startY;
-  const angle = Math.atan2(dy, dx);
-  // Elegant tangential offset for the control point
-  const offset = 12; 
-  const cpX = (startX + endX) / 2 - Math.sin(angle) * offset;
-  const cpY = (startY + endY) / 2 + Math.cos(angle) * offset;
-  const path = `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`;
-  
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const dirX = dx / dist;
+  const dirY = dy / dist;
+
+  // Exact anchor points (Aura boundary radius ~10, Card boundary radius ~8 in 100x100 space)
+  const p1x = startX + dirX * 10;
+  const p1y = startY + dirY * 10;
+  const p2x = endX - dirX * 8;
+  const p2y = endY - dirY * 8;
+
+  // Tangential Bezier control point for an elegant curve
+  const angle = Math.atan2(p2y - p1y, p2x - p1x);
+  const offset = 8;
+  const cpX = (p1x + p2x) / 2 - Math.sin(angle) * offset;
+  const cpY = (p1y + p2y) / 2 + Math.cos(angle) * offset;
+  const path = `M ${p1x} ${p1y} Q ${cpX} ${cpY} ${p2x} ${p2y}`;
+
   return (
     <g>
-      {/* Base path */}
-      <motion.path d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+      {/* Layer 1: Very subtle base path */}
+      <path d={path} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.8" />
       
-      {/* Neural Pulse */}
-      <motion.path 
-        d={path} fill="none" stroke="#f97316" strokeWidth="2"
-        style={{ filter: "drop-shadow(0 0 8px #f97316)" }}
-        initial={{ pathLength: 0, opacity: 0 }}
-        animate={pulse ? { pathLength: [0, 1], opacity: [0, 1, 0] } : { opacity: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+      {/* Layer 2: Moving Highlight Segments */}
+      <motion.path
+        d={path} fill="none" stroke={isActive ? "rgba(249,115,22,0.6)" : "rgba(249,115,22,0.2)"}
+        strokeWidth={isActive ? "1.5" : "1"}
+        strokeDasharray="2 8"
+        animate={{ strokeDashoffset: [100, 0] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
       />
       
-      {/* Active dashed border (Flows backwards into AURA) */}
+      {/* Layer 3: Soft Glow on active path */}
       <motion.path
-        d={path} fill="none" stroke={isActive ? "url(#gradient-active)" : "url(#gradient-inactive)"}
-        strokeWidth={isActive ? "2" : "1.5"} strokeDasharray="4 8"
-        animate={{ strokeDashoffset: [100, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        style={{ opacity: isActive ? 1 : 0.4 }}
+        d={path} fill="none" stroke="rgba(249,115,22,0.15)" strokeWidth="4"
+        style={{ filter: "blur(3px)" }}
+        animate={{ opacity: isActive ? [0.3, 0.6, 0.3] : 0.1 }}
+        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
       />
 
-      {/* Traveling Particles */}
-      {particles.map(p => (
-        <motion.path
-          key={p.id}
-          d={path}
-          fill="none"
-          stroke="#fbd38d"
-          strokeWidth="3"
-          strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 8px #f97316)" }}
-          initial={{ pathLength: 0, pathOffset: 1, opacity: 0 }}
-          animate={{ pathLength: 0.08, pathOffset: [1, 0], opacity: [0, 1, 1, 0] }}
-          transition={{ duration: p.duration, ease: "easeInOut" }}
-        />
-      ))}
-    </g>
-  );
-};
-
-// Removed LivingAuraCore to use AnimatedAuraCore
-
-
-const CurvedConnection = ({ startX, startY, endX, endY, isActive }: any) => {
-  const dx = endX - startX;
-  const dy = endY - startY;
-  const angle = Math.atan2(dy, dx);
-  const offset = 12; 
-  const cpX = (startX + endX) / 2 - Math.sin(angle) * offset;
-  const cpY = (startY + endY) / 2 + Math.cos(angle) * offset;
-  const path = `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`;
-  return (
-    <g>
-      <motion.path
-        d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1"
-        initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, ease: 'easeInOut' }}
-      />
-      <motion.path
-        d={path} fill="none" stroke={isActive ? "url(#gradient-active)" : "url(#gradient-inactive)"}
-        strokeWidth={isActive ? "2" : "1.5"} strokeDasharray="4 8"
-        animate={{ strokeDashoffset: [100, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        style={{ opacity: isActive ? 1 : 0.4 }}
-      />
+      {/* Layer 4: Real Data Particles */}
+      <AnimatePresence>
+        {particles.map(p => (
+          <g key={p.id}>
+            {/* Secondary trailing energy */}
+            <motion.path
+              d={path} fill="none" stroke="rgba(249,115,22,0.5)" strokeWidth="1.5" strokeLinecap="round"
+              initial={{ pathLength: 0, pathOffset: p.direction === 'in' ? 1 : 0, opacity: 0 }}
+              animate={{ 
+                pathLength: 0.08, 
+                pathOffset: p.direction === 'in' ? [1, 0] : [0, 1], 
+                opacity: [0, 1, 1, 0] 
+              }}
+              transition={{ duration: 1.2, ease: "easeInOut", delay: 0.05 }}
+            />
+            {/* Primary bright core particle */}
+            <motion.path
+              d={path} fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"
+              style={{ filter: "drop-shadow(0 0 6px #f97316)" }}
+              initial={{ pathLength: 0, pathOffset: p.direction === 'in' ? 1 : 0, opacity: 0 }}
+              animate={{ 
+                pathLength: 0.015, 
+                pathOffset: p.direction === 'in' ? [1, 0] : [0, 1], 
+                opacity: [0, 1, 1, 0] 
+              }}
+              transition={{ duration: 1.2, ease: "easeInOut" }}
+            />
+          </g>
+        ))}
+      </AnimatePresence>
     </g>
   );
 };
@@ -313,6 +318,15 @@ const AuraPage = () => {
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
   const [coreHit, setCoreHit] = useState(0);
   const [isCoreHovered, setIsCoreHovered] = useState(false);
+  const [triggerOutward, setTriggerOutward] = useState<number | null>(null);
+
+  const handleCoreHit = useCallback(() => {
+    setCoreHit(c => c + 1);
+    setTimeout(() => {
+      setTriggerOutward(Math.floor(Math.random() * nodes.length));
+      setTimeout(() => setTriggerOutward(null), 100);
+    }, 300);
+  }, []);
   const [selectedNode, setSelectedNode] = useState<number | null>(null);
 
   const nodes = teamMembers.map((member, i) => {
@@ -477,7 +491,13 @@ const AuraPage = () => {
                   </defs>
                   
                   {nodes.map((node, i) => (
-                    <LivingConnection key={`curve-${i}`} startX={50} startY={50} endX={node.x} endY={node.y} isActive={hoveredNode === i || selectedNode === i} onHit={() => setCoreHit(c => c + 1)} />
+                    <NeuralConnection 
+                      key={`curve-${i}`} startX={50} startY={50} endX={node.x} endY={node.y} 
+                      isActive={hoveredNode === i || selectedNode === i} 
+                      onHit={handleCoreHit} 
+                      index={i} 
+                      triggerOutward={triggerOutward} 
+                    />
                   ))}
                 </svg>
 
