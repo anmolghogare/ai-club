@@ -4,12 +4,7 @@ import { motion } from 'framer-motion';
 import { Cpu, Terminal, Sparkles, Activity, Layers, ArrowRight, Zap, Code, Database } from 'lucide-react';
 import AuraLogo from './AuraLogo';
 
-const stats = [
-  { label: 'FOUNDED', value: '2023' },
-  { label: 'MEMBERS', value: '180+' },
-  { label: 'MEETS', value: 'Wed · 7pm · LT-1' },
-  { label: 'COST', value: 'Free' },
-];
+
 
 const inputChips = ['transformer', 'attention_is_all_you_need', 'pytorch_2.4', 'cuda_12', 'vLLM', 'diffusion'];
 
@@ -153,25 +148,7 @@ export default function Hero() {
         </motion.div>
       </div>
 
-      {/* Stats bar */}
-      <div className="border-t border-slate-200/80 bg-white/90 backdrop-blur-md w-full relative z-10">
-        <div className="max-w-7xl mx-auto px-6 py-5 grid grid-cols-2 sm:grid-cols-4 gap-6">
-          {stats.map((stat, i) => (
-            <motion.div 
-              key={stat.label} 
-              whileHover={{ y: -3, scale: 1.03 }}
-              className={`cursor-pointer ${i > 0 ? 'sm:border-l sm:border-slate-200/80 sm:pl-6' : ''}`}
-            >
-              <p className="font-mono text-[11px] tracking-wider uppercase text-indigo-600 font-bold mb-1">
-                {stat.label}
-              </p>
-              <p className="font-sans text-lg sm:text-xl font-extrabold text-slate-900">
-                {stat.value}
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+
     </section>
   );
 }
