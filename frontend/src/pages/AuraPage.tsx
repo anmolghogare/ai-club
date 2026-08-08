@@ -542,7 +542,7 @@ const AuraPage = () => {
       window.removeEventListener("resize", handleResize);
       clearNetwork();
     };
-  }, { scope: containerRef });
+  }, { scope: containerRef, dependencies: [] });
 
 
   const nodes = teamMembers.map((member, i) => {
