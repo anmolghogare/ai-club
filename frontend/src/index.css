@@ -397,19 +397,20 @@
 
 .flow-base {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.085);
-  stroke-width: 2;
+  stroke: rgba(255, 145, 0, 0.4);
+  stroke-width: 3;
+  stroke-dasharray: 4 6;
   vector-effect: non-scaling-stroke;
 }
 
 .flow-active {
   fill: none;
-  stroke: rgba(255, 145, 0, 0.22);
-  stroke-width: 1.4;
+  stroke: rgba(255, 145, 0, 1);
+  stroke-width: 5;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
   filter: url(#flowGlow);
-  stroke-dasharray: 7 18;
+  stroke-dasharray: 6 12;
 }
 
 .flow-particle {
@@ -436,13 +437,13 @@
 }
 
 .aura-reactor-glow {
-  background: radial-gradient(circle, rgba(255, 120, 0, 0.4) 0%, transparent 70%);
-  animation: reactorPulse 4s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255, 120, 0, 0.25) 0%, transparent 70%);
+  animation: reactorPulse 6s ease-in-out infinite;
 }
 
 @keyframes reactorPulse {
-  0%, 100% { opacity: 0.5; transform: scale(0.9); }
-  50% { opacity: 0.8; transform: scale(1.1); filter: brightness(1.2); }
+  0%, 100% { opacity: 0.5; transform: scale(0.95); }
+  50% { opacity: 0.7; transform: scale(1.05); }
 }
 
 .aura-ring {
@@ -454,44 +455,44 @@
 .aura-ring-outer {
   width: 160px;
   height: 160px;
-  animation: ringRotate 20s linear infinite;
-  border-left-color: rgba(255, 147, 0, 0.5);
-  border-right-color: rgba(255, 147, 0, 0.5);
+  animation: ringRotate 40s linear infinite;
+  border-left-color: rgba(255, 147, 0, 0.2);
+  border-right-color: rgba(255, 147, 0, 0.2);
 }
 
 .aura-ring-inner {
   width: 130px;
   height: 130px;
-  animation: ringRotateReverse 15s linear infinite;
-  border-top-color: rgba(255, 147, 0, 0.6);
+  animation: ringRotateReverse 35s linear infinite;
+  border-top-color: rgba(255, 147, 0, 0.3);
 }
 
 .aura-ring-dashed {
   width: 190px;
   height: 190px;
-  border: 1px dashed rgba(255, 147, 0, 0.3);
-  animation: ringRotate 25s linear infinite;
+  border: 1px dashed rgba(255, 147, 0, 0.15);
+  animation: ringRotate 50s linear infinite;
 }
 
 .aura-vortex-particle {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   background: #ff9200;
   border-radius: 50%;
-  box-shadow: 0 0 10px #ff9200, 0 0 20px #ff9200;
+  box-shadow: 0 0 10px #ff9200;
   opacity: 0;
-  animation: vortexSpin 3s linear infinite;
-  animation-delay: calc(var(--i) * -0.25s);
+  animation: vortexSpin 5s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.4s);
 }
 
 @keyframes vortexSpin {
-  0% { transform: rotate(calc(var(--i) * 30deg)) translateX(80px) scale(0.5); opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { transform: rotate(calc(var(--i) * 30deg + 180deg)) translateX(0px) scale(1.5); opacity: 0; }
+  0% { transform: rotate(calc(var(--i) * 30deg)) translateX(60px) scale(0.5); opacity: 0; }
+  30% { opacity: 0.6; }
+  70% { opacity: 0.6; }
+  100% { transform: rotate(calc(var(--i) * 30deg + 90deg)) translateX(0px) scale(1.2); opacity: 0; }
 }
 
 @keyframes ringRotate {
@@ -534,7 +535,7 @@
 
 .aura-pulse-emitter {
   position: absolute;
-  border: 2px solid rgba(255, 147, 0, 0.9);
+  border: 2px solid rgba(255, 147, 0, 0.4);
   opacity: 0;
   transform: scale(0.5);
   z-index: 1;

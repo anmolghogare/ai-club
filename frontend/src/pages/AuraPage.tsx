@@ -318,7 +318,6 @@ const AuraPage = () => {
 
     let resizeTimer: any;
     let masterTimeline: gsap.core.Timeline | null = null;
-    let connections: any[] = [];
     const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
     const particleContainer = network.querySelector('#particles') as SVGGElement;
     const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
@@ -342,23 +341,30 @@ const AuraPage = () => {
     }
 
     function createParticle() {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      circle.setAttribute("r", "3");
-      circle.setAttribute("fill", "#fff2d0");
+      circle.setAttribute("r", "5");
+      circle.setAttribute("fill", "#fff");
       circle.setAttribute("filter", "url(#particleGlow)");
-      circle.style.opacity = "0";
-      particleContainer.appendChild(circle);
-      return circle;
+      
+      const core = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      core.setAttribute("r", "2");
+      core.setAttribute("fill", "#fff");
+      
+      group.appendChild(circle);
+      group.appendChild(core);
+      group.style.opacity = "0";
+      particleContainer.appendChild(group);
+      return group;
     }
 
     function triggerNodeHit(nodeEl: HTMLElement) {
-      // Scale up, glow
       const ring = nodeEl.querySelector('.neural-node-ring');
       const glow = nodeEl.querySelector('.neural-node-glow');
       
       gsap.fromTo(ring, 
-        { scale: 1, borderColor: "rgba(255,146,0,0.3)" },
-        { scale: 1.3, borderColor: "rgba(255,146,0,1)", duration: 0.3, yoyo: true, repeat: 1 }
+        { scale: 1, borderColor: "rgba(255,146,0,0.3)", boxShadow: "0 0 15px rgba(255,146,0,0.1)" },
+        { scale: 1.25, borderColor: "rgba(255,146,0,1)", boxShadow: "0 0 30px rgba(255,146,0,0.6)", duration: 0.3, yoyo: true, repeat: 1 }
       );
       gsap.fromTo(glow,
         { opacity: 0 },
@@ -370,13 +376,13 @@ const AuraPage = () => {
       const emitter = network.querySelector('.aura-pulse-emitter');
       if (emitter) {
         gsap.fromTo(emitter, 
-          { scale: 0.5, opacity: 0.9 },
-          { scale: 2.5, opacity: 0, duration: 0.8, ease: "power2.out" }
+          { scale: 0.5, opacity: 1, borderWidth: "4px" },
+          { scale: 3, opacity: 0, borderWidth: "1px", duration: 2.0, ease: "power2.out" }
         );
       }
       gsap.fromTo(auraCore,
-        { filter: "brightness(1)" },
-        { filter: "brightness(1.5)", duration: 0.2, yoyo: true, repeat: 1 }
+        { filter: "brightness(1)", scale: 1 },
+        { filter: "brightness(1.15)", scale: 1.03, duration: 0.8, ease: "power1.inOut", yoyo: true, repeat: 1 }
       );
     }
 
@@ -391,7 +397,9 @@ const AuraPage = () => {
       const auraP = getCenter(auraCore);
       const points = cards.map(c => getCenter(c));
       
-      // Floating animation for nodes
+      // Prevent rendering if layout isn't ready
+      if (auraP.x === 0 && auraP.y === 0) return;
+      
       cards.forEach(card => {
         gsap.to(card, {
           y: "+=15",
@@ -401,7 +409,16 @@ const AuraPage = () => {
           repeat: -1,
           ease: "sine.inOut"
         });
-        // Hover interaction
+        
+        // Ensure ring rotates constantly
+        const ring = card.querySelector('.neural-node-ring');
+        gsap.to(ring, {
+          rotation: 360,
+          duration: 10 + Math.random() * 5,
+          repeat: -1,
+          ease: "none"
+        });
+
         card.addEventListener('mouseenter', () => {
           gsap.to(auraCore, { filter: "brightness(1.3)", duration: 0.3 });
           triggerNodeHit(card);
@@ -411,16 +428,36 @@ const AuraPage = () => {
         });
       });
 
-      // Flow 1: AURA -> Vedant(0) -> Parth(1) -> Meet(2) -> Madhav(3) -> AURA
-      // Flow 2: AURA -> Manal(5) -> GDG(6) -> Bhagyashree(4) -> AURA
-      const flow1 = [ 'aura', 0, 1, 2, 3, 'aura' ];
-      const flow2 = [ 'aura', 5, 6, 4, 'aura' ];
+      // Draw the full background web of neural pathways
+      const numCards = cards.length;
+      const basePaths: any[][] = [];
+      
+      // Connect everyone to AURA
+      for (let i = 0; i < numCards; i++) {
+        basePaths.push(['aura', i]);
+      }
+      // Connect adjacent nodes
+      for (let i = 0; i < numCards; i++) {
+        basePaths.push([i, (i + 1) % numCards]);
+      }
+
+      // Precise, smooth active energy flows defined by the user
+      const flows = [
+        // Meet -> Madhav -> Parth -> AURA
+        [ 'aura', 2, 3, 1, 'aura' ],
+        
+        // GDG -> AURA -> Vedant
+        [ 'aura', 6, 'aura', 0, 'aura' ],
+        
+        // Bhagyashree -> Manal -> AURA
+        [ 'aura', 4, 5, 'aura' ]
+      ];
       
       const drawCurvedPath = (p1: any, p2: any) => {
         const dx = p2.x - p1.x;
         const dy = p2.y - p1.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        const curveOffset = Math.min(dist * 0.2, 50);
+        const curveOffset = Math.min(dist * 0.25, 80);
         const angle = Math.atan2(dy, dx);
         
         // Push control point outwards organically
@@ -429,7 +466,16 @@ const AuraPage = () => {
         return `M ${p1.x} ${p1.y} Q ${cx} ${cy} ${p2.x} ${p2.y}`;
       };
 
-      const animateFlow = (sequence: any[], delay: number) => {
+      // First, draw all the base paths to create the visual web
+      basePaths.forEach(path => {
+        const p1 = path[0] === 'aura' ? auraP : points[path[0]];
+        const p2 = path[1] === 'aura' ? auraP : points[path[1]];
+        const pathData = drawCurvedPath(p1, p2);
+        const basePath = createSvgPath(pathData, "flow-base");
+        pathContainer.appendChild(basePath);
+      });
+
+      const animateFlow = (sequence: any[], delay: number, speedMult: number = 1) => {
         const tl = gsap.timeline({ repeat: -1, delay });
         
         for (let i = 0; i < sequence.length - 1; i++) {
@@ -441,24 +487,20 @@ const AuraPage = () => {
           
           const pathData = drawCurvedPath(p1, p2);
           
-          // Draw base
-          pathContainer.appendChild(createSvgPath(pathData, "flow-base"));
+          // We don't draw flow-base here anymore because it's drawn globally above
           
-          // Active stroke
           const activePath = createSvgPath(pathData, "flow-active");
-          activePath.style.opacity = "0.3";
+          activePath.style.opacity = "0";
           pathContainer.appendChild(activePath);
           
-          // Particle
           const particle = createParticle();
           
-          // Sequence segment
           tl.call(() => {
              if (fromIdx === 'aura') triggerAuraCoreHit();
              else triggerNodeHit(cards[fromIdx]);
           });
           
-          tl.to(activePath, { opacity: 0.8, duration: 0.2 });
+          tl.to(activePath, { opacity: 0.9, duration: 0.15 });
           
           tl.to(particle, {
             opacity: 1,
@@ -471,38 +513,40 @@ const AuraPage = () => {
               align: activePath,
               alignOrigin: [0.5, 0.5]
             },
-            duration: 1.5,
-            ease: "power1.inOut"
+            duration: 1.5 * speedMult,
+            ease: "power2.inOut"
           }, "<");
           
-          tl.to(particle, { opacity: 0, duration: 0.1 });
-          tl.to(activePath, { opacity: 0.3, duration: 0.2 }, "-=0.2");
+          tl.to(particle, { opacity: 0, duration: 0.15 });
+          tl.to(activePath, { opacity: 0.15, duration: 0.4 }, "-=0.2");
           
           if (i === sequence.length - 2) {
-             tl.call(() => triggerAuraCoreHit()); // Final hit to aura
+             tl.call(() => triggerAuraCoreHit());
           }
         }
-        
-        // Wait at aura before looping
-        tl.to({}, { duration: 1.5 });
+        tl.to({}, { duration: 1.0 });
       };
 
-      animateFlow(flow1, 0);
-      animateFlow(flow2, 2.5); // Stagger the second flow
+      // Play the specific flows smoothly with slight staggered delays
+      animateFlow(flows[0], 0, 1.2);
+      animateFlow(flows[1], 1.5, 1.1);
+      animateFlow(flows[2], 0.8, 1.0);
     }
 
     function handleResize() {
       const rect = network.getBoundingClientRect();
+      if(rect.width === 0) return; // Prevent 0 size bug
+      
       svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
       
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         buildNetwork();
-      }, 150);
+      }, 300); // Wait longer for full layout
     }
 
     window.addEventListener("resize", handleResize);
-    setTimeout(handleResize, 100);
+    setTimeout(handleResize, 500); // 500ms allows images to load and DOM to settle!
 
     return () => {
       window.removeEventListener("resize", handleResize);
