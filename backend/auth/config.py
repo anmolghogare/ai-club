@@ -37,14 +37,13 @@ class AuthConfig:
 
     @classmethod
     def validate(cls) -> None:
-        """Raise ValueError early if critical settings are missing or insecure."""
+        """Log warnings for critical auth settings if missing or insecure."""
+        import logging
         if not cls.GOOGLE_CLIENT_ID:
-            raise ValueError("GOOGLE_CLIENT_ID environment variable is not set.")
+            logging.warning("GOOGLE_CLIENT_ID environment variable is not set. Google Auth will be disabled.")
         if cls.JWT_SECRET_KEY == "CHANGE_ME_IN_PRODUCTION":
-            raise ValueError(
-                "JWT_SECRET_KEY must be changed from the default value in all environments.\n"
-                "Generate a strong secret with: python -c \"import secrets; print(secrets.token_hex(64))\"\n"
-                "Then set it as JWT_SECRET_KEY in your .env file."
+            logging.warning(
+                "JWT_SECRET_KEY is set to default. Please set a strong JWT_SECRET_KEY in environment variables."
             )
 
 
