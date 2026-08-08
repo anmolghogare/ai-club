@@ -196,7 +196,7 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
     const interval = setInterval(() => {
       if (Math.random() > 0.3) {
         const id = Math.random();
-        const duration = Math.random() * 1 + 1.5; // 1.5 to 2.5s
+        const duration = Math.random() * 1.5 + 1.5; // 1.5 to 3.0s
         setParticles(p => [...p, { id, duration }]);
         
         // Remove particle after travel and trigger hit
@@ -220,12 +220,19 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
     return () => clearInterval(pulseInterval);
   }, []);
 
-  const path = `M ${startX} ${startY} Q ${(startX + endX) / 2} ${(startY + endY) / 2 - 20} ${endX} ${endY}`;
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const angle = Math.atan2(dy, dx);
+  // Elegant tangential offset for the control point
+  const offset = 12; 
+  const cpX = (startX + endX) / 2 - Math.sin(angle) * offset;
+  const cpY = (startY + endY) / 2 + Math.cos(angle) * offset;
+  const path = `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`;
   
   return (
     <g>
       {/* Base path */}
-      <motion.path d={path} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
+      <motion.path d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
       
       {/* Neural Pulse */}
       <motion.path 
@@ -240,8 +247,8 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
       <motion.path
         d={path} fill="none" stroke={isActive ? "url(#gradient-active)" : "url(#gradient-inactive)"}
         strokeWidth={isActive ? "2" : "1.5"} strokeDasharray="4 8"
-        animate={{ strokeDashoffset: [0, 100] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        style={{ opacity: isActive ? 1 : 0.3 }}
+        animate={{ strokeDashoffset: [100, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        style={{ opacity: isActive ? 1 : 0.4 }}
       />
 
       {/* Traveling Particles */}
@@ -250,12 +257,12 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
           key={p.id}
           d={path}
           fill="none"
-          stroke="#f97316"
+          stroke="#fbd38d"
           strokeWidth="3"
           strokeLinecap="round"
-          style={{ filter: "drop-shadow(0 0 6px #f97316)" }}
+          style={{ filter: "drop-shadow(0 0 8px #f97316)" }}
           initial={{ pathLength: 0, pathOffset: 1, opacity: 0 }}
-          animate={{ pathLength: 0.05, pathOffset: [1, 0], opacity: [0, 1, 1, 0] }}
+          animate={{ pathLength: 0.08, pathOffset: [1, 0], opacity: [0, 1, 1, 0] }}
           transition={{ duration: p.duration, ease: "easeInOut" }}
         />
       ))}
@@ -267,18 +274,24 @@ const LivingConnection = ({ startX, startY, endX, endY, isActive, onHit }: any) 
 
 
 const CurvedConnection = ({ startX, startY, endX, endY, isActive }: any) => {
-  const path = `M ${startX} ${startY} Q ${(startX + endX) / 2} ${(startY + endY) / 2 - 20} ${endX} ${endY}`;
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const angle = Math.atan2(dy, dx);
+  const offset = 12; 
+  const cpX = (startX + endX) / 2 - Math.sin(angle) * offset;
+  const cpY = (startY + endY) / 2 + Math.cos(angle) * offset;
+  const path = `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`;
   return (
     <g>
       <motion.path
-        d={path} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1"
+        d={path} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1"
         initial={{ pathLength: 0 }} whileInView={{ pathLength: 1 }} transition={{ duration: 1.5, ease: 'easeInOut' }}
       />
       <motion.path
         d={path} fill="none" stroke={isActive ? "url(#gradient-active)" : "url(#gradient-inactive)"}
         strokeWidth={isActive ? "2" : "1.5"} strokeDasharray="4 8"
-        animate={{ strokeDashoffset: [0, 100] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-        style={{ opacity: isActive ? 1 : 0.3 }}
+        animate={{ strokeDashoffset: [100, 0] }} transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+        style={{ opacity: isActive ? 1 : 0.4 }}
       />
     </g>
   );
