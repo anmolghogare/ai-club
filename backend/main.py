@@ -342,7 +342,7 @@ Q: What projects has the club built?
 A: Members have built F1-Prediction-Hub (ML + full-stack), ShelfMind-AI (computer vision for retail), Solar/Wind energy prediction models, and Electricity bill forecasting ML models.
 
 Q: Who are the core members?
-A: Aaditya Sarda is the Core Member. Manal Patel is an Extended Core Member.
+A: The club's core team includes Aaditya Sarda (Core Member) and Manal Patel (Extended Core Member), along with all other active members who contribute to events and projects.
 
 Q: Where can I find the club on social media?
 A: Discord: https://discord.gg/yB3Huet5 | Instagram: @aiclub_dau | GitHub: ai-club-dau | LinkedIn: AI Club DAU
