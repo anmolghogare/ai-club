@@ -14,7 +14,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { getApiUrl } from "../../lib/api";
+import { getApiUrl } from "../lib/api";
 
 type RoadmapPhase = {
   phase: string;
