@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
-import { Trophy, Medal, Award, Star } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Trophy, Medal, Award, Star, X } from 'lucide-react';
 
 import { useState, useEffect } from 'react';
 import { getApiUrl } from '@/lib/api';
@@ -17,6 +17,7 @@ interface AchievementModel {
 export default function Achievements() {
   const [achievements, setAchievements] = useState<AchievementModel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedAchievement, setSelectedAchievement] = useState<AchievementModel | null>(null);
 
   useEffect(() => {
     const fetchAchievements = async () => {
@@ -93,6 +94,7 @@ export default function Achievements() {
                 whileHover={{ scale: 1.04, y: -6 }}
                 viewport={{ once: true }}
                 transition={{ type: 'spring', stiffness: 350, damping: 22 }}
+                onClick={() => setSelectedAchievement(item)}
                 className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 hover:border-indigo-400 hover:shadow-xl transition-all cursor-pointer group"
               >
                 {item.image_url && (
@@ -116,6 +118,73 @@ export default function Achievements() {
           </div>
         )}
       </div>
+
+      {/* Achievement Detail Modal */}
+      <AnimatePresence>
+        {selectedAchievement && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedAchievement(null)}
+              className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              className="relative w-full max-w-2xl rounded-2xl bg-card border border-border p-6 md:p-8 shadow-2xl z-10 max-h-[90vh] overflow-y-auto text-left"
+            >
+              <button
+                onClick={() => setSelectedAchievement(null)}
+                className="absolute top-4 right-4 p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-secondary transition-colors"
+              >
+                <X size={20} />
+              </button>
+
+              {selectedAchievement.image_url && (
+                <div className="w-full max-h-96 mb-6 rounded-xl overflow-hidden bg-secondary">
+                  <img
+                    src={selectedAchievement.image_url}
+                    alt={selectedAchievement.title}
+                    className="w-full h-full object-contain max-h-96 mx-auto"
+                  />
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2.5 bg-secondary rounded-lg">
+                  {renderIcon(selectedAchievement.icon)}
+                </div>
+                {selectedAchievement.category && (
+                  <span className="text-xs font-mono text-primary uppercase tracking-wider px-3 py-1 bg-primary/10 rounded-md border border-primary/20">
+                    {selectedAchievement.category}
+                  </span>
+                )}
+              </div>
+
+              {selectedAchievement.title && (
+                <h2 className="text-2xl font-bold font-display text-foreground mb-2">
+                  {selectedAchievement.title}
+                </h2>
+              )}
+
+              {selectedAchievement.student && (
+                <p className="text-sm font-semibold text-primary mb-4">
+                  By {selectedAchievement.student}
+                </p>
+              )}
+
+              {selectedAchievement.description && (
+                <div className="text-muted-foreground text-sm leading-relaxed whitespace-pre-line border-t border-border/50 pt-4">
+                  {selectedAchievement.description}
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

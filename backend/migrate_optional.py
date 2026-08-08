@@ -33,6 +33,7 @@ async def migrate():
         await conn.execute("ALTER TABLE club_events ALTER COLUMN category DROP NOT NULL;")
         await conn.execute("ALTER TABLE club_events ALTER COLUMN event_type DROP NOT NULL;")
         await conn.execute("ALTER TABLE club_events ALTER COLUMN status DROP NOT NULL;")
+        await conn.execute("ALTER TABLE club_events ALTER COLUMN banner TYPE TEXT;")
 
         # 3. club_projects
         print("Altering club_projects...")

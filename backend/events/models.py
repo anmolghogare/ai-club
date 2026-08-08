@@ -71,7 +71,7 @@ class ClubEvent(Base):
     id                 = Column(Integer, primary_key=True, index=True)
     title              = Column(String(255), nullable=True, index=True)
     description        = Column(Text,        nullable=True)
-    banner             = Column(String(500), nullable=True)
+    banner             = Column(Text,        nullable=True)
     category           = Column(String(100), nullable=True, index=True)
     venue              = Column(String(500), nullable=True)
     contact_email      = Column(String(255), nullable=True)

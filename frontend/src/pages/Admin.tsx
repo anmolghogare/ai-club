@@ -223,6 +223,7 @@ const Admin = () => {
   const [eventForm, setEventForm] = useState({
     title: '',
     description: '',
+    banner: '',
     category: 'workshop',
     venue: '',
     contact_email: 'aiclub@daiict.ac.in',
@@ -773,6 +774,7 @@ const Admin = () => {
     setEditForm({
       title: ev.title || '',
       description: ev.description || '',
+      banner: ev.banner || '',
       category: ev.category || 'workshop',
       venue: ev.venue || '',
       contact_email: ev.contact_email || 'aiclub@daiict.ac.in',
@@ -799,6 +801,7 @@ const Admin = () => {
       const payload = {
         title: editForm.title.trim(),
         description: editForm.description.trim(),
+        banner: editForm.banner ? editForm.banner.trim() : null,
         category: editForm.category,
         venue: editForm.venue.trim(),
         contact_email: editForm.contact_email.trim(),
@@ -1298,6 +1301,7 @@ const Admin = () => {
       const payload = {
         title: eventForm.title.trim(),
         description: eventForm.description.trim(),
+        banner: eventForm.banner ? eventForm.banner.trim() : null,
         category: eventForm.category,
         venue: eventForm.venue.trim() || null,
         contact_email: eventForm.contact_email.trim() || null,
@@ -1335,6 +1339,7 @@ const Admin = () => {
       setEventForm({
         title: '',
         description: '',
+        banner: '',
         category: 'workshop',
         venue: '',
         contact_email: 'aiclub@daiict.ac.in',
@@ -1815,6 +1820,17 @@ const Admin = () => {
                           <option value="other">Other</option>
                         </select>
                       </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Image / Banner URL (Optional)</label>
+                      <input
+                        type="url"
+                        value={eventForm.banner}
+                        onChange={(e) => setEventForm({...eventForm, banner: e.target.value})}
+                        className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
+                        placeholder="e.g. https://images.unsplash.com/... or https://drive.google.com/..."
+                      />
                     </div>
 
                     <div>
@@ -3293,6 +3309,17 @@ const Admin = () => {
                       <option value="other">Other</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">Image / Banner URL (Optional)</label>
+                  <input
+                    type="url"
+                    value={editForm.banner}
+                    onChange={(e) => setEditForm({...editForm, banner: e.target.value})}
+                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
+                    placeholder="e.g. https://images.unsplash.com/... or https://drive.google.com/..."
+                  />
                 </div>
 
                 <div>

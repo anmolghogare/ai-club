@@ -822,6 +822,11 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                   className="glass-card relative overflow-hidden p-7 flex flex-col justify-between"
                 >
                   <div>
+                    {card.banner && (
+                      <div className="w-full h-44 mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
+                        <img src={card.banner} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                    )}
                     <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">{card.category}</span>
                     <h4 className="font-display font-bold text-lg text-foreground mt-4 mb-2">{card.title}</h4>
                     <p className="text-sm text-muted-foreground leading-relaxed">{card.description}</p>

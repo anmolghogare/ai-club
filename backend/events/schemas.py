@@ -44,8 +44,7 @@ class EventCreateRequest(BaseModel):
                        description="Public event title.")
     description: Optional[str] = Field(None,
                               description="Full event description.")
-    banner: Optional[str] = Field(None, max_length=500,
-                                  description="URL to the event banner image.")
+    banner: Optional[str] = Field(None, description="URL to the event banner image.")
     category: Optional[str] = Field(None, description=f"One of: {', '.join(sorted(ALLOWED_CATEGORIES))}")
     venue: Optional[str] = Field(None, max_length=500,
                                  description="Physical address or online meeting link.")
@@ -151,11 +150,11 @@ class EventUpdateRequest(BaseModel):
     Only provided fields are updated (partial update / PATCH semantics).
     """
 
-    title:              Optional[str]      = Field(None, min_length=3, max_length=255)
-    description:        Optional[str]      = Field(None, min_length=10)
-    banner:             Optional[str]      = Field(None, max_length=500)
+    title:              Optional[str]      = None
+    description:        Optional[str]      = None
+    banner:             Optional[str]      = None
     category:           Optional[str]      = None
-    venue:              Optional[str]      = Field(None, min_length=3, max_length=500)
+    venue:              Optional[str]      = None
     contact_email:      Optional[EmailStr] = None
     event_type:         Optional[EventType] = None
     min_team_size:      Optional[int]      = Field(None, ge=2, le=100)
