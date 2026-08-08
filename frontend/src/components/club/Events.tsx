@@ -489,6 +489,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
   // ── Homepage: calendar list style ──────────────────────────────
   if (isHomepage) {
     return (
+      <>
       <section
         id="events"
         style={{
@@ -658,14 +659,14 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                             </button>
                           )
                         )}
-                        <Link
-                          to={`/events/${ev.id}`}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', textDecoration: 'none', padding: '4px 10px', border: '1px solid hsl(243,75%,75%)', borderRadius: 2 }}
+                        <button
+                          onClick={() => setSelectedEvent(ev)}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem', color: 'hsl(243,75%,59%)', background: 'transparent', padding: '4px 10px', border: '1px solid hsl(243,75%,75%)', borderRadius: 2, cursor: 'pointer' }}
                           onMouseEnter={e => (e.currentTarget as HTMLElement).style.background = 'hsl(243,75%,97%)'}
                           onMouseLeave={e => (e.currentTarget as HTMLElement).style.background = 'transparent'}
                         >
                           <ArrowRight size={11} /> View Details
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -743,6 +744,69 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
           </div>
         </div>
       </section>
+
+      {/* Registration Modal Overlay (shared with full page) */}
+      <AnimatePresence>
+        {selectedEvent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedEvent(null)}
+              className="fixed inset-0 bg-background/80 backdrop-blur-md"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: 'spring', duration: 0.5 }}
+              className="relative w-full max-w-lg rounded-2xl bg-card border border-border p-6 shadow-2xl overflow-y-auto max-h-[90vh] z-10"
+              style={{ background: 'linear-gradient(135deg, hsl(217 91% 60% / 0.05), hsl(217 91% 60% / 0.02))' }}
+            >
+              <button
+                onClick={() => setSelectedEvent(null)}
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors z-20"
+              >
+                <X size={16} />
+              </button>
+
+              {(selectedEvent.banner || (selectedEvent as any).image_url) && (
+                <div className="w-full mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
+                  <img
+                    src={selectedEvent.banner || (selectedEvent as any).image_url}
+                    alt={selectedEvent.title}
+                    className="w-full object-contain"
+                    style={{ maxHeight: '320px' }}
+                  />
+                </div>
+              )}
+
+              <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
+              <p className="text-xs text-muted-foreground mb-3">Event Details</p>
+
+              {(() => {
+                const evStatus = selectedEvent.status;
+                const isPastOrCompleted = evStatus === 'completed' || evStatus === 'registration_closed' || !evStatus;
+                if (isPastOrCompleted) {
+                  return (
+                    <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'hsl(228,20%,95%)', borderRadius: 12, border: '1px solid hsl(228,20%,88%)' }}>
+                      <p style={{ fontWeight: 600, color: 'hsl(230,25%,30%)', fontFamily: 'Inter, sans-serif' }}>This event has ended.</p>
+                      <p style={{ fontSize: '0.82rem', color: 'hsl(230,15%,50%)', fontFamily: 'Inter, sans-serif', marginTop: 4 }}>Registration is no longer available.</p>
+                    </div>
+                  );
+                }
+                return (
+                  <p style={{ fontSize: '0.85rem', color: 'hsl(230,15%,45%)', fontFamily: 'Inter, sans-serif' }}>
+                    {selectedEvent.description}
+                  </p>
+                );
+              })()}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+      </>
     );
   }
 
