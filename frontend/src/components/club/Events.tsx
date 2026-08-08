@@ -782,24 +782,243 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                 </div>
               )}
 
-              <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
-              <p className="text-xs text-muted-foreground mb-3">Event Details</p>
-
               {(() => {
                 const evStatus = selectedEvent.status;
                 const isPastOrCompleted = evStatus === 'completed' || evStatus === 'registration_closed' || !evStatus;
-                if (isPastOrCompleted) {
-                  return (
-                    <div style={{ textAlign: 'center', padding: '2rem 1rem', background: 'hsl(228,20%,95%)', borderRadius: 12, border: '1px solid hsl(228,20%,88%)' }}>
-                      <p style={{ fontWeight: 600, color: 'hsl(230,25%,30%)', fontFamily: 'Inter, sans-serif' }}>This event has ended.</p>
-                      <p style={{ fontSize: '0.82rem', color: 'hsl(230,15%,50%)', fontFamily: 'Inter, sans-serif', marginTop: 4 }}>Registration is no longer available.</p>
-                    </div>
-                  );
-                }
                 return (
-                  <p style={{ fontSize: '0.85rem', color: 'hsl(230,15%,45%)', fontFamily: 'Inter, sans-serif' }}>
-                    {selectedEvent.description}
-                  </p>
+                  <>
+                    <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {isPastOrCompleted ? 'Event Details' : 'Event Details & Registration'}
+                    </p>
+
+                    {/* Always show description */}
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                      {selectedEvent.description}
+                    </p>
+
+                    {/* Event metadata */}
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground mb-4">
+                      {selectedEvent.venue && <span>📍 {selectedEvent.venue}</span>}
+                      {(selectedEvent.event_start_date || selectedEvent.event_date) && (
+                        <span>📅 {new Date((selectedEvent.event_start_date || selectedEvent.event_date)!).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                      )}
+                      {selectedEvent.start_time && <span>🕐 {selectedEvent.start_time}{selectedEvent.end_time ? ` – ${selectedEvent.end_time}` : ''}</span>}
+                      {selectedEvent.event_type && <span>👥 {selectedEvent.event_type === 'team' ? 'Team Event' : 'Individual'}</span>}
+                    </div>
+
+                    {isPastOrCompleted ? (
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border/50 text-center">
+                        <p className="text-sm font-medium text-muted-foreground">This event has ended.</p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">Registration is no longer available.</p>
+                      </div>
+                    ) : (
+                      <>
+                        {submitMessage && (
+                          <div
+                            className={`p-3 rounded-lg text-xs font-medium mb-4 ${
+                              submitMessage.type === 'success' ? 'bg-accent/10 border border-accent/20 text-accent' : 'bg-destructive/10 border border-destructive/20 text-destructive'
+                            }`}
+                          >
+                            {submitMessage.text}
+                          </div>
+                        )}
+
+                        {loadingSchema ? (
+                          <div className="flex flex-col items-center justify-center py-12 gap-3">
+                            <Loader2 className="animate-spin text-primary" size={24} />
+                            <span className="text-xs text-muted-foreground">Loading registration fields...</span>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleSubmit} className="space-y-4">
+                            {formFields.map((field) => {
+                              const isRequired = field.required;
+                              return (
+                                <div key={field.id}>
+                                  <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">
+                                    {field.label} {isRequired && <span className="text-destructive">*</span>}
+                                  </label>
+
+                                  {field.field_type === 'file' ? (
+                                    <div className="relative">
+                                      <label className="flex items-center justify-center gap-2 w-full bg-secondary border border-border border-dashed rounded-lg px-3 py-3 text-sm text-muted-foreground cursor-pointer hover:border-primary hover:text-foreground transition-colors">
+                                        <Upload size={16} />
+                                        <span>{uploadedFiles[field.id] ? uploadedFiles[field.id].name : field.placeholder || 'Choose File'}</span>
+                                        <input
+                                          type="file"
+                                          required={isRequired && !uploadedFiles[field.id]}
+                                          onChange={(e) => {
+                                            if (e.target.files && e.target.files[0]) {
+                                              handleFileChange(field.id, e.target.files[0]);
+                                            }
+                                          }}
+                                          className="hidden"
+                                        />
+                                      </label>
+                                    </div>
+                                  ) : field.field_type === 'dropdown' ? (
+                                    <select
+                                      required={isRequired}
+                                      value={responses[field.id] || ''}
+                                      onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary transition-colors appearance-none"
+                                    >
+                                      <option value="" disabled>{field.placeholder || 'Select option...'}</option>
+                                      {field.options_json && JSON.parse(field.options_json).map((opt: string) => (
+                                        <option key={opt} value={opt}>{opt}</option>
+                                      ))}
+                                    </select>
+                                  ) : field.field_type === 'checkbox' ? (
+                                    <div className="space-y-2 mt-1">
+                                      {field.options_json && JSON.parse(field.options_json).map((opt: string) => (
+                                        <label key={opt} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                                          <input
+                                            type="checkbox"
+                                            checked={(responses[field.id] || []).includes(opt)}
+                                            onChange={(e) => handleCheckboxChange(field.id, opt, e.target.checked)}
+                                            className="rounded bg-secondary border border-border outline-none focus:ring-primary text-primary w-4 h-4"
+                                          />
+                                          <span>{opt}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  ) : field.field_type === 'radio' ? (
+                                    <div className="space-y-2 mt-1">
+                                      {field.options_json && JSON.parse(field.options_json).map((opt: string) => (
+                                        <label key={opt} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                                          <input
+                                            type="radio"
+                                            name={`radio-${field.id}`}
+                                            checked={responses[field.id] === opt}
+                                            onChange={() => handleInputChange(field.id, opt)}
+                                            className="bg-secondary border border-border outline-none focus:ring-primary text-primary w-4 h-4"
+                                          />
+                                          <span>{opt}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  ) : field.field_type === 'textarea' ? (
+                                    <textarea
+                                      required={isRequired}
+                                      placeholder={field.placeholder || ''}
+                                      value={responses[field.id] || ''}
+                                      onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                      rows={3}
+                                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary transition-colors resize-none"
+                                    />
+                                  ) : (
+                                    <input
+                                      type={field.field_type === 'phone' ? 'tel' : field.field_type}
+                                      required={isRequired}
+                                      placeholder={field.placeholder || ''}
+                                      value={responses[field.id] || ''}
+                                      onChange={(e) => handleInputChange(field.id, e.target.value)}
+                                      className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary transition-colors"
+                                    />
+                                  )}
+                                </div>
+                              );
+                            })}
+
+                            {selectedEvent.event_type === 'team' && (
+                              <div className="mt-6 pt-4 border-t border-border space-y-4">
+                                <h4 className="flex items-center gap-2 font-display font-bold text-sm text-foreground">
+                                  <Users size={16} className="text-primary" />
+                                  Team Details
+                                </h4>
+                                <div>
+                                  <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">
+                                    Team Name <span className="text-destructive">*</span>
+                                  </label>
+                                  <input
+                                    type="text"
+                                    required
+                                    value={teamName}
+                                    onChange={(e) => setTeamName(e.target.value)}
+                                    placeholder="Enter unique team name"
+                                    className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm text-foreground outline-none focus:border-primary transition-colors"
+                                  />
+                                </div>
+                                <div className="space-y-3">
+                                  <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase">
+                                    Additional Team Members ({teamMembers.length + 1} / {selectedEvent.max_team_size || 4})
+                                  </label>
+                                  {teamMembers.map((member, idx) => (
+                                    <div key={idx} className="flex gap-2 items-center bg-secondary/30 p-3 rounded-lg border border-border/50 relative">
+                                      <div className="grid grid-cols-2 gap-2 w-full pr-6">
+                                        <input
+                                          type="text"
+                                          required
+                                          value={member.name}
+                                          onChange={(e) => {
+                                            const updated = [...teamMembers];
+                                            updated[idx].name = e.target.value;
+                                            setTeamMembers(updated);
+                                          }}
+                                          placeholder="Member Name"
+                                          className="bg-secondary border border-border rounded-md px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary"
+                                        />
+                                        <input
+                                          type="email"
+                                          required
+                                          value={member.email}
+                                          onChange={(e) => {
+                                            const updated = [...teamMembers];
+                                            updated[idx].email = e.target.value;
+                                            setTeamMembers(updated);
+                                          }}
+                                          placeholder="Member Email"
+                                          className="bg-secondary border border-border rounded-md px-2 py-1.5 text-xs text-foreground outline-none focus:border-primary"
+                                        />
+                                      </div>
+                                      {teamMembers.length > 1 && (
+                                        <button
+                                          type="button"
+                                          onClick={() => removeTeamMember(idx)}
+                                          className="absolute right-2 p-1 text-muted-foreground hover:text-destructive transition-colors"
+                                        >
+                                          <X size={12} />
+                                        </button>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {teamMembers.length + 1 < (selectedEvent.max_team_size || 4) && (
+                                    <button
+                                      type="button"
+                                      onClick={addTeamMember}
+                                      className="text-xs text-primary hover:underline font-semibold flex items-center gap-1 mt-1"
+                                    >
+                                      + Add Team Member
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="pt-4 border-t border-border/50">
+                              <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="w-full py-2.5 text-xs font-bold rounded-lg bg-primary text-primary-foreground hover:bg-primary/95 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.2)]"
+                              >
+                                {isSubmitting ? (
+                                  <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    Submitting Registration...
+                                  </>
+                                ) : (
+                                  <>
+                                    Register for Event
+                                    <ArrowRight size={14} />
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </form>
+                        )}
+                      </>
+                    )}
+                  </>
                 );
               })()}
             </motion.div>
