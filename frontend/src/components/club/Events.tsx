@@ -55,9 +55,24 @@ interface PastEvent {
   winner_link?: string | null;
 }
 
+interface PastEventModel {
+  id: number;
+  title: string;
+  category: string;
+  date_label: string;
+  description: string;
+  speaker?: string | null;
+  participants?: number | null;
+  image_url?: string | null;
+  sort_order?: number;
+  winners?: string | null;
+  winner_link?: string | null;
+}
+
 export default function Events({ isHomepage = false }: { isHomepage?: boolean }) {
   const [activeTab, setActiveTab] = useState('upcoming');
   const [events, setEvents] = useState<EventModel[]>([]);
+  const [pastEvents, setPastEvents] = useState<PastEventModel[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [timeLeft, setTimeLeft] = useState({ d: '00', h: '00', m: '00', s: '00' });
   const [searchQuery, setSearchQuery] = useState('');
@@ -127,11 +142,22 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
     }
   };
 
+  const fetchPastEvents = async () => {
+    try {
+      const res = await fetch(getApiUrl('/api/past-events'));
+      if (res.ok) {
+        const data = await res.json();
+        setPastEvents(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to fetch past events', e);
+    }
+  };
+
   useEffect(() => {
     // Fetch initial data
-    if (isHomepage) {
-      fetchEvents();
-    }
+    fetchEvents();
+    fetchPastEvents();
     fetchUserData();
   }, []);
 
@@ -146,12 +172,17 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
 
   // Countdown timer for next event based on real database featured event
   useEffect(() => {
-    if (!featured) {
+    const rawDate = featured.event_start_date || featured.event_date;
+    if (!rawDate) {
       setTimeLeft({ d: '00', h: '00', m: '00', s: '00' });
       return;
     }
-    const targetStr = `${featured.event_start_date || featured.event_date}T${featured.start_time || '00:00:00'}`;
+    const targetStr = `${rawDate}T${featured.start_time || '00:00:00'}`;
     const target = new Date(targetStr).getTime();
+    if (isNaN(target)) {
+      setTimeLeft({ d: '00', h: '00', m: '00', s: '00' });
+      return;
+    }
     
     const updateTimer = () => {
       const diff = target - Date.now();
@@ -414,14 +445,33 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
     if (activeTab === 'upcoming') {
       return ev.status === 'registration_open' || ev.status === 'upcoming';
     } else if (activeTab === 'past') {
-      return ev.status === 'completed' || ev.status === 'registration_closed';
+      return true;
     } else if (activeTab === 'workshops') {
-      return ev.category.toLowerCase().includes('workshop');
+      return (ev.category || '').toLowerCase().includes('workshop');
     }
     return true;
   });
 
-  const displayedUpcomingEvents = isHomepage ? filteredEvents.slice(0, 2) : filteredEvents;
+  const allPastCards: any[] = [
+    ...pastEvents.map(p => ({
+      id: `past-${p.id}`,
+      title: p.title,
+      category: p.category || 'Workshop',
+      description: p.description,
+      banner: p.image_url,
+      event_date: p.date_label,
+      speaker: p.speaker,
+      winners: p.winners,
+      winner_link: p.winner_link,
+      isArchived: true
+    })),
+    ...events.filter(ev => ev.status === 'completed' || ev.status === 'registration_closed').map(ev => ({
+      ...ev,
+      isArchived: false
+    }))
+  ];
+
+  const displayedUpcomingEvents = isHomepage ? filteredEvents.slice(0, 2) : (activeTab === 'past' ? allPastCards : filteredEvents);
 
 
 
@@ -627,6 +677,44 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
             </p>
           </div>
 
+          {/* Past Events Highlights (2 Past Events on Homepage) */}
+          {pastEvents.length > 0 && (
+            <div style={{ marginTop: '3rem', paddingTop: '2.5rem', borderTop: '1px solid hsl(228, 20%, 80%)' }}>
+              <h3
+                style={{
+                  fontFamily: 'Playfair Display, Georgia, serif',
+                  fontSize: '1.5rem',
+                  fontWeight: 700,
+                  color: 'hsl(230, 25%, 10%)',
+                  marginBottom: '1.25rem',
+                }}
+              >
+                Past Events & Workshops
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {pastEvents.slice(0, 2).map((pe) => (
+                  <div
+                    key={pe.id}
+                    onClick={() => setSelectedEvent(pe as any)}
+                    className="glass-card relative overflow-hidden p-6 flex flex-col justify-between cursor-pointer group bg-white border border-slate-200 rounded-2xl hover:border-indigo-400 hover:shadow-xl transition-all"
+                  >
+                    <div>
+                      {pe.image_url && (
+                        <div className="w-full h-44 mb-4 rounded-xl overflow-hidden bg-secondary">
+                          <img src={pe.image_url} alt={pe.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        </div>
+                      )}
+                      <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">{pe.category || 'Workshop'}</span>
+                      <h4 className="font-display font-bold text-lg text-foreground mt-3 mb-1">{pe.title}</h4>
+                      {pe.date_label && <p className="text-xs font-semibold text-primary mb-2">{pe.date_label}</p>}
+                      <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{pe.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* View all CTA */}
           <div style={{ marginTop: '2.5rem' }}>
             <Link
@@ -819,12 +907,13 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                   animate={{ opacity: 1, y: 0, scale: 1, transition: { delay: i * 0.08, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] } }}
                   exit={{ opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.2 } }}
                   whileHover={{ y: -6, transition: { duration: 0.25 } }}
-                  className="glass-card relative overflow-hidden p-7 flex flex-col justify-between"
+                  onClick={() => setSelectedEvent(card)}
+                  className="glass-card relative overflow-hidden p-7 flex flex-col justify-between cursor-pointer hover:border-primary/50 transition-colors"
                 >
                   <div>
-                    {card.banner && (
+                    {(card.banner || card.image_url) && (
                       <div className="w-full h-44 mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
-                        <img src={card.banner} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <img src={card.banner || card.image_url} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                       </div>
                     )}
                     <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">{card.category}</span>
@@ -934,13 +1023,23 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               {/* Close Button */}
               <button
                 onClick={() => setSelectedEvent(null)}
-                className="absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+                className="absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors z-20"
               >
                 <X size={16} />
               </button>
 
-              <h3 className="font-display font-extrabold text-foreground text-xl mb-1">Event Registration</h3>
-              <p className="text-xs text-muted-foreground mb-4">Registering for: <span className="text-primary font-semibold">{selectedEvent.title}</span></p>
+              {(selectedEvent.banner || (selectedEvent as any).image_url) && (
+                <div className="w-full max-h-64 mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
+                  <img
+                    src={selectedEvent.banner || (selectedEvent as any).image_url}
+                    alt={selectedEvent.title}
+                    className="w-full h-full object-cover max-h-64"
+                  />
+                </div>
+              )}
+
+              <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
+              <p className="text-xs text-muted-foreground mb-4">Event Details & Registration</p>
 
               {submitMessage && (
                 <div
