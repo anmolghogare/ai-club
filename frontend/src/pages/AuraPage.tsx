@@ -315,12 +315,6 @@ const AuraPage = () => {
   useGSAP(() => {
     if (!containerRef.current) return;
     const network = containerRef.current;
-    const svg = network.querySelector('#flowSvg') as SVGSVGElement;
-    const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
-    const particleContainer = network.querySelector('#particles') as SVGGElement;
-    const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
-    const auraPulse = network.querySelector('.aura-pulse') as HTMLDivElement;
-    const cards = Array.from(network.querySelectorAll('.person-card')) as HTMLElement[];
 
     const CONFIG = {
       particleCount: 3,
@@ -394,6 +388,9 @@ const AuraPage = () => {
     }
 
     function createParticle() {
+      const particleContainer = network.querySelector('#particles') as SVGGElement;
+      if (!particleContainer) return null;
+      
       const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
       group.classList.add("particle-group");
       
@@ -414,6 +411,10 @@ const AuraPage = () => {
     }
 
     function triggerAuraPulse() {
+      const auraPulse = network.querySelector('.aura-pulse') as HTMLDivElement;
+      const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
+      if (!auraPulse || !auraCore) return;
+
       gsap.killTweensOf(auraPulse);
       gsap.set(auraPulse, { scale: 0.35, opacity: 0 });
       gsap.to(auraPulse, {
@@ -438,6 +439,7 @@ const AuraPage = () => {
     }
 
     function animateParticle(particle: SVGElement, pathElement: SVGElement, reverse = false, delay = 0) {
+      if (!particle || !pathElement) return;
       const duration = gsap.utils.random(CONFIG.minDuration, CONFIG.maxDuration);
       const start = reverse ? 1 : 0;
       const end = reverse ? 0 : 1;
@@ -476,6 +478,9 @@ const AuraPage = () => {
     }
 
     function createConnection(card: HTMLElement, auraPoint: any, index: number) {
+      const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
+      if (!pathContainer) return;
+
       const cardPoint = getCardAnchor(card, auraPoint);
       const curve = createPath(cardPoint, auraPoint);
       const basePath = createSvgPath(curve, "flow-base");
@@ -486,12 +491,16 @@ const AuraPage = () => {
 
       for (let i = 0; i < CONFIG.particleCount; i++) {
         const particle = createParticle();
-        const delay = index * 0.4 + i * 0.9;
-        animateParticle(particle, activePath, false, delay);
+        if (particle) {
+          const delay = index * 0.4 + i * 0.9;
+          animateParticle(particle, activePath, false, delay);
+        }
       }
 
       const responseParticle = createParticle();
-      animateParticle(responseParticle, activePath, true, index * 1.5 + 2);
+      if (responseParticle) {
+        animateParticle(responseParticle, activePath, true, index * 1.5 + 2);
+      }
 
       connections.push({ card, basePath, activePath, curve });
 
@@ -502,13 +511,19 @@ const AuraPage = () => {
     function clearNetwork() {
       animations.forEach(a => a.kill());
       animations = [];
-      pathContainer.innerHTML = "";
-      particleContainer.innerHTML = "";
+      const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
+      const particleContainer = network.querySelector('#particles') as SVGGElement;
+      if (pathContainer) pathContainer.innerHTML = "";
+      if (particleContainer) particleContainer.innerHTML = "";
       connections = [];
     }
 
     function buildNetwork() {
       clearNetwork();
+      const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
+      const cards = Array.from(network.querySelectorAll('.person-card')) as HTMLElement[];
+      if (!auraCore || cards.length === 0) return;
+      
       const auraPoint = getCenter(auraCore);
       cards.forEach((card, index) => {
         createConnection(card, auraPoint, index);
@@ -520,6 +535,9 @@ const AuraPage = () => {
     }
 
     function init() {
+      const svg = network.querySelector('#flowSvg') as SVGSVGElement;
+      if (!svg) return;
+      
       const rect = network.getBoundingClientRect();
       svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
       buildNetwork();
@@ -542,7 +560,7 @@ const AuraPage = () => {
       window.removeEventListener("resize", handleResize);
       clearNetwork();
     };
-  }, { scope: containerRef, dependencies: [] });
+  }, { scope: containerRef, dependencies: [teamMembers.length] });
 
 
   const nodes = teamMembers.map((member, i) => {
