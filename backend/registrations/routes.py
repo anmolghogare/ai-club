@@ -229,7 +229,7 @@ async def register_for_event_endpoint(
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Registration failed due to a server error. Please try again.",
+            detail=f"Registration failed: {type(exc).__name__}: {exc}",
         )
 
     return RegistrationSubmitResponse(

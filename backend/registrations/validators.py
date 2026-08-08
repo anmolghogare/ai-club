@@ -78,11 +78,18 @@ def check_registration_window(event) -> None:
     """
     Raises RegistrationError(400) if the current UTC time is outside
     the event's registration window.
+
+    If registration_start or registration_end is NULL (event created
+    without those fields), the check is skipped — registration is allowed.
     """
     now = datetime.now(timezone.utc)
 
     reg_start = event.registration_start
     reg_end   = event.registration_end
+
+    # If either bound is missing, skip the window check entirely
+    if reg_start is None or reg_end is None:
+        return
 
     # Make timezone-aware if naive
     if reg_start.tzinfo is None:
@@ -137,12 +144,13 @@ def check_event_type_match(event, team_input) -> None:
     For individual   : team_input must be None.
     Raises RegistrationError(400) on mismatch.
     """
-    if event.event_type == "team" and team_input is None:
+    event_type = event.event_type or "individual"  # treat NULL as individual
+    if event_type == "team" and team_input is None:
         raise RegistrationError(
             "This is a team event. Please provide team details (team name and members).",
             status_code=400,
         )
-    if event.event_type == "individual" and team_input is not None:
+    if event_type == "individual" and team_input is not None:
         raise RegistrationError(
             "This is an individual event. Team information must not be submitted.",
             status_code=400,
