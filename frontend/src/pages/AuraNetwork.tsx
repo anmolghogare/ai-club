@@ -552,9 +552,9 @@ export const AuraNetwork = ({ onSelectNode }: AuraNetworkProps) => {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="text-orange-400 font-mono tracking-[0.2em] uppercase text-sm mb-4"
+      className="text-orange-500 font-mono text-sm tracking-[0.3em] mb-4 text-center font-semibold"
     >
-      INSIDE FLOW
+      AI ASSISTANT SYSTEM
     </motion.p>
 
     <motion.h2

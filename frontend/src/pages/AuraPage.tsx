@@ -302,7 +302,7 @@ const AuraPage = () => {
               className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full"
             >
               {[
-                { label: 'Version', value: '1.0' },
+                { label: 'Version', value: '1' },
                 { label: 'Students', value: '1,200+' },
                 { label: 'Developers', value: '14' },
                 { label: 'Faculty Mentors', value: '3' },
