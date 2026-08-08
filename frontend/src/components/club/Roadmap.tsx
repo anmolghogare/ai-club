@@ -1,27 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import {
+  ArrowRight,
   Brain,
   Sparkles,
-  ChevronDown,
-  CheckCircle2,
-  BookOpen,
-  Code2,
   Layers,
   Cpu,
   Bot,
   Network,
-  ArrowUpRight,
-  Clock3,
+  BookOpen,
+  Code2,
   Route,
-  Loader2,
-  AlertCircle,
+  Clock3,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getApiUrl } from "../../lib/api";
-
-/* ============================================================
-   TYPES
-============================================================ */
 
 type RoadmapPhase = {
   phase: string;
@@ -35,94 +28,100 @@ type RoadmapPhase = {
 type RoadmapConfig = {
   title: string;
   subtitle: string;
+  description: string;
   icon: React.ElementType;
   accent: string;
   number: string;
+  slug: string;
 };
-
-/* ============================================================
-   ICON MAP
-============================================================ */
-
-const IconMap: Record<string, React.ElementType> = {
-  BookOpen,
-  BarChart3: Route,
-  Layers,
-  Cpu,
-  Code2,
-  Bot,
-  Sparkles,
-  Network,
-  Brain,
-};
-
-/* ============================================================
-   ROADMAP CONFIG
-============================================================ */
 
 const ROADMAP_CONFIG: Record<string, RoadmapConfig> = {
   ML: {
     title: "Machine Learning",
     subtitle: "End-to-End ML Framework",
+    description:
+      "Learn the complete machine learning workflow from fundamentals and data preparation to model evaluation and deployment.",
     icon: Brain,
     accent: "hsl(var(--primary))",
     number: "01",
+    slug: "ml",
   },
 
   DL: {
     title: "Deep Learning",
     subtitle: "Neural Networks & Architectures",
+    description:
+      "Build a strong understanding of neural networks, CNNs, sequence models, architectures and modern deep learning systems.",
     icon: Cpu,
     accent: "hsl(160 55% 38%)",
     number: "02",
+    slug: "dl",
   },
 
   RL: {
     title: "Reinforcement Learning",
     subtitle: "Agents & Environments",
+    description:
+      "Understand how intelligent agents learn through interaction, rewards, environments and sequential decision making.",
     icon: Network,
     accent: "hsl(12 70% 48%)",
     number: "03",
+    slug: "rl",
   },
 
   NLP: {
     title: "Natural Language Processing",
     subtitle: "Text & Language Fundamentals",
+    description:
+      "Explore language representation, text processing, embeddings, sequence models and modern NLP systems.",
     icon: BookOpen,
     accent: "hsl(170 55% 36%)",
     number: "04",
+    slug: "nlp",
   },
 
   TRANSFORMER: {
     title: "Transformers",
     subtitle: "Attention & Sequence Models",
+    description:
+      "Understand attention, self-attention, positional encoding, encoder-decoder architectures and transformer internals.",
     icon: Layers,
     accent: "hsl(265 55% 52%)",
     number: "05",
+    slug: "transformers",
   },
 
   GENAI: {
     title: "Generative AI",
     subtitle: "GenAI & Foundation Models",
+    description:
+      "Learn the foundations of generative models, prompting, embeddings, RAG, multimodal AI and foundation models.",
     icon: Sparkles,
     accent: "hsl(330 55% 48%)",
     number: "06",
+    slug: "genai",
   },
 
   LLM: {
     title: "Large Language Models",
     subtitle: "Architecture & Optimization",
+    description:
+      "Go deeper into LLM architecture, training, fine-tuning, inference, evaluation and optimization.",
     icon: Code2,
     accent: "hsl(195 65% 40%)",
     number: "07",
+    slug: "llm",
   },
 
   AGENTIC: {
     title: "Agentic AI",
     subtitle: "AI Agents & Multi-Agent Systems",
+    description:
+      "Learn how modern AI agents reason, use tools, maintain memory and collaborate across multi-agent systems.",
     icon: Bot,
     accent: "hsl(42 75% 42%)",
     number: "08",
+    slug: "agentic-ai",
   },
 };
 
@@ -137,299 +136,32 @@ const ROADMAP_ORDER = [
   "AGENTIC",
 ];
 
-/* ============================================================
-   PHASE CARD
-============================================================ */
-
-function PhaseCard({
-  phase,
-  index,
-  isLast,
-}: {
-  phase: RoadmapPhase;
-  index: number;
-  isLast: boolean;
-}) {
-  const [open, setOpen] = useState(index === 0);
-  const Icon = phase.icon;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{
-        duration: 0.45,
-        delay: index * 0.05,
-        ease: [0.22, 1, 0.36, 1],
-      }}
-      className="relative pl-11"
-    >
-      {/* Timeline rail */}
-      {!isLast && (
-        <div
-          className="absolute left-[15px] top-9 bottom-[-12px] w-px"
-          style={{
-            background:
-              "linear-gradient(to bottom, hsl(var(--border)), transparent)",
-          }}
-        />
-      )}
-
-      {/* Timeline number */}
-      <div
-        className="
-          absolute
-          left-0
-          top-4
-          z-20
-          grid
-          h-8
-          w-8
-          place-items-center
-          rounded-full
-          border
-          bg-card
-          font-mono
-          text-[9px]
-          font-semibold
-          transition-all
-          duration-300
-        "
-        style={{
-          borderColor: `${phase.color || "hsl(var(--primary))"}55`,
-          color: phase.color || "hsl(var(--primary))",
-        }}
-      >
-        {String(index + 1).padStart(2, "0")}
-      </div>
-
-      {/* Card */}
-      <div
-        className="
-          group
-          overflow-hidden
-          border
-          border-border
-          bg-card
-          transition-all
-          duration-300
-          hover:-translate-y-[1px]
-          hover:border-primary/40
-        "
-      >
-        {/* Header */}
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          className="
-            flex
-            w-full
-            items-center
-            gap-4
-            p-5
-            text-left
-            outline-none
-            focus-visible:ring-2
-            focus-visible:ring-primary/30
-          "
-        >
-          {/* Icon */}
-          <div
-            className="
-              grid
-              h-10
-              w-10
-              shrink-0
-              place-items-center
-              rounded-md
-              border
-              bg-background
-            "
-            style={{
-              borderColor: `${phase.color || "hsl(var(--primary))"}35`,
-            }}
-          >
-            <Icon
-              size={17}
-              strokeWidth={1.7}
-              style={{
-                color: phase.color || "hsl(var(--primary))",
-              }}
-            />
-          </div>
-
-          {/* Main information */}
-          <div className="min-w-0 flex-1">
-            <div className="mb-1.5 flex flex-wrap items-center gap-2">
-              <span className="mono-label">
-                {phase.phase}
-              </span>
-
-              {phase.duration && (
-                <>
-                  <span className="text-border">/</span>
-
-                  <span className="flex items-center gap-1 font-mono text-[10px] text-muted-foreground">
-                    <Clock3 size={10} />
-                    {phase.duration}
-                  </span>
-                </>
-              )}
-            </div>
-
-            <h3
-              className="
-                font-display
-                text-[15px]
-                font-bold
-                leading-tight
-                text-foreground
-                transition-colors
-                duration-200
-                group-hover:text-primary
-              "
-            >
-              {phase.title}
-            </h3>
-          </div>
-
-          {/* Toggle */}
-          <div
-            className="
-              grid
-              h-8
-              w-8
-              shrink-0
-              place-items-center
-              border
-              border-border
-              bg-background
-              text-muted-foreground
-              transition-colors
-              duration-200
-              group-hover:border-primary/30
-              group-hover:text-primary
-            "
-          >
-            <motion.div
-              animate={{ rotate: open ? 180 : 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <ChevronDown size={15} />
-            </motion.div>
-          </div>
-        </button>
-
-        {/* Topics */}
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              initial={{
-                height: 0,
-                opacity: 0,
-              }}
-              animate={{
-                height: "auto",
-                opacity: 1,
-              }}
-              exit={{
-                height: 0,
-                opacity: 0,
-              }}
-              transition={{
-                duration: 0.3,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="overflow-hidden"
-            >
-              <div className="border-t border-border px-5 pb-5 pt-4">
-                {phase.topics?.length > 0 ? (
-                  <div className="space-y-2.5">
-                    {phase.topics.map((topic, topicIndex) => (
-                      <motion.div
-                        key={`${topic}-${topicIndex}`}
-                        initial={{
-                          opacity: 0,
-                          x: -6,
-                        }}
-                        animate={{
-                          opacity: 1,
-                          x: 0,
-                        }}
-                        transition={{
-                          delay: topicIndex * 0.045,
-                          duration: 0.25,
-                        }}
-                        className="
-                          flex
-                          items-start
-                          gap-3
-                          text-[13px]
-                          leading-relaxed
-                          text-muted-foreground
-                        "
-                      >
-                        <CheckCircle2
-                          size={14}
-                          strokeWidth={1.7}
-                          className="mt-[3px] shrink-0 text-primary"
-                        />
-
-                        <span>{topic}</span>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="font-mono text-[11px] text-muted-foreground">
-                    Topics will be added soon.
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ============================================================
-   ROADMAP COLUMN
-============================================================ */
-
-function RoadmapColumn({
+function RoadmapCard({
   type,
   data,
-  delay = 0,
+  index,
 }: {
   type: string;
   data: RoadmapPhase[];
-  delay?: number;
+  index: number;
 }) {
+  const navigate = useNavigate();
   const config = ROADMAP_CONFIG[type];
 
-  if (!config || !data || data.length === 0) {
-    return null;
-  }
+  if (!config) return null;
 
   const Icon = config.icon;
 
-  const totalTopics = useMemo(
-    () =>
-      data.reduce(
-        (total, phase) => total + (phase.topics?.length || 0),
-        0
-      ),
-    [data]
+  const topicCount = data.reduce(
+    (total, phase) => total + (phase.topics?.length || 0),
+    0
   );
 
   return (
     <motion.article
       initial={{
         opacity: 0,
-        y: 24,
+        y: 25,
       }}
       whileInView={{
         opacity: 1,
@@ -437,242 +169,184 @@ function RoadmapColumn({
       }}
       viewport={{
         once: true,
-        margin: "-60px",
+        margin: "-50px",
       }}
       transition={{
-        duration: 0.55,
-        delay,
-        ease: [0.22, 1, 0.36, 1],
+        duration: 0.5,
+        delay: (index % 2) * 0.08,
       }}
-      className="group"
+      whileHover={{
+        y: -4,
+      }}
+      className="group relative"
     >
-      {/* ======================================================
-          ROADMAP HEADER
-      ====================================================== */}
+      <div
+        className="
+          relative
+          h-full
+          overflow-hidden
+          border
+          border-border
+          bg-card
+          transition-all
+          duration-300
+          hover:border-primary/40
+        "
+      >
+        {/* Accent line */}
 
-      <div className="mb-6 border-b border-border pb-5">
-        <div className="flex items-start justify-between gap-5">
-          <div className="flex items-start gap-4">
-            {/* Number */}
+        <div
+          className="
+            absolute
+            left-0
+            top-0
+            h-full
+            w-[3px]
+          "
+          style={{
+            background: config.accent,
+          }}
+        />
+
+        <div className="p-6 sm:p-7">
+          {/* Top row */}
+
+          <div className="mb-7 flex items-start justify-between">
             <div
               className="
-                flex
+                grid
                 h-12
                 w-12
-                shrink-0
-                items-center
-                justify-center
+                place-items-center
                 border
-                bg-card
-                font-mono
-                text-xs
-                font-semibold
+                bg-background
               "
               style={{
                 borderColor: `${config.accent}45`,
+              }}
+            >
+              <Icon
+                size={20}
+                strokeWidth={1.6}
+                style={{
+                  color: config.accent,
+                }}
+              />
+            </div>
+
+            <span
+              className="
+                font-mono
+                text-[11px]
+                font-semibold
+                tracking-widest
+              "
+              style={{
                 color: config.accent,
               }}
             >
               {config.number}
+            </span>
+          </div>
+
+          {/* Title */}
+
+          <div className="mb-4">
+            <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
+              {config.subtitle}
             </div>
 
-            <div>
-              <div className="mb-1 flex items-center gap-2">
-                <Icon
-                  size={14}
-                  strokeWidth={1.8}
-                  style={{
-                    color: config.accent,
-                  }}
-                />
+            <h3
+              className="
+                font-display
+                text-[25px]
+                font-bold
+                leading-tight
+                text-foreground
+              "
+            >
+              {config.title}
+            </h3>
+          </div>
 
-                <span className="mono-label">
-                  Learning Path
-                </span>
-              </div>
+          {/* Description */}
 
-              <h3
-                className="
-                  font-display
-                  text-[22px]
-                  font-bold
-                  leading-tight
-                  text-foreground
-                  sm:text-[25px]
-                "
-              >
-                {config.title}
-              </h3>
+          <p className="mb-7 max-w-lg text-[13px] leading-6 text-muted-foreground">
+            {config.description}
+          </p>
 
-              <p className="mt-1 text-xs text-muted-foreground">
-                {config.subtitle}
-              </p>
+          {/* Stats */}
+
+          <div className="mb-6 flex items-center gap-5 border-y border-border py-4">
+            <div className="flex items-center gap-2">
+              <Route
+                size={12}
+                className="text-muted-foreground"
+              />
+
+              <span className="font-mono text-[10px] text-muted-foreground">
+                {data.length} PHASES
+              </span>
+            </div>
+
+            <span className="text-border">/</span>
+
+            <div className="flex items-center gap-2">
+              <BookOpen
+                size={12}
+                className="text-muted-foreground"
+              />
+
+              <span className="font-mono text-[10px] text-muted-foreground">
+                {topicCount} TOPICS
+              </span>
             </div>
           </div>
 
-          {/* Phase count */}
-          <div className="hidden shrink-0 text-right sm:block">
-            <div className="font-mono text-[18px] font-semibold text-foreground">
-              {String(data.length).padStart(2, "0")}
-            </div>
+          {/* CTA */}
 
-            <div className="mono-label">
-              Phases
-            </div>
-          </div>
+          <button
+            type="button"
+            onClick={() =>
+              navigate(`/roadmaps/${config.slug}`)
+            }
+            className="
+              flex
+              w-full
+              items-center
+              justify-between
+              border
+              border-border
+              bg-background
+              px-4
+              py-3
+              text-left
+              transition-all
+              duration-200
+              hover:border-primary/40
+              hover:bg-primary/[0.04]
+            "
+          >
+            <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground">
+              Explore Roadmap
+            </span>
+
+            <ArrowRight
+              size={15}
+              className="
+                text-muted-foreground
+                transition-transform
+                duration-200
+                group-hover:translate-x-1
+                group-hover:text-primary
+              "
+            />
+          </button>
         </div>
-
-        {/* Small stats */}
-        <div className="mt-5 flex items-center gap-5 font-mono text-[9px] uppercase tracking-[0.08em] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Route size={11} />
-            {data.length} phases
-          </span>
-
-          <span className="text-border">/</span>
-
-          <span>
-            {totalTopics} topics
-          </span>
-        </div>
-      </div>
-
-      {/* ======================================================
-          PHASES
-      ====================================================== */}
-
-      <div className="space-y-3">
-        {data.map((phase, index) => (
-          <PhaseCard
-            key={`${type}-${phase.phase}-${index}`}
-            phase={phase}
-            index={index}
-            isLast={index === data.length - 1}
-          />
-        ))}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-4 flex items-center justify-end">
-        <span
-          className="
-            flex
-            items-center
-            gap-1.5
-            font-mono
-            text-[9px]
-            uppercase
-            tracking-[0.08em]
-            text-muted-foreground
-            transition-colors
-            group-hover:text-primary
-          "
-        >
-          View learning path
-          <ArrowUpRight size={11} />
-        </span>
       </div>
     </motion.article>
   );
 }
-
-/* ============================================================
-   LOADING SKELETON
-============================================================ */
-
-function RoadmapSkeleton() {
-  return (
-    <div className="grid grid-cols-1 gap-12 xl:grid-cols-2">
-      {Array.from({ length: 4 }).map((_, columnIndex) => (
-        <div key={columnIndex}>
-          {/* Header */}
-          <div className="mb-6 flex items-start gap-4 border-b border-border pb-5">
-            <div className="shimmer h-12 w-12 shrink-0" />
-
-            <div className="flex-1 space-y-2">
-              <div className="shimmer h-2.5 w-24" />
-              <div className="shimmer h-6 w-48" />
-              <div className="shimmer h-3 w-40" />
-            </div>
-          </div>
-
-          {/* Cards */}
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <div
-                key={index}
-                className="flex gap-4 border border-border bg-card p-5"
-              >
-                <div className="shimmer h-10 w-10 shrink-0" />
-
-                <div className="flex-1 space-y-2">
-                  <div className="shimmer h-2.5 w-20" />
-                  <div className="shimmer h-4 w-44" />
-                </div>
-
-                <div className="shimmer h-8 w-8" />
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/* ============================================================
-   EMPTY STATE
-============================================================ */
-
-function EmptyRoadmapState() {
-  return (
-    <div className="border border-dashed border-border bg-card px-6 py-16 text-center">
-      <div className="mx-auto mb-5 grid h-12 w-12 place-items-center border border-border bg-background">
-        <Route
-          size={20}
-          className="text-muted-foreground"
-        />
-      </div>
-
-      <h3 className="headline-md">
-        Roadmaps are being prepared
-      </h3>
-
-      <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
-        Learning paths will appear here once the roadmap data is available.
-      </p>
-    </div>
-  );
-}
-
-/* ============================================================
-   ERROR STATE
-============================================================ */
-
-function ErrorState() {
-  return (
-    <div className="border border-destructive/20 bg-destructive/5 px-6 py-12 text-center">
-      <div className="mx-auto mb-4 grid h-10 w-10 place-items-center border border-destructive/20 bg-card">
-        <AlertCircle
-          size={18}
-          className="text-destructive"
-        />
-      </div>
-
-      <h3 className="font-display text-lg font-bold">
-        Unable to load roadmaps
-      </h3>
-
-      <p className="mt-2 text-sm text-muted-foreground">
-        Please refresh the page and try again.
-      </p>
-    </div>
-  );
-}
-
-/* ============================================================
-   MAIN COMPONENT
-============================================================ */
 
 export default function Roadmap() {
   const [roadmaps, setRoadmaps] = useState<
@@ -680,109 +354,80 @@ export default function Roadmap() {
   >({});
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
 
   useEffect(() => {
-    let mounted = true;
-
     const fetchRoadmaps = async () => {
       try {
-        setLoading(true);
-        setError(false);
-
         const response = await fetch(
           getApiUrl("/api/roadmaps")
         );
 
         if (!response.ok) {
-          throw new Error(
-            `Roadmap API failed: ${response.status}`
-          );
+          throw new Error("Failed to fetch roadmaps");
         }
 
         const data = await response.json();
 
-        if (!Array.isArray(data)) {
-          throw new Error("Invalid roadmap response");
-        }
-
-        const grouped: Record<string, RoadmapPhase[]> = {};
+        const grouped: Record<
+          string,
+          RoadmapPhase[]
+        > = {};
 
         data.forEach((item: any) => {
-          const roadmapType = item.roadmap_type;
-
-          if (!roadmapType) return;
-
-          const parsedItem: RoadmapPhase = {
-            phase: item.phase || "Phase",
-            title: item.title || "Untitled Phase",
+          const phase: RoadmapPhase = {
+            phase: item.phase,
+            title: item.title,
             duration: item.duration || "",
             color:
               item.color ||
               "hsl(var(--primary))",
-            icon:
-              IconMap[item.icon_name] ||
-              BookOpen,
+            icon: (() => {
+              const icons: Record<string, React.ElementType> = {
+                Brain,
+                Cpu,
+                Network,
+                BookOpen,
+                Layers,
+                Sparkles,
+                Code2,
+                Bot,
+              };
+              return item.icon_name && icons[item.icon_name]
+                ? icons[item.icon_name]
+                : BookOpen;
+            })(),
             topics: Array.isArray(item.topics)
               ? item.topics
               : [],
           };
 
-          if (!grouped[roadmapType]) {
-            grouped[roadmapType] = [];
+          if (!grouped[item.roadmap_type]) {
+            grouped[item.roadmap_type] = [];
           }
 
-          grouped[roadmapType].push(parsedItem);
+          grouped[item.roadmap_type].push(phase);
         });
 
-        if (mounted) {
-          setRoadmaps(grouped);
-        }
-      } catch (err) {
+        setRoadmaps(grouped);
+      } catch (error) {
         console.error(
-          "Failed to fetch roadmaps:",
-          err
+          "Roadmap loading error:",
+          error
         );
-
-        if (mounted) {
-          setError(true);
-        }
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
     fetchRoadmaps();
-
-    return () => {
-      mounted = false;
-    };
   }, []);
-
-  /* ============================================================
-     TOTALS
-  ============================================================ */
-
-  const roadmapCount = ROADMAP_ORDER.filter(
-    (type) =>
-      roadmaps[type] &&
-      roadmaps[type].length > 0
-  ).length;
-
-  const totalPhases = ROADMAP_ORDER.reduce(
-    (total, type) =>
-      total + (roadmaps[type]?.length || 0),
-    0
-  );
 
   const totalTopics = ROADMAP_ORDER.reduce(
     (total, type) =>
       total +
       (roadmaps[type] || []).reduce(
-        (phaseTotal, phase) =>
-          phaseTotal + (phase.topics?.length || 0),
+        (sum, phase) =>
+          sum + (phase.topics?.length || 0),
         0
       ),
     0
@@ -791,39 +436,10 @@ export default function Roadmap() {
   return (
     <section
       id="roadmaps"
-      className="relative overflow-hidden bg-background"
+      className="relative overflow-hidden bg-background py-16"
     >
-      {/* ======================================================
-          SUBTLE BACKGROUND DETAIL
-      ====================================================== */}
-
-      <div
-        aria-hidden="true"
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-0
-          h-[500px]
-          w-[700px]
-          -translate-x-1/2
-          opacity-[0.045]
-          blur-3xl
-        "
-        style={{
-          background:
-            "radial-gradient(circle, hsl(var(--primary)), transparent 68%)",
-        }}
-      />
-
-      {/* ======================================================
-          MAIN CONTAINER
-      ====================================================== */}
-
-      <div className="section-container relative z-10">
-        {/* ====================================================
-            SECTION HEADER
-        ==================================================== */}
+      <div className="section-container relative z-10 max-w-6xl mx-auto px-6">
+        {/* HEADER */}
 
         <motion.div
           initial={{
@@ -836,102 +452,91 @@ export default function Roadmap() {
           }}
           viewport={{
             once: true,
-            margin: "-80px",
           }}
           transition={{
             duration: 0.6,
-            ease: [0.22, 1, 0.36, 1],
           }}
           className="mb-14"
         >
-          {/* Eyebrow */}
-          <div className="mb-6 flex items-center gap-3">
-            <span className="section-label mb-0">
-              04 — Roadmaps
-            </span>
-
-            <span className="h-px w-12 bg-border" />
-
-            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-muted-foreground">
-              AI Club DAIICT
-            </span>
+          <div className="section-label text-sm uppercase tracking-widest text-primary mb-4 block">
+            04 — Roadmaps
           </div>
 
-          {/* Heading */}
-          <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.4fr_0.6fr] lg:items-end">
+          <div className="grid gap-8 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
             <div>
-              <h2 className="headline-lg max-w-3xl">
-                Learning
-                <span className="gradient-text">
-                  {" "}Roadmaps
+              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                Learning{" "}
+                <span className="text-primary">
+                  Roadmaps
                 </span>
               </h2>
             </div>
 
-            <div className="lg:pb-1">
-              <p className="max-w-md text-sm leading-7 text-muted-foreground">
-                Structured, phase-by-phase guides curated by
-                AI Club DAIICT to take you from fundamentals
-                to production-ready artificial intelligence.
-              </p>
-            </div>
+            <p className="max-w-md text-sm leading-7 text-muted-foreground">
+              Structured learning paths designed by
+              AI Club DAIICT. Choose a domain and
+              follow it from fundamentals to advanced
+              systems.
+            </p>
           </div>
 
-          {/* Metadata */}
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border pt-5">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-lg font-semibold text-foreground">
-                {String(roadmapCount).padStart(2, "0")}
-              </span>
+          {/* overview stats */}
 
-              <span className="mono-label">
+          <div className="mt-8 flex flex-wrap items-center gap-6 border-t border-border pt-5">
+            <div>
+              <strong className="font-mono text-lg">
+                08
+              </strong>
+
+              <span className="ml-2 text-xs uppercase tracking-widest text-muted-foreground">
                 Learning Paths
               </span>
             </div>
 
             <span className="text-border">/</span>
 
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-lg font-semibold text-foreground">
-                {String(totalPhases).padStart(2, "0")}
-              </span>
+            <div>
+              <strong className="font-mono text-lg">
+                {Object.values(roadmaps).reduce(
+                  (sum, phases) =>
+                    sum + phases.length,
+                  0
+                )}
+              </strong>
 
-              <span className="mono-label">
+              <span className="ml-2 text-xs uppercase tracking-widest text-muted-foreground">
                 Phases
               </span>
             </div>
 
             <span className="text-border">/</span>
 
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-lg font-semibold text-foreground">
-                {String(totalTopics).padStart(2, "0")}
-              </span>
+            <div>
+              <strong className="font-mono text-lg">
+                {totalTopics}
+              </strong>
 
-              <span className="mono-label">
+              <span className="ml-2 text-xs uppercase tracking-widest text-muted-foreground">
                 Topics
               </span>
             </div>
           </div>
         </motion.div>
 
-        {/* ====================================================
-            CONTENT
-        ==================================================== */}
+        {/* CARDS */}
 
         {loading ? (
-          <RoadmapSkeleton />
-        ) : error ? (
-          <ErrorState />
-        ) : roadmapCount === 0 ? (
-          <EmptyRoadmapState />
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="animate-pulse bg-card h-[360px] rounded-lg border border-border"
+              />
+            ))}
+          </div>
         ) : (
-          <div className="grid grid-cols-1 gap-x-14 gap-y-16 xl:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {ROADMAP_ORDER.map((type, index) => {
-              if (!ROADMAP_CONFIG[type]) {
-                return null;
-              }
-
               if (
                 !roadmaps[type] ||
                 roadmaps[type].length === 0
@@ -940,71 +545,16 @@ export default function Roadmap() {
               }
 
               return (
-                <RoadmapColumn
+                <RoadmapCard
                   key={type}
                   type={type}
                   data={roadmaps[type]}
-                  delay={
-                    index % 2 === 0
-                      ? 0
-                      : 0.08
-                  }
+                  index={index}
                 />
               );
             })}
           </div>
         )}
-
-        {/* ====================================================
-            BOTTOM NOTE
-        ==================================================== */}
-
-        {!loading &&
-          !error &&
-          roadmapCount > 0 && (
-            <motion.div
-              initial={{
-                opacity: 0,
-              }}
-              whileInView={{
-                opacity: 1,
-              }}
-              viewport={{
-                once: true,
-              }}
-              transition={{
-                duration: 0.5,
-                delay: 0.2,
-              }}
-              className="
-                mt-16
-                flex
-                flex-col
-                gap-4
-                border-t
-                border-border
-                pt-6
-                sm:flex-row
-                sm:items-center
-                sm:justify-between
-              "
-            >
-              <div className="flex items-center gap-2">
-                <Loader2
-                  size={13}
-                  className="text-primary"
-                />
-
-                <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                  Learning paths evolve with the field
-                </span>
-              </div>
-
-              <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
-                AI CLUB / DAIICT
-              </span>
-            </motion.div>
-          )}
       </div>
     </section>
   );
