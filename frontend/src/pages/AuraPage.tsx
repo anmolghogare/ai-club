@@ -317,7 +317,6 @@ const AuraPage = () => {
     if (!network) return;
 
     let resizeTimer: any;
-    let masterTimeline: gsap.core.Timeline | null = null;
     const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
     const particleContainer = network.querySelector('#particles') as SVGGElement;
     const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
@@ -387,7 +386,6 @@ const AuraPage = () => {
     }
 
     function buildNetwork() {
-      if (masterTimeline) masterTimeline.kill();
       if (pathContainer) pathContainer.innerHTML = "";
       if (particleContainer) particleContainer.innerHTML = "";
       
@@ -430,7 +428,7 @@ const AuraPage = () => {
 
       // Draw the full background web of neural pathways
       const numCards = cards.length;
-      const basePaths: any[][] = [];
+      const basePaths: (number | string)[][] = [];
       
       // Connect everyone to AURA
       for (let i = 0; i < numCards; i++) {
@@ -453,7 +451,7 @@ const AuraPage = () => {
         [ 'aura', 4, 5, 'aura' ]
       ];
       
-      const drawCurvedPath = (p1: any, p2: any) => {
+      const drawCurvedPath = (p1: {x: number, y: number}, p2: {x: number, y: number}) => {
         const dx = p2.x - p1.x;
         const dy = p2.y - p1.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
@@ -475,7 +473,7 @@ const AuraPage = () => {
         pathContainer.appendChild(basePath);
       });
 
-      const animateFlow = (sequence: any[], delay: number, speedMult: number = 1) => {
+      const animateFlow = (sequence: (number | string)[], delay: number, speedMult: number = 1) => {
         const tl = gsap.timeline({ repeat: -1, delay });
         
         for (let i = 0; i < sequence.length - 1; i++) {
@@ -550,7 +548,6 @@ const AuraPage = () => {
 
     return () => {
       window.removeEventListener("resize", handleResize);
-      if (masterTimeline) masterTimeline.kill();
     };
   }, { scope: containerRef, dependencies: [teamMembers.length] });
 
