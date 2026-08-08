@@ -63,12 +63,10 @@ export default function Footer() {
         {/* Top row */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
             gap: '3rem',
             marginBottom: '3rem',
           }}
-          className="grid-cols-1 md:grid-cols-3"
+          className="grid grid-cols-1 md:grid-cols-3"
         >
           {/* Brand */}
           <div>
