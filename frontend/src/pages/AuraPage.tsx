@@ -1,719 +1,686 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  AnimatePresence,
-  motion,
-  useInView,
-  useReducedMotion,
-  useScroll,
-  useSpring,
-} from 'framer-motion';
+import { useCallback, useState } from 'react';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import { Activity, ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import gsap from 'gsap';
-import { AnimatedAuraCore } from '../components/AnimatedAuraCore';
+import { AuraNetwork, createTeamNodes } from './AuraNetwork';
+import { AnimatedCounter, FloatingParticles, LoadingSequence, useMousePosition, facultyMembers, getInitials } from './auraParts';
 
-type TeamMember = {
-  name: string;
-  role: string;
-  image: string;
-  bio: string;
-  linkedin?: string;
-  github?: string;
-  website?: string;
-};
-
-type FacultyMember = {
-  id: string;
-  name: string;
-  designation: string;
-  department: string;
-  roleInAura: string;
-  experience: string;
-  skills: string[];
-  quote: string;
-  linkedin?: string;
-  photo?: string;
-};
-
-const TEAM: TeamMember[] = [
-  {
-    name: 'Vedant Shah',
-    role: 'AI Club',
-    image: '/vedant-shah.jpg',
-    linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331/',
-    github: 'https://github.com/Vedant-1016',
-    bio: 'Building at the intersection of Machine Learning, NLP, RL, RAG and Deep Learning. Driven to challenge and redesign systems with a focus on intelligence and scalability.',
-  },
-  {
-    name: 'Parth Agrawal',
-    role: 'AI Club',
-    image: '/parth-agrawal.png',
-    linkedin: 'https://www.linkedin.com/in/parth-agrawal-368869325/',
-    github: 'https://github.com/ParthAgrawal-07',
-    bio: 'I build backend systems and applied AI/ML. On AURA, I built a 12-role RBAC system with Google SSO, implemented document-level Pinecone retrieval filtering, and designed ERPConnector.',
-  },
-  {
-    name: 'Meet Virugama',
-    role: 'AI Club',
-    image: '/meet-virugama.png',
-    linkedin: 'https://www.linkedin.com/in/meet-virugama-76a107320/',
-    github: 'https://github.com/Meetvirugama',
-    bio: 'I architect and build end-to-end ML systems — from data engineering to scalable production deployment. I am currently focused on Generative AI, RAG architectures, and Autonomous Agents.',
-  },
-  {
-    name: 'Madhav Thesiya',
-    role: 'Programming Club',
-    image: '/madhav-thesiya.png',
-    linkedin: 'https://www.linkedin.com/in/madhavthesiya/',
-    github: 'https://github.com/madhavthesiya',
-    bio: 'Codeforces Expert, LeetCode Knight, and CodeChef 4-Star with 2000+ problems solved. I enjoy scalable backend systems, caching, concurrency, database optimization, and performance engineering.',
-  },
-  {
-    name: 'Bhagyashree Khemwani',
-    role: 'AI Club',
-    image: '/bhagyashree-khemwani.png',
-    linkedin: 'https://www.linkedin.com/in/bhagyashree-khemwani/',
-    github: 'https://github.com/bhagy-shr',
-    bio: 'B.Tech ICT student at DAU, passionate about AI/ML and practical applications of AI. Core Member of AI Club DAU and a Google Gemini Student Ambassador.',
-  },
-  {
-    name: 'Manal Patel',
-    role: 'AI Club',
-    image: '/manal-patel.png',
-    linkedin: 'https://www.linkedin.com/in/manal-patel-a87b11382/',
-    github: 'https://github.com/manalPatel2557',
-    bio: 'DAU student focused on software development, with projects spanning observability platforms in Python, QR code scanners in C++, and database management systems in C.',
-  },
-  {
-    name: 'GDG DAU',
-    role: 'Google Developer Groups',
-    image: '/gdg.png',
-    github: 'https://github.com/ossdaiict',
-    website: 'https://dscdaiict.in/',
-    bio: 'A student-run developer community at DAU fostering development across ML, Android, Web, and UI/UX, partnering with AURA on major technical initiatives.',
-  },
-];
-
-const FACULTY: FacultyMember[] = [
-  {
-    id: 'f1',
-    name: 'Dr. G Venkatesh',
-    designation: 'Associate Professor',
-    department: 'Chemistry',
-    roleInAura: 'Vision',
-    experience: 'Experienced',
-    skills: ['Materials Science', 'Molecular Modelling', 'Chemistry'],
-    quote: 'Technology should solve real problems for real students.',
-    linkedin: 'https://in.linkedin.com/in/venkatesh-g-a02a58',
-    photo: '/venkatesh-g.png',
-  },
-  {
-    id: 'f2',
-    name: 'Dr. Arpit Rana',
-    designation: 'Assistant Professor',
-    department: 'Computer Science',
-    roleInAura: 'System Architecture & Project Supervision',
-    experience: '10+ Years',
-    skills: ['Data Mining', 'Recommender Systems', 'Applied ML'],
-    quote: 'A good architecture survives future requirements.',
-    linkedin: 'https://in.linkedin.com/in/arpitrana',
-    photo: '/arpit-rana.png',
-  },
-  {
-    id: 'f3',
-    name: 'Mr. Ashvin Chaudhari',
-    designation: 'System Administrator',
-    department: 'IT & Infrastructure',
-    roleInAura: 'Infrastructure Setup',
-    experience: '16+ Years',
-    skills: ['VMware', 'Linux Admin', 'Windows Admin', 'Networking'],
-    quote: 'Building the resilient infrastructure that powers AURA.',
-    linkedin: 'https://in.linkedin.com/in/ashvin-chaudhari-64a20661',
-    photo: '/ashwin-chaudhary.png',
-  },
-];
-
-const FLOW_ROUTES: Array<number[]> = [
-  [2, 3, 1, -1], // Meet → Madhav → Parth → AURA
-  [6, -1, 0, -1], // GDG → AURA → Vedant → AURA
-  [4, 5, -1], // Bhagyashree → Manal → AURA
-];
-
-const getInitials = (name: string) =>
-  name
-    .replace(/^Dr\.\s|^Mr\.\s|^Prof\.\s/, '')
-    .split(/\s+/)
-    .map((part) => part[0])
-    .join('')
-    .slice(0, 3)
-    .toUpperCase();
-
-function useMousePosition(enabled: boolean) {
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!enabled) return;
-
-    const onMove = (event: MouseEvent) => {
-      setPosition({ x: event.clientX, y: event.clientY });
-    };
-
-    window.addEventListener('mousemove', onMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMove);
-  }, [enabled]);
-
-  return position;
-}
-
-function LoadingSequence({ onComplete }: { onComplete: () => void }) {
-  useEffect(() => {
-    const timer = window.setTimeout(onComplete, 2200);
-    return () => window.clearTimeout(timer);
-  }, [onComplete]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.6 }}
-      className="fixed inset-0 z-[1000] bg-[#050505] flex items-center justify-center"
-    >
-      <div className="aura-loader">
-        <div className="aura-loader-mark">AURA</div>
-        <div className="aura-loader-line" />
-        <p>Initializing university intelligence</p>
-      </div>
-    </motion.div>
-  );
-}
-
-function FloatingParticles() {
-  const reduceMotion = useReducedMotion();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const particles = Array.from({ length: 34 }, () => ({
-      x: Math.random(),
-      y: Math.random(),
-      r: Math.random() * 1.8 + 0.5,
-      vx: (Math.random() - 0.5) * 0.00012,
-      vy: (Math.random() - 0.5) * 0.00012,
-      a: Math.random() * 0.28 + 0.06,
-    }));
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    let frame = 0;
-    const render = () => {
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-      for (const p of particles) {
-        p.x = (p.x + p.vx + 1) % 1;
-        p.y = (p.y + p.vy + 1) % 1;
-
-        ctx.beginPath();
-        ctx.arc(p.x * window.innerWidth, p.y * window.innerHeight, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 146, 0, ${p.a})`;
-        ctx.fill();
-      }
-
-      frame = requestAnimationFrame(render);
-    };
-
-    resize();
-    window.addEventListener('resize', resize);
-    frame = requestAnimationFrame(render);
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener('resize', resize);
-    };
-  }, [reduceMotion]);
-
-  return <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none opacity-60" />;
-}
-
-function AnimatedCounter({ value }: { value: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
-  const numeric = Number(value.replace(/[^0-9]/g, ''));
-  const spring = useSpring(0, { duration: 1200, bounce: 0 });
-
-  useEffect(() => {
-    if (inView && Number.isFinite(numeric)) spring.set(numeric);
-  }, [inView, numeric, spring]);
-
-  useEffect(() => {
-    const unsubscribe = spring.on('change', (latest) => {
-      if (ref.current) {
-        ref.current.textContent =
-          Math.floor(latest).toLocaleString() + (value.includes('+') ? '+' : '');
-      }
-    });
-    return unsubscribe;
-  }, [spring, value]);
-
-  return <span ref={ref}>{Number.isFinite(numeric) ? '0' : value}</span>;
-}
-
-function NeuralNetwork({
-  onSelect,
-}: {
-  onSelect: (index: number) => void;
-}) {
-  const reduceMotion = useReducedMotion();
-  const svgRef = useRef<SVGSVGElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const nodes = useMemo(
-    () =>
-      TEAM.map((member, index) => {
-        const angle = (index * Math.PI * 2) / TEAM.length - Math.PI / 2;
-        const radius = 38;
-        return {
-          ...member,
-          index,
-          x: 50 + Math.cos(angle) * radius,
-          y: 50 + Math.sin(angle) * radius,
-        };
-      }),
-    []
-  );
-
-  const buildPath = useCallback(
-    (from: { x: number; y: number }, to: { x: number; y: number }) => {
-      const dx = to.x - from.x;
-      const dy = to.y - from.y;
-      const distance = Math.hypot(dx, dy);
-      const curve = Math.min(distance * 0.18, 8);
-      const angle = Math.atan2(dy, dx);
-      const cx = (from.x + to.x) / 2 - Math.sin(angle) * curve;
-      const cy = (from.y + to.y) / 2 + Math.cos(angle) * curve;
-      return `M ${from.x} ${from.y} Q ${cx} ${cy} ${to.x} ${to.y}`;
-    },
-    []
-  );
-
-  useEffect(() => {
-    const svg = svgRef.current;
-    if (!svg || reduceMotion) return;
-
-    const paths = svg.querySelectorAll<SVGPathElement>('.flow-active');
-    const cleanup: gsap.core.Tween[] = [];
-
-    paths.forEach((path, index) => {
-      const duration = 2.4 + (index % 3) * 0.5;
-      const tween = gsap.to(path, {
-        strokeDashoffset: -90,
-        duration,
-        repeat: -1,
-        ease: 'none',
-        delay: index * 0.35,
-      });
-      cleanup.push(tween);
-    });
-
-    return () => cleanup.forEach((tween) => tween.kill());
-  }, [reduceMotion]);
-
-  const aura = { x: 50, y: 50 };
-
-  return (
-    <div className="aura-network">
-      <svg ref={svgRef} className="flow-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <filter id="aura-flow-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="0.7" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <g className="flow-base-layer">
-          {nodes.map((node) => (
-            <path
-              key={`base-${node.index}`}
-              className="flow-base"
-              d={buildPath(aura, node)}
-            />
-          ))}
-          {nodes.map((node, index) => (
-            <path
-              key={`adj-${node.index}`}
-              className="flow-base flow-base-secondary"
-              d={buildPath(node, nodes[(index + 1) % nodes.length])}
-            />
-          ))}
-        </g>
-
-        <g className="flow-active-layer">
-          {FLOW_ROUTES.map((route, routeIndex) =>
-            route.slice(0, -1).map((from, segmentIndex) => {
-              const to = route[segmentIndex + 1];
-              const fromPoint = from === -1 ? aura : nodes[from];
-              const toPoint = to === -1 ? aura : nodes[to];
-
-              return (
-                <path
-                  key={`active-${routeIndex}-${segmentIndex}`}
-                  className="flow-active"
-                  d={buildPath(fromPoint, toPoint)}
-                />
-              );
-            })
-          )}
-        </g>
-      </svg>
-
-      <AnimatedAuraCore />
-
-      {nodes.map((node) => (
-        <button
-          key={node.name}
-          type="button"
-          className="neural-node-container person-card"
-          style={{ left: `${node.x}%`, top: `${node.y}%` }}
-          onClick={() => onSelect(node.index)}
-          aria-label={`Open ${node.name} profile`}
-        >
-          <span className="neural-node-ring" />
-          <span className="neural-node-glow" />
-
-          {node.image ? (
-            <img
-              src={node.image}
-              alt={node.name}
-              className="neural-node-portrait"
-              loading="lazy"
-            />
-          ) : (
-            <span className="neural-node-portrait neural-node-fallback">
-              {getInitials(node.name)}
-            </span>
-          )}
-
-          <span className="neural-node-info">
-            <span className="neural-node-name">{node.name}</span>
-            <span className="neural-node-role">{node.role}</span>
-          </span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function FacultyCard({ faculty, index }: { faculty: FacultyMember; index: number }) {
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.65, delay: index * 0.08 }}
-      whileHover={{ y: -8 }}
-      className="faculty-card"
-    >
-      <div className="faculty-head">
-        <div className="faculty-photo">
-          {faculty.photo ? (
-            <img src={faculty.photo} alt={faculty.name} loading="lazy" />
-          ) : (
-            getInitials(faculty.name)
-          )}
-        </div>
-        <div>
-          <h3>{faculty.name}</h3>
-          <p>{faculty.designation}</p>
-          <span>{faculty.department}</span>
-        </div>
-      </div>
-
-      <div className="faculty-meta">
-        <div>
-          <small>AURA ROLE</small>
-          <strong>{faculty.roleInAura}</strong>
-        </div>
-        <div>
-          <small>EXPERIENCE</small>
-          <strong>{faculty.experience}</strong>
-        </div>
-      </div>
-
-      <div className="faculty-skills">
-        {faculty.skills.map((skill) => (
-          <span key={skill}>{skill}</span>
-        ))}
-      </div>
-
-      <blockquote>“{faculty.quote}”</blockquote>
-
-      {faculty.linkedin && (
-        <a href={faculty.linkedin} target="_blank" rel="noreferrer" className="faculty-link">
-          View profile
-        </a>
-      )}
-    </motion.article>
-  );
-}
-
-export default function AuraPage() {
-  const [loading, setLoading] = useState(true);
+const AuraPage = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState<number | null>(null);
-  const reduceMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
-  const mouse = useMousePosition(!reduceMotion);
+  const shouldReduceMotion = useReducedMotion();
 
-  const finishLoading = useCallback(() => setLoading(false), []);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001,
+  });
+
+  const mousePosition = useMousePosition();
+  const px = useSpring(mousePosition.nX * 20, {
+    damping: 30,
+    stiffness: 100,
+  });
+  const py = useSpring(mousePosition.nY * 20, {
+    damping: 30,
+    stiffness: 100,
+  });
+
+  const nodes = createTeamNodes();
+
+  const finishLoading = useCallback(() => setIsLoading(false), []);
+
+  if (isLoading) {
+    return <LoadingSequence onComplete={finishLoading} />;
+  }
 
   return (
-    <AnimatePresence mode="wait">
-      {loading ? (
-        <LoadingSequence key="loader" onComplete={finishLoading} />
-      ) : (
+    <div className="min-h-screen bg-[#050505] text-white font-sans relative overflow-x-hidden selection:bg-orange-500/30 selection:text-orange-50">
+      {!shouldReduceMotion && (
         <motion.div
-          key="aura-page"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="aura-page"
-        >
-          <FloatingParticles />
+          className="fixed top-0 left-0 w-[500px] h-[500px] rounded-full pointer-events-none mix-blend-screen z-50"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(232,121,46,0.1) 0%, rgba(0,0,0,0) 70%)',
+            x: mousePosition.x - 250,
+            y: mousePosition.y - 250,
+          }}
+          transition={{
+            type: 'tween',
+            ease: 'backOut',
+            duration: 0.1,
+          }}
+        />
+      )}
 
-          {!reduceMotion && (
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0 bg-[#050505]">
+        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.04] mix-blend-overlay" />
+
+        <motion.div
+          animate={{
+            x: ['-20%', '10%', '-20%'],
+            y: ['-10%', '20%', '-10%'],
+            scale: [1, 1.2, 1],
+            opacity: [0.15, 0.25, 0.15],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="absolute top-[10%] left-[20%] w-[50vw] h-[50vw] rounded-full mix-blend-screen"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(234,88,12,0.2) 0%, rgba(234,88,12,0) 70%)',
+          }}
+        />
+
+        <motion.div
+          animate={{
+            x: ['20%', '-10%', '20%'],
+            y: ['20%', '-20%', '20%'],
+            scale: [1.2, 1, 1.2],
+            opacity: [0.1, 0.2, 0.1],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+          className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(217,119,6,0.15) 0%, rgba(217,119,6,0) 70%)',
+          }}
+        />
+
+        <FloatingParticles />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-10" />
+      </div>
+
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-orange-600 via-orange-400 to-amber-400 origin-left z-[60]"
+        style={{ scaleX }}
+      />
+
+      <header
+        className="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300"
+        style={{
+          backgroundColor: 'rgba(5,5,5,0.7)',
+          backdropFilter: 'blur(12px)',
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 h-16 md:h-20 flex items-center justify-between">
+          <Link
+            to="/"
+            className="group flex items-center gap-3 text-white/50 hover:text-white transition-colors rounded-full py-2 px-4 hover:bg-white/5 relative overflow-hidden"
+          >
             <motion.div
-              className="aura-cursor-glow"
-              style={{ x: mouse.x - 250, y: mouse.y - 250 }}
-            />
-          )}
+              whileHover={{ x: -4 }}
+              transition={{ type: 'spring' }}
+            >
+              <ArrowLeft size={16} />
+            </motion.div>
 
-          <motion.div className="aura-progress" style={{ scaleX: progress }} />
+            <span className="font-medium text-sm tracking-wide relative z-10">
+              Back to Home
+            </span>
 
-          <header className="aura-header">
-            <div className="aura-header-inner">
-              <Link to="/" className="aura-back">
-                <ArrowLeft size={16} />
-                <span>Back to Home</span>
-              </Link>
+            <motion.div className="absolute bottom-0 left-0 w-full h-[1px] bg-orange-500 scale-x-0 origin-left group-hover:scale-x-100 transition-transform duration-300" />
+          </Link>
 
-              <img src="/aura-logo.png" alt="AURA" className="aura-header-logo" />
-            </div>
-          </header>
+          <motion.img
+            whileHover={{ rotate: 180, scale: 1.1 }}
+            transition={{
+              type: 'spring',
+              stiffness: 200,
+              damping: 20,
+            }}
+            src="/aura-logo.png"
+            alt="AURA"
+            className="h-10 md:h-12 w-auto opacity-100"
+          />
+        </div>
+      </header>
 
-          <main>
-            <section className="aura-hero">
-              <div className="hero-orbit hero-orbit-1" />
-              <div className="hero-orbit hero-orbit-2" />
-              <div className="hero-orbit hero-orbit-3" />
+      <main className="relative z-10 w-full pt-32">
+        {/* HERO SECTION */}
+        <section className="relative w-full min-h-[90dvh] flex flex-col items-center justify-center px-6">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[800px] aspect-square pointer-events-none opacity-30">
+            {[1, 2, 3].map((index) => (
+              <motion.div
+                key={`ring-${index}`}
+                className="absolute inset-0 rounded-full border border-orange-500/20"
+                style={{ scale: 1 + index * 0.4 }}
+                animate={{ rotate: [0, 360] }}
+                transition={{
+                  duration: 20 + index * 15,
+                  repeat: Infinity,
+                  ease: 'linear',
+                  direction: index % 2 === 0 ? 'reverse' : 'normal',
+                }}
+              />
+            ))}
+          </div>
+
+          <motion.div
+            style={{
+              x: shouldReduceMotion ? 0 : px,
+              y: shouldReduceMotion ? 0 : py,
+            }}
+            className="relative z-10 flex flex-col items-center w-full max-w-4xl"
+          >
+            <motion.div
+              initial={{
+                scale: 0.5,
+                filter: 'blur(20px)',
+                opacity: 0,
+              }}
+              animate={{
+                scale: [0.5, 1.08, 1],
+                filter: 'blur(0px)',
+                opacity: 1,
+              }}
+              transition={{
+                duration: 1.2,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="relative w-24 h-24 md:w-32 md:h-32 mb-10 flex items-center justify-center"
+            >
+              <motion.img
+                src="/aura-logo.png"
+                alt="AURA Mark"
+                className="w-full h-full object-contain relative z-10"
+                animate={{ y: [0, -8, 0] }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
 
               <motion.div
-                initial={{ opacity: 0, scale: 0.7, filter: 'blur(16px)' }}
-                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                transition={{ duration: 1 }}
-                className="hero-logo-wrap"
-              >
-                <img src="/aura-logo.png" alt="AURA Mark" />
-                <span />
-              </motion.div>
+                className="absolute inset-0 rounded-full z-0"
+                style={{
+                  background:
+                    'radial-gradient(circle, rgba(234,88,12,0.4) 0%, rgba(234,88,12,0) 70%)',
+                }}
+                animate={{
+                  opacity: [0.4, 0.8, 0.4],
+                  scale: [0.8, 1.2, 0.8],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                }}
+              />
+            </motion.div>
 
+            <h1 className="text-6xl sm:text-7xl md:text-[96px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 mb-6 text-center leading-none flex overflow-hidden">
+              {['A', 'U', 'R', 'A'].map((letter, index) => (
+                <motion.span
+                  key={letter + index}
+                  initial={{ y: '100%', opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                    delay: 0.2 + index * 0.1,
+                  }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </h1>
+
+            <div className="overflow-hidden mb-10">
               <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.45 }}
-                className="aura-eyebrow"
+                initial={{ y: '100%', opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{
+                  duration: 0.8,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: 0.6,
+                }}
+                className="text-lg md:text-xl text-orange-400 font-mono tracking-[0.2em] uppercase text-center"
               >
-                UNIVERSITY AI ASSISTANT
+                University AI Assistant
               </motion.p>
+            </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.55, duration: 0.8 }}
-              >
-                Intelligence for DAU.
-              </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="max-w-[650px] text-center text-white/50 text-base md:text-lg leading-relaxed mb-12"
+            >
+              One intelligent assistant for everything at DAU.
+              <span className="block mt-3 text-white/30 text-sm md:text-base">
+                Search · Courses · Faculty · Labs · Events · Timetable · Research · Resources
+              </span>
+            </motion.p>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 }}
-                className="hero-copy"
-              >
-                One intelligent assistant for courses, faculty, labs, events,
-                timetables, research, and university resources.
-              </motion.p>
-
-              <motion.a
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 1 }}
+              className="mb-20"
+            >
+              <a
                 href="https://aura.dau.ac.in"
                 target="_blank"
                 rel="noreferrer"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9 }}
-                className="aura-launch"
               >
-                <Activity size={18} />
-                Launch AURA
-              </motion.a>
-
-              <div className="aura-stats">
-                {[
-                  ['Version', '1.0'],
-                  ['Students', '1,200+'],
-                  ['Developers', '14'],
-                  ['Faculty Mentors', '3'],
-                ].map(([label, value]) => (
-                  <div className="aura-stat" key={label}>
-                    <strong>
-                      <AnimatedCounter value={value} />
-                    </strong>
-                    <span>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            <section className="aura-network-section">
-              <div className="section-intro">
-                <p className="aura-eyebrow">INSIDE FLOW</p>
-                <h2>AURA Neural Network</h2>
-                <p>People, ideas, infrastructure, and intelligence connected through one core.</p>
-              </div>
-
-              <div className="desktop-network">
-                <NeuralNetwork onSelect={setSelectedNode} />
-              </div>
-
-              <div className="mobile-network">
-                {TEAM.map((member, index) => (
-                  <button
-                    type="button"
-                    key={member.name}
-                    onClick={() => setSelectedNode(index)}
-                    className="mobile-person"
-                  >
-                    {member.image ? (
-                      <img src={member.image} alt={member.name} loading="lazy" />
-                    ) : (
-                      <span>{getInitials(member.name)}</span>
-                    )}
-                    <div>
-                      <strong>{member.name}</strong>
-                      <small>{member.role}</small>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            <section className="faculty-section">
-              <div className="section-intro">
-                <p className="aura-eyebrow">FACULTY & MENTORS</p>
-                <h2>Guided by Experience</h2>
-                <p>
-                  Faculty and infrastructure leadership supporting AURA from vision
-                  through deployment.
-                </p>
-              </div>
-
-              <div className="faculty-grid">
-                {FACULTY.map((faculty, index) => (
-                  <FacultyCard key={faculty.id} faculty={faculty} index={index} />
-                ))}
-              </div>
-
-              <div className="aura-timeline">
-                {['Vision', 'Architecture', 'Infrastructure', 'Launch'].map((step, index) => (
-                  <div key={step} className="timeline-step">
-                    <span>{index + 1}</span>
-                    <strong>{step}</strong>
-                  </div>
-                ))}
-              </div>
-            </section>
-          </main>
-
-          <AnimatePresence>
-            {selectedNode !== null && (
-              <motion.div
-                className="aura-modal-backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setSelectedNode(null)}
-              >
-                <motion.div
-                  className="aura-modal"
-                  initial={{ opacity: 0, scale: 0.94, y: 20 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.94, y: 20 }}
-                  onClick={(event) => event.stopPropagation()}
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="relative group px-10 py-4 bg-transparent border-none rounded-full"
                 >
-                  <button
-                    type="button"
-                    className="aura-modal-close"
-                    onClick={() => setSelectedNode(null)}
-                    aria-label="Close profile"
-                  >
-                    <X size={20} />
-                  </button>
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full blur-[10px] group-hover:blur-[20px] transition-all duration-300 opacity-60 group-hover:opacity-100" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-600 rounded-full" />
 
-                  <div className="modal-profile">
-                    {TEAM[selectedNode].image ? (
-                      <img
-                        src={TEAM[selectedNode].image}
-                        alt={TEAM[selectedNode].name}
-                      />
-                    ) : (
-                      <span>{getInitials(TEAM[selectedNode].name)}</span>
-                    )}
+                  <div className="relative flex items-center gap-3 text-white font-medium text-lg">
+                    <Activity size={18} />
+                    Launch AURA
+                  </div>
+                </motion.button>
+              </a>
+            </motion.div>
+
+            <motion.div
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true }}
+              variants={{
+                show: {
+                  transition: { staggerChildren: 0.1 },
+                },
+              }}
+              className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full"
+            >
+              {[
+                { label: 'Version', value: '1.0' },
+                { label: 'Students', value: '1,200+' },
+                { label: 'Developers', value: '14' },
+                { label: 'Faculty Mentors', value: '3' },
+              ].map((stat) => (
+                <motion.div
+                  key={stat.label}
+                  variants={{
+                    hidden: {
+                      opacity: 0,
+                      y: 40,
+                      filter: 'blur(10px)',
+                    },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      filter: 'blur(0px)',
+                      transition: {
+                        duration: 0.8,
+                        ease: [0.22, 1, 0.36, 1],
+                      },
+                    },
+                  }}
+                  whileHover={{
+                    y: -6,
+                    backgroundColor: 'rgba(255,255,255,0.08)',
+                  }}
+                  className="flex flex-col items-center justify-center p-8 rounded-3xl bg-white/5 border border-white/5 backdrop-blur-xl transition-all cursor-default relative overflow-hidden group"
+                >
+                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-orange-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <span className="text-3xl md:text-4xl font-bold text-white/90 mb-2">
+                    <AnimatedCounter value={stat.value} />
+                  </span>
+
+                  <span className="text-[10px] md:text-xs text-white/40 uppercase font-mono tracking-widest text-center">
+                    {stat.label}
+                  </span>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </section>
+
+        <AuraNetwork onSelectNode={setSelectedNode} />
+
+        {/* FACULTY SECTION */}
+        <section className="relative w-full min-h-screen py-32 bg-[#050505] z-10 px-6">
+          <div className="text-center mb-20 relative z-20">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-orange-400 font-mono tracking-widest uppercase text-sm mb-4"
+            >
+              FACULTY & MENTORS
+            </motion.p>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-5xl md:text-7xl font-bold text-white mb-6"
+            >
+              Guided by Experience
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-white/50 text-xl font-serif italic max-w-2xl mx-auto"
+            >
+              "The faculty members and mentors who transformed AURA from an idea into a scalable university AI platform."
+            </motion.p>
+          </div>
+
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {facultyMembers.map((faculty, index) => (
+              <motion.div
+                key={faculty.id}
+                initial={{
+                  opacity: 0,
+                  y: 40,
+                  filter: 'blur(10px)',
+                  scale: 0.95,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                  filter: 'blur(0px)',
+                  scale: 1,
+                }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.1,
+                }}
+                whileHover={{ y: -10 }}
+                className="group relative rounded-[40px] p-[1px] overflow-hidden bg-white/5 cursor-default"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500 via-amber-400 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative h-full bg-[#080808]/90 backdrop-blur-3xl rounded-[39px] p-8 flex flex-col z-10 border border-transparent group-hover:border-orange-500/10">
+                  <div className="flex items-center gap-5 mb-8">
+                    <motion.div
+                      whileHover={{ scale: 1.1 }}
+                      transition={{ type: 'spring' }}
+                      className="w-20 h-20 rounded-2xl overflow-hidden border border-white/10 shrink-0"
+                    >
+                      {faculty.photo ? (
+                        <img
+                          src={faculty.photo}
+                          alt={faculty.name}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-white/5 flex items-center justify-center text-white font-bold">
+                          {getInitials(faculty.name)}
+                        </div>
+                      )}
+                    </motion.div>
 
                     <div>
-                      <p className="aura-eyebrow">{TEAM[selectedNode].role}</p>
-                      <h3>{TEAM[selectedNode].name}</h3>
+                      <h3 className="text-xl font-bold text-white mb-1 group-hover:text-orange-400 transition-colors">
+                        {faculty.name}
+                      </h3>
+                      <p className="text-sm text-white/70 font-medium mb-1">
+                        {faculty.designation}
+                      </p>
+                      <p className="text-xs text-white/40">
+                        {faculty.department}
+                      </p>
                     </div>
                   </div>
 
-                  <p className="modal-bio">{TEAM[selectedNode].bio}</p>
+                  <div className="grid grid-cols-2 gap-4 mb-8 p-4 bg-white/5 rounded-2xl border border-white/5">
+                    <div>
+                      <p className="text-[10px] text-white/40 uppercase font-mono tracking-wider mb-1">
+                        Role
+                      </p>
+                      <p className="text-sm text-orange-400">
+                        {faculty.roleInAura}
+                      </p>
+                    </div>
 
-                  <div className="modal-links">
-                    {TEAM[selectedNode].linkedin && (
-                      <a href={TEAM[selectedNode].linkedin} target="_blank" rel="noreferrer">
-                        LinkedIn
-                      </a>
-                    )}
-                    {TEAM[selectedNode].github && (
-                      <a href={TEAM[selectedNode].github} target="_blank" rel="noreferrer">
-                        GitHub
-                      </a>
-                    )}
-                    {TEAM[selectedNode].website && (
-                      <a href={TEAM[selectedNode].website} target="_blank" rel="noreferrer">
-                        Website
-                      </a>
-                    )}
+                    <div>
+                      <p className="text-[10px] text-white/40 uppercase font-mono tracking-wider mb-1">
+                        Experience
+                      </p>
+                      <p className="text-sm text-white/90">
+                        {faculty.experience}
+                      </p>
+                    </div>
                   </div>
-                </motion.div>
+
+                  <div className="mb-8 flex-grow">
+                    <p className="text-[10px] text-white/40 uppercase font-mono tracking-wider mb-3">
+                      Expertise
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {faculty.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="px-3 py-1.5 text-[11px] font-medium text-white/70 bg-orange-500/10 border border-orange-500/20 rounded-full group-hover:shadow-[0_0_10px_rgba(249,115,22,0.2)] transition-shadow"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      delay: 0.5 + index * 0.1,
+                    }}
+                    className="pt-6 border-t border-white/10"
+                  >
+                    <p className="text-sm text-white/60 italic leading-relaxed">
+                      "{faculty.quote}"
+                    </p>
+                  </motion.div>
+                </div>
               </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            ))}
+          </div>
+
+          {/* TIMELINE */}
+          <div className="relative z-20 w-full max-w-4xl mx-auto mt-32 px-6 pb-20">
+            <div className="flex justify-between items-center relative">
+              <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2" />
+
+              <motion.div
+                className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-orange-600 to-amber-400 -translate-y-1/2 origin-left"
+                style={{ scaleX }}
+              />
+
+              {['Vision', 'Architecture', 'Infrastructure', 'Launch'].map(
+                (step, index) => (
+                  <div
+                    key={step}
+                    className="relative z-10 flex flex-col items-center gap-4 group"
+                  >
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      whileInView={{ scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        delay: index * 0.3,
+                        type: 'spring',
+                        bounce: 0.5,
+                      }}
+                      className="w-5 h-5 rounded-full bg-[#050505] border-2 border-orange-500 relative flex items-center justify-center"
+                    >
+                      <motion.div className="absolute inset-0 rounded-full bg-orange-500 blur-sm opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.5, 1],
+                          opacity: [1, 0, 1],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          delay: index * 0.2,
+                        }}
+                        className="w-2 h-2 rounded-full bg-orange-500"
+                      />
+                    </motion.div>
+
+                    <motion.span
+                      initial={{ opacity: 0, y: 10 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{
+                        delay: index * 0.3 + 0.2,
+                      }}
+                      className="text-xs font-mono tracking-widest text-white/50 uppercase absolute top-8 whitespace-nowrap group-hover:text-orange-400 transition-colors"
+                    >
+                      {step}
+                    </motion.span>
+                  </div>
+                ),
+              )}
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {selectedNode !== null && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-6 bg-black/60 backdrop-blur-2xl"
+            onClick={() => setSelectedNode(null)}
+          >
+            <motion.div
+              initial={{
+                scale: 0.9,
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                scale: 1,
+                opacity: 1,
+                y: 0,
+              }}
+              exit={{
+                scale: 0.9,
+                opacity: 0,
+                y: 20,
+              }}
+              transition={{
+                type: 'spring',
+                damping: 25,
+                stiffness: 300,
+              }}
+              className="w-full max-w-lg bg-[#0A0A0A]/90 border border-white/10 rounded-[32px] p-8 relative overflow-hidden"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent pointer-events-none" />
+
+              <button
+                type="button"
+                onClick={() => setSelectedNode(null)}
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors z-20"
+                aria-label="Close profile"
+              >
+                <X size={20} />
+              </button>
+
+              <div className="flex items-center gap-6 mb-8 relative z-10">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/10 bg-white/5 shrink-0">
+                  {nodes[selectedNode].image ? (
+                    <img
+                      src={nodes[selectedNode].image}
+                      alt={nodes[selectedNode].name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-2xl font-bold text-white">
+                      {getInitials(nodes[selectedNode].name)}
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                    {nodes[selectedNode].name}
+                  </h3>
+
+                  <p className="text-sm font-mono text-orange-400 uppercase tracking-widest">
+                    {nodes[selectedNode].role}
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative z-10 space-y-6">
+                <p className="text-white/70 leading-relaxed text-sm">
+                  {nodes[selectedNode].bio}
+                </p>
+
+                <div className="flex gap-4 pt-4 border-t border-white/10">
+                  {nodes[selectedNode].linkedin && (
+                    <a
+                      href={nodes[selectedNode].linkedin}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex-1"
+                    >
+                      <span className="flex w-full py-3 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                        LinkedIn
+                      </span>
+                    </a>
+                  )}
+
+                  {nodes[selectedNode].github && (
+                    <a
+                      href={nodes[selectedNode].github}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex-1"
+                    >
+                      <span className="flex w-full py-3 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                        GitHub
+                      </span>
+                    </a>
+                  )}
+
+                  {nodes[selectedNode].website && (
+                    <a
+                      href={nodes[selectedNode].website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex-1"
+                    >
+                      <span className="flex w-full py-3 items-center justify-center rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-white transition-colors">
+                        Website
+                      </span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
-}
+};
+
+export default AuraPage;

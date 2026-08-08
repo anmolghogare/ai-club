@@ -647,140 +647,417 @@
     animation: aura-breathe 5s ease-in-out infinite;
   }
   
+  /* =========================================================
+     AURA NEURAL FLOW — POLISHED / ACCURATE VERSION
+     ========================================================= */
+  
+  .background-glow {
+    position: absolute;
+    width: 650px;
+    height: 650px;
+    left: 50%;
+    top: 54%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background:
+      radial-gradient(
+        circle,
+        rgba(255, 132, 0, 0.11),
+        rgba(255, 100, 0, 0.035) 35%,
+        transparent 70%
+      );
+    filter: blur(15px);
+    pointer-events: none;
+    z-index: 0;
+    animation: breathingGlow 5s ease-in-out infinite;
+  }
+  
+  @keyframes breathingGlow {
+    0%, 100% {
+      transform: translate(-50%, -50%) scale(0.95);
+      opacity: 0.65;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.08);
+      opacity: 1;
+    }
+  }
+  
+  /* ---------------------------------------------------------
+     SVG NETWORK
+     The React/GSAP implementation uses a 0..100 viewBox.
+     Therefore stroke widths here are deliberately small.
+     --------------------------------------------------------- */
+  
   .flow-svg {
     position: absolute;
     inset: 0;
-    z-index: 4;
     width: 100%;
     height: 100%;
     overflow: visible;
     pointer-events: none;
-  }
-  
-  .flow-base,
-  .flow-active {
-    fill: none;
-    vector-effect: non-scaling-stroke;
-    stroke-linecap: round;
+    z-index: 4;
   }
   
   .flow-base {
-    stroke: var(--aura-line-soft);
-    stroke-width: 1.2;
-  }
-  
-  .flow-base-secondary {
-    display: none;
+    fill: none;
+    stroke: rgba(255, 145, 0, 0.35);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 2 4;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.8;
   }
   
   .flow-active {
-    stroke: rgba(255, 157, 36, .95);
-    stroke-width: 2.2;
-    stroke-dasharray: 12 24;
-    filter: url(#aura-flow-glow);
+    fill: none;
+    stroke: rgba(255, 166, 0, 1);
+    stroke-width: 5.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 4 6;
+    vector-effect: non-scaling-stroke;
+    filter: url(#flowGlow);
+    will-change: opacity;
   }
+  
+  .flow-particle {
+    fill: #ff9b00;
+    filter: url(#particleGlow);
+  }
+  
+  /* ---------------------------------------------------------
+     AURA CORE
+     The core is explicitly centered inside the network.
+     This prevents the old AURA/logo-to-line coordinate drift.
+     --------------------------------------------------------- */
+  
+  .aura-core {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    width: 200px;
+    height: 200px;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 15;
+    pointer-events: none;
+    transform-origin: center center;
+    will-change: transform, filter;
+  }
+  
+  .aura-reactor-glow {
+    background:
+      radial-gradient(
+        circle,
+        rgba(255, 120, 0, 0.25) 0%,
+        transparent 70%
+      );
+    animation: reactorPulse 6s ease-in-out infinite;
+  }
+  
+  @keyframes reactorPulse {
+    0%, 100% {
+      opacity: 0.5;
+      transform: scale(0.95);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+  }
+  
+  .aura-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 147, 0, 0.15);
+    transform-origin: center;
+    pointer-events: none;
+  }
+  
+  .aura-ring-outer {
+    width: 160px;
+    height: 160px;
+    animation: ringRotate 40s linear infinite;
+    border-left-color: rgba(255, 147, 0, 0.2);
+    border-right-color: rgba(255, 147, 0, 0.2);
+  }
+  
+  .aura-ring-inner {
+    width: 130px;
+    height: 130px;
+    animation: ringRotateReverse 35s linear infinite;
+    border-top-color: rgba(255, 147, 0, 0.3);
+  }
+  
+  .aura-ring-dashed {
+    width: 190px;
+    height: 190px;
+    border: 1px dashed rgba(255, 147, 0, 0.15);
+    animation: ringRotate 50s linear infinite;
+  }
+  
+  .aura-vortex-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 3px;
+    background: #ff9200;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff9200;
+    opacity: 0;
+    animation: vortexSpin 5s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.4s);
+  }
+  
+  @keyframes vortexSpin {
+    0% {
+      transform:
+        rotate(calc(var(--i) * 30deg))
+        translateX(60px)
+        scale(0.5);
+      opacity: 0;
+    }
+  
+    30% {
+      opacity: 0.6;
+    }
+  
+    70% {
+      opacity: 0.6;
+    }
+  
+    100% {
+      transform:
+        rotate(calc(var(--i) * 30deg + 90deg))
+        translateX(0)
+        scale(1.2);
+      opacity: 0;
+    }
+  }
+  
+  @keyframes ringRotate {
+    from {
+      transform: rotate(0deg);
+    }
+  
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  @keyframes ringRotateReverse {
+    from {
+      transform: rotate(360deg);
+    }
+  
+    to {
+      transform: rotate(0deg);
+    }
+  }
+  
+  .aura-logo {
+    position: relative;
+    z-index: 5;
+    text-align: center;
+  }
+  
+  .aura-symbol {
+    font-size: 53px;
+    line-height: 48px;
+    font-weight: 800;
+    color: #ff9200;
+    text-shadow:
+      0 0 10px rgba(255, 145, 0, 0.5),
+      0 0 30px rgba(255, 120, 0, 0.25);
+  }
+  
+  .aura-title {
+    font-size: 25px;
+    line-height: 27px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+  
+  .aura-subtitle {
+    margin-top: 3px;
+    font-size: 6px;
+    letter-spacing: 0.7px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .aura-pulse-emitter {
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 147, 0, 0.4);
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+    transform-origin: center;
+    z-index: 1;
+    pointer-events: none;
+  }
+  
+  /* ---------------------------------------------------------
+     TEAM NODES
+     IMPORTANT: the container itself NEVER receives an animated
+     x/y transform. Only ring/portrait children animate.
+     --------------------------------------------------------- */
   
   .neural-node-container {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: max-content;
+    min-width: 100px;
     z-index: 20;
-    width: 86px;
-    min-height: 86px;
-    padding: 0;
-    border: 0;
-    outline: 0;
-    background: transparent;
-    color: #fff;
-    transform: translate(-50%, -50%);
     cursor: pointer;
-    font: inherit;
+    transform: translate(-50%, -50%);
+    transform-origin: center center;
+    color: inherit;
+    outline: none;
+  }
+  
+  .neural-node-container:focus-visible {
+    outline: 1px solid rgba(255, 146, 0, 0.9);
+    outline-offset: 10px;
+    border-radius: 999px;
   }
   
   .neural-node-ring {
     position: absolute;
-    inset: 4px;
-    border: 1px solid rgba(255,146,0,.28);
+    width: 70px;
+    height: 70px;
+    inset: auto;
     border-radius: 50%;
-    box-shadow: 0 0 20px rgba(255,120,0,.08);
-    animation: node-ring-spin 11s linear infinite;
-  }
-  
-  .neural-node-container:nth-of-type(2n) .neural-node-ring {
-    animation-direction: reverse;
-    animation-duration: 15s;
+    border: 1px solid rgba(255, 146, 0, 0.32);
+    box-shadow:
+      0 0 15px rgba(255, 146, 0, 0.10),
+      inset 0 0 10px rgba(255, 146, 0, 0.04);
+    transform-origin: center;
+    pointer-events: none;
+    will-change: transform, border-color, box-shadow;
   }
   
   .neural-node-portrait {
-    position: relative;
-    z-index: 3;
-    display: block;
-    width: 62px;
-    height: 62px;
-    margin: 12px auto;
-    border: 2px solid rgba(5,5,5,.95);
+    width: 56px;
+    height: 56px;
     border-radius: 50%;
-    background: #101010;
+    background: #111;
+    border: 2px solid rgba(0, 0, 0, 0.8);
     object-fit: cover;
-    box-shadow: 0 0 0 1px rgba(255,146,0,.18), 0 0 25px rgba(255,120,0,.08);
-    transition: transform 180ms ease, box-shadow 180ms ease;
-  }
-  
-  .neural-node-fallback {
-    display: grid;
-    place-items: center;
-    color: rgba(255,255,255,.8);
-    font-size: 13px;
-    font-weight: 700;
+    position: relative;
+    z-index: 2;
+    transition:
+      transform 0.3s ease,
+      filter 0.3s ease;
+    will-change: transform;
+    user-select: none;
   }
   
   .neural-node-glow {
     position: absolute;
-    inset: -12px;
-    z-index: 1;
+    width: 86px;
+    height: 86px;
+    left: 50%;
+    top: 50%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,146,0,.28), transparent 68%);
+    transform: translate(-50%, -50%);
+    background:
+      radial-gradient(
+        circle,
+        rgba(255, 146, 0, 0.42) 0%,
+        rgba(255, 146, 0, 0.12) 35%,
+        transparent 72%
+      );
     opacity: 0;
-    transition: opacity 180ms ease;
-  }
-  
-  .neural-node-container:hover .neural-node-portrait,
-  .neural-node-container:focus-visible .neural-node-portrait {
-    transform: scale(1.08);
-    box-shadow: 0 0 0 1px rgba(255,146,0,.35), 0 0 35px rgba(255,120,0,.2);
-  }
-  
-  .neural-node-container:hover .neural-node-glow,
-  .neural-node-container:focus-visible .neural-node-glow {
-    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 1;
+    pointer-events: none;
   }
   
   .neural-node-info {
     position: absolute;
-    top: calc(100% - 2px);
+    top: calc(100% + 14px);
     left: 50%;
-    width: max-content;
-    max-width: 170px;
     transform: translateX(-50%);
     text-align: center;
-  }
-  
-  .neural-node-name,
-  .neural-node-role {
-    display: block;
+    width: max-content;
+    pointer-events: none;
   }
   
   .neural-node-name {
-    color: rgba(255,255,255,.9);
-    font-size: 11px;
+    font-size: 0.75rem;
     font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
   }
   
   .neural-node-role {
-    margin-top: 4px;
-    color: rgba(255,146,0,.72);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 7px;
-    letter-spacing: .09em;
+    font-size: 0.55rem;
+    color: rgba(255, 146, 0, 0.8);
+    letter-spacing: 0.1em;
     text-transform: uppercase;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+  
+  /* Hover is visual only. It does not move the node itself. */
+  
+  .neural-node-container:hover .neural-node-ring {
+    border-color: rgba(255, 146, 0, 0.82);
+    box-shadow:
+      0 0 25px rgba(255, 146, 0, 0.4),
+      inset 0 0 12px rgba(255, 146, 0, 0.08);
+  }
+  
+  .neural-node-container:hover .neural-node-glow {
+    opacity: 1;
+  }
+  
+  .neural-node-container:hover .neural-node-portrait {
+    transform: scale(1.05);
+    filter: saturate(1.08);
+  }
+  
+  /* ---------------------------------------------------------
+     PERFORMANCE / ACCESSIBILITY
+     --------------------------------------------------------- */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .aura-reactor-glow,
+    .aura-ring-outer,
+    .aura-ring-inner,
+    .aura-ring-dashed,
+    .aura-vortex-particle {
+      animation: none !important;
+    }
+  
+    .neural-node-portrait,
+    .neural-node-ring,
+    .neural-node-glow {
+      transition: none !important;
+    }
+  }
+  
+  @media (max-width: 767px) {
+    .aura-core {
+      width: 160px;
+      height: 160px;
+    }
+  
+    .neural-node-container {
+      min-width: 0;
+    }
   }
   
   .mobile-network {
