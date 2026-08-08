@@ -3,6 +3,11 @@ import { motion, useReducedMotion, AnimatePresence, useScroll, useSpring, useTra
 import { ArrowLeft, Sparkles, Fingerprint, Activity, Network, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedAuraCore } from '../components/AnimatedAuraCore';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+
+gsap.registerPlugin(useGSAP, MotionPathPlugin);
 
 const teamMembers = [
   { name: 'Vedant Shah', image: '/vedant-shah.jpg', linkedin: 'https://www.linkedin.com/in/vedant-shah-07a87331a/', github: 'https://github.com/Vedant-1016', bio: 'Building at the intersection of Machine Learning, NLP, RL, RAG and Deep Learning. Driven to challenge and redesign systems with a focus on intelligence and scalability.' },
@@ -304,19 +309,241 @@ const AuraPage = () => {
   const px = useSpring(mousePosition.nX * 20, { damping: 30, stiffness: 100 });
   const py = useSpring(mousePosition.nY * 20, { damping: 30, stiffness: 100 });
 
-  const [hoveredNode, setHoveredNode] = useState<number | null>(null);
-  const [coreHit, setCoreHit] = useState(0);
-  const [isCoreHovered, setIsCoreHovered] = useState(false);
-  const [triggerOutward, setTriggerOutward] = useState<number | null>(null);
-
-  const handleCoreHit = useCallback(() => {
-    setCoreHit(c => c + 1);
-    setTimeout(() => {
-      setTriggerOutward(Math.floor(Math.random() * nodes.length));
-      setTimeout(() => setTriggerOutward(null), 100);
-    }, 300);
-  }, []);
   const [selectedNode, setSelectedNode] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    if (!containerRef.current) return;
+    const network = containerRef.current;
+    const svg = network.querySelector('#flowSvg') as SVGSVGElement;
+    const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
+    const particleContainer = network.querySelector('#particles') as SVGGElement;
+    const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
+    const auraPulse = network.querySelector('.aura-pulse') as HTMLDivElement;
+    const cards = Array.from(network.querySelectorAll('.person-card')) as HTMLElement[];
+
+    const CONFIG = {
+      particleCount: 3,
+      minDuration: 2.2,
+      maxDuration: 3.6,
+      pathCurvature: 0.25,
+      pulseDuration: 0.8
+    };
+
+    let connections: any[] = [];
+    let animations: any[] = [];
+    let resizeTimer: any;
+
+    function getCenter(element: HTMLElement) {
+      const networkRect = network.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2 - networkRect.left,
+        y: rect.top + rect.height / 2 - networkRect.top
+      };
+    }
+
+    function getCardAnchor(card: HTMLElement, auraPoint: {x: number, y: number}) {
+      const networkRect = network.getBoundingClientRect();
+      const rect = card.getBoundingClientRect();
+      const cardCenter = {
+        x: rect.left + rect.width / 2 - networkRect.left,
+        y: rect.top + rect.height / 2 - networkRect.top
+      };
+      const dx = auraPoint.x - cardCenter.x;
+      const dy = auraPoint.y - cardCenter.y;
+      const halfWidth = rect.width / 2;
+      const halfHeight = rect.height / 2;
+      const scaleX = halfWidth / Math.abs(dx || 0.001);
+      const scaleY = halfHeight / Math.abs(dy || 0.001);
+      const scale = Math.min(scaleX, scaleY);
+      return {
+        x: cardCenter.x + dx * scale,
+        y: cardCenter.y + dy * scale
+      };
+    }
+
+    function createPath(start: any, end: any) {
+      const dx = end.x - start.x;
+      const dy = end.y - start.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      const px = -dy / distance;
+      const py = dx / distance;
+      const curve = Math.min(distance * CONFIG.pathCurvature, 150);
+      const direction = start.x < end.x ? 1 : -1;
+      const control1 = {
+        x: start.x + dx * 0.35 + px * curve * direction,
+        y: start.y + dy * 0.35 + py * curve * direction
+      };
+      const control2 = {
+        x: start.x + dx * 0.75 + px * curve * direction,
+        y: start.y + dy * 0.75 + py * curve * direction
+      };
+      return { start, control1, control2, end };
+    }
+
+    function pathToD(path: any) {
+      return `M ${path.start.x} ${path.start.y} C ${path.control1.x} ${path.control1.y} ${path.control2.x} ${path.control2.y} ${path.end.x} ${path.end.y}`;
+    }
+
+    function createSvgPath(path: any, className: string) {
+      const element = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      element.setAttribute("d", pathToD(path));
+      element.setAttribute("class", className);
+      return element;
+    }
+
+    function createParticle() {
+      const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      group.classList.add("particle-group");
+      
+      const glow = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      glow.setAttribute("r", "7");
+      glow.setAttribute("fill", "#ff8f00");
+      glow.setAttribute("opacity", "0.35");
+      glow.setAttribute("filter", "url(#particleGlow)");
+      
+      const core = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      core.setAttribute("r", "2.7");
+      core.setAttribute("fill", "#fff2d0");
+      
+      group.appendChild(glow);
+      group.appendChild(core);
+      particleContainer.appendChild(group);
+      return group;
+    }
+
+    function triggerAuraPulse() {
+      gsap.killTweensOf(auraPulse);
+      gsap.set(auraPulse, { scale: 0.35, opacity: 0 });
+      gsap.to(auraPulse, {
+        scale: 1.8,
+        opacity: 0.65,
+        duration: CONFIG.pulseDuration * 0.45,
+        ease: "power2.out",
+        onComplete() {
+          gsap.to(auraPulse, {
+            scale: 2.4,
+            opacity: 0,
+            duration: CONFIG.pulseDuration * 0.55,
+            ease: "power2.out"
+          });
+        }
+      });
+
+      gsap.fromTo(auraCore, 
+        { filter: "brightness(1)" },
+        { filter: "brightness(1.45)", duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" }
+      );
+    }
+
+    function animateParticle(particle: SVGElement, pathElement: SVGElement, reverse = false, delay = 0) {
+      const duration = gsap.utils.random(CONFIG.minDuration, CONFIG.maxDuration);
+      const start = reverse ? 1 : 0;
+      const end = reverse ? 0 : 1;
+
+      gsap.set(particle, { opacity: 0, scale: 0.5 });
+
+      const timeline = gsap.timeline({ repeat: -1, delay: delay });
+      timeline.to(particle, { opacity: 1, scale: 1, duration: 0.18, ease: "power2.out" });
+      timeline.to(particle, {
+        duration,
+        ease: "none",
+        motionPath: {
+          path: pathElement,
+          align: pathElement,
+          autoRotate: false,
+          start,
+          end
+        },
+        onComplete: reverse ? undefined : triggerAuraPulse
+      });
+      timeline.to(particle, { opacity: 0, scale: 0.35, duration: 0.18, ease: "power2.in" });
+      animations.push(timeline);
+    }
+
+    function highlightConnection(card: HTMLElement) {
+      connections.filter(c => c.card === card).forEach(c => {
+        gsap.to(c.activePath, { opacity: 1, stroke: "rgba(255,145,0,0.8)", strokeWidth: 2.5, duration: 0.35 });
+      });
+      triggerAuraPulse();
+    }
+
+    function resetConnection(card: HTMLElement) {
+      connections.filter(c => c.card === card).forEach(c => {
+        gsap.to(c.activePath, { opacity: 1, stroke: "rgba(255,145,0,0.22)", strokeWidth: 1.4, duration: 0.5 });
+      });
+    }
+
+    function createConnection(card: HTMLElement, auraPoint: any, index: number) {
+      const cardPoint = getCardAnchor(card, auraPoint);
+      const curve = createPath(cardPoint, auraPoint);
+      const basePath = createSvgPath(curve, "flow-base");
+      const activePath = createSvgPath(curve, "flow-active");
+      
+      pathContainer.appendChild(basePath);
+      pathContainer.appendChild(activePath);
+
+      for (let i = 0; i < CONFIG.particleCount; i++) {
+        const particle = createParticle();
+        const delay = index * 0.4 + i * 0.9;
+        animateParticle(particle, activePath, false, delay);
+      }
+
+      const responseParticle = createParticle();
+      animateParticle(responseParticle, activePath, true, index * 1.5 + 2);
+
+      connections.push({ card, basePath, activePath, curve });
+
+      card.addEventListener("mouseenter", () => highlightConnection(card));
+      card.addEventListener("mouseleave", () => resetConnection(card));
+    }
+
+    function clearNetwork() {
+      animations.forEach(a => a.kill());
+      animations = [];
+      pathContainer.innerHTML = "";
+      particleContainer.innerHTML = "";
+      connections = [];
+    }
+
+    function buildNetwork() {
+      clearNetwork();
+      const auraPoint = getCenter(auraCore);
+      cards.forEach((card, index) => {
+        createConnection(card, auraPoint, index);
+      });
+    }
+
+    function animateFlowLines() {
+      gsap.to(".flow-active", { strokeDashoffset: -80, duration: 2.5, ease: "none", repeat: -1 });
+    }
+
+    function init() {
+      const rect = network.getBoundingClientRect();
+      svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
+      buildNetwork();
+      animateFlowLines();
+    }
+
+    function handleResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        buildNetwork();
+      }, 150);
+    }
+
+    window.addEventListener("resize", handleResize);
+    
+    // Slight delay to ensure DOM is fully laid out
+    setTimeout(init, 300);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearNetwork();
+    };
+  }, { scope: containerRef });
+
 
   const nodes = teamMembers.map((member, i) => {
     const angle = (i * Math.PI * 2) / teamMembers.length - Math.PI / 2;
@@ -466,42 +693,37 @@ const AuraPage = () => {
                 <motion.p initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="text-white/50 text-xl font-serif italic">The minds behind AURA.</motion.p>
               </div>
 
-              <div className="hidden md:block relative w-full max-w-[1000px] mx-auto aspect-square">
-                <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+              <div ref={containerRef} className="hidden md:block relative w-full max-w-[1000px] mx-auto aspect-square">
+                <svg id="flowSvg" className="flow-svg" preserveAspectRatio="none">
                   <defs>
-                    <linearGradient id="gradient-active" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#f97316" stopOpacity="1" />
-                      <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
-                    </linearGradient>
-                    <linearGradient id="gradient-inactive" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.2" />
-                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-                    </linearGradient>
+                    <filter id="flowGlow">
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                    <filter id="particleGlow">
+                      <feGaussianBlur stdDeviation="5" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
                   </defs>
-                  
-                  {nodes.map((node, i) => (
-                    <NeuralConnection 
-                      key={`curve-${i}`} startX={50} startY={50} endX={node.x} endY={node.y} 
-                      isActive={hoveredNode === i || selectedNode === i} 
-                      onHit={handleCoreHit} 
-                      index={i} 
-                      triggerOutward={triggerOutward} 
-                    />
-                  ))}
+                  <g id="flowPaths"></g>
+                  <g id="particles"></g>
                 </svg>
 
-                {/* Core Node */}
-                <div onMouseEnter={() => setIsCoreHovered(true)} onMouseLeave={() => setIsCoreHovered(false)} className="absolute top-1/2 left-1/2 w-40 h-40 z-20 pointer-events-auto cursor-pointer" style={{ transform: "translate(-50%, -50%)" }}>
-                    <AnimatedAuraCore hitCount={coreHit} isHovered={isCoreHovered} />
-                </div>
+                <AnimatedAuraCore />
 
                 {/* Floating Member Cards */}
                 {nodes.map((node, i) => {
-                  const isActive = hoveredNode === i || selectedNode === i;
+                  const isActive = selectedNode === i;
                   return (
                     <motion.div
                       key={node.name}
-                      className="absolute w-56 p-5 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center cursor-pointer z-10 shadow-2xl"
+                      className="person-card absolute w-56 p-5 rounded-3xl bg-black/40 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center cursor-pointer z-10 shadow-2xl"
                       style={{ left: `calc(${node.x}% - 7rem)`, top: `calc(${node.y}% - 4rem)` }}
                       animate={{
                         scale: isActive ? 1.05 : 1,
@@ -510,8 +732,6 @@ const AuraPage = () => {
                         y: [0, -8, 0]
                       }}
                       transition={{ y: { duration: 5 + (i % 3), repeat: Infinity, ease: 'easeInOut' }, default: { duration: 0.3 } }}
-                      onMouseEnter={() => setHoveredNode(i)}
-                      onMouseLeave={() => setHoveredNode(null)}
                       onClick={() => setSelectedNode(i)}
                     >
                       <div className="w-16 h-16 rounded-full border border-white/20 mb-3 overflow-hidden bg-[#111]">
