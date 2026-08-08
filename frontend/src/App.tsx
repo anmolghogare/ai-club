@@ -21,6 +21,7 @@ import ScrollToTop from "./components/ScrollToTop.tsx";
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage.tsx"));
 const MyRegistrationsPage = lazy(() => import("./pages/MyRegistrationsPage.tsx"));
+const RoadmapDetailPage = lazy(() => import("./pages/RoadmapDetailPage.tsx"));
 
 const queryClient = new QueryClient();
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "placeholder_client_id_for_google_oauth_provider.apps.googleusercontent.com";
@@ -59,6 +60,13 @@ const App = () => (
             <Route path="/team" element={<TeamPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/aura" element={<AuraPage />} />
+
+            {/* ── Roadmap detail page ── */}
+            <Route path="/roadmaps/:slug" element={
+              <Suspense fallback={<Loader />}>
+                <RoadmapDetailPage />
+              </Suspense>
+            } />
 
             {/* ── Event detail page ── */}
             <Route path="/events/:id" element={
