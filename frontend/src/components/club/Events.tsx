@@ -1050,7 +1050,8 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               )}
 
               {(() => {
-                const isPastOrCompleted = selectedEvent.status === 'completed' || selectedEvent.status === 'registration_closed' || !(selectedEvent as any).registration_start;
+                const evStatus = selectedEvent.status;
+                const isPastOrCompleted = evStatus === 'completed' || evStatus === 'registration_closed' || !evStatus;
                 return (
                   <>
                     <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
