@@ -187,7 +187,7 @@ function PhaseSection({
                   {phase.phase}
                 </span>
 
-                {phase.duration && (
+                {phase.duration && phase.duration !== "TBD" && (
                   <>
                     <span className="text-border">
                       /
