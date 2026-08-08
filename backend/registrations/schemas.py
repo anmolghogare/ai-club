@@ -126,19 +126,20 @@ class UploadedFileResponse(BaseModel):
 class RegistrationResponseItem(BaseModel):
     """One field → value pair in a completed registration."""
     field_id:    int
-    value:       Optional[Any]   # str or list[str] for checkbox; None if unanswered
+    value:       Optional[Any] = None  # str or list[str] for checkbox; None if unanswered
 
+    model_config = {"from_attributes": True}
+
+    @field_validator("value", mode="before")
     @classmethod
-    def from_orm(cls, resp) -> "RegistrationResponseItem":
+    def deserialize_checkbox_json(cls, v: Any) -> Any:
         """Deserialize checkbox JSON arrays stored in TEXT column."""
-        raw = resp.value
-        parsed: Any = raw
-        if raw and raw.startswith("["):
+        if isinstance(v, str) and v.startswith("["):
             try:
-                parsed = json.loads(raw)
+                return json.loads(v)
             except (json.JSONDecodeError, TypeError):
                 pass
-        return cls(field_id=resp.field_id, value=parsed)
+        return v
 
 
 class RegistrationDetail(BaseModel):
