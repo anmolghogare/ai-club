@@ -172,6 +172,10 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
 
   // Countdown timer for next event based on real database featured event
   useEffect(() => {
+    if (!featured) {
+      setTimeLeft({ d: '00', h: '00', m: '00', s: '00' });
+      return;
+    }
     const rawDate = featured.event_start_date || featured.event_date;
     if (!rawDate) {
       setTimeLeft({ d: '00', h: '00', m: '00', s: '00' });
