@@ -212,6 +212,8 @@ const AuraPage = () => {
     if (!network) return;
 
     let resizeTimer: ReturnType<typeof setTimeout>;
+    let timelines: gsap.core.Timeline[] = [];
+    
     const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
     const particleContainer = network.querySelector('#particles') as SVGGElement;
     const auraCore = network.querySelector('#auraCore') as HTMLDivElement;
@@ -281,6 +283,10 @@ const AuraPage = () => {
     }
 
     function buildNetwork() {
+      // Kill previous timelines before rebuilding
+      timelines.forEach(tl => tl.kill());
+      timelines = [];
+
       if (pathContainer) pathContainer.innerHTML = "";
       if (particleContainer) particleContainer.innerHTML = "";
       
@@ -294,7 +300,7 @@ const AuraPage = () => {
       if (auraP.x === 0 && auraP.y === 0) return;
       
       cards.forEach(card => {
-        gsap.to(card, {
+        const cardAnim1 = gsap.to(card, {
           y: "+=15",
           x: "+=" + (Math.random() > 0.5 ? 10 : -10),
           duration: 3 + Math.random() * 2,
@@ -302,15 +308,17 @@ const AuraPage = () => {
           repeat: -1,
           ease: "sine.inOut"
         });
+        timelines.push(cardAnim1 as any);
         
         // Ensure ring rotates constantly
         const ring = card.querySelector('.neural-node-ring');
-        gsap.to(ring, {
+        const cardAnim2 = gsap.to(ring, {
           rotation: 360,
           duration: 10 + Math.random() * 5,
           repeat: -1,
           ease: "none"
         });
+        timelines.push(cardAnim2 as any);
 
         card.addEventListener('mouseenter', () => {
           gsap.to(auraCore, { filter: "brightness(1.3)", duration: 0.3 });
@@ -370,6 +378,7 @@ const AuraPage = () => {
 
       const animateFlow = (sequence: (number | string)[], delay: number, speedMult: number = 1) => {
         const tl = gsap.timeline({ repeat: -1, delay });
+        timelines.push(tl);
         
         for (let i = 0; i < sequence.length - 1; i++) {
           const fromIdx = sequence[i];
@@ -435,14 +444,23 @@ const AuraPage = () => {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         buildNetwork();
-      }, 300); // Wait longer for full layout
+      }, 100); 
     }
 
-    window.addEventListener("resize", handleResize);
-    setTimeout(handleResize, 500); // 500ms allows images to load and DOM to settle!
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0) {
+          handleResize();
+        }
+      }
+    });
+
+    resizeObserver.observe(network);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
+      timelines.forEach(tl => tl.kill());
+      clearTimeout(resizeTimer);
     };
   }, { scope: containerRef, dependencies: [teamMembers.length] });
 
