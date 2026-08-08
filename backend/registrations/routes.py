@@ -244,7 +244,6 @@ async def register_for_event_endpoint(
 
 @router.get(
     "/api/user/registrations",
-    response_model=UserRegistrationsResponse,
     status_code=status.HTTP_200_OK,
     summary="Get my registrations",
     description=(
@@ -257,17 +256,76 @@ async def get_my_registrations(
     db: AsyncSession = Depends(get_db),
 ):
     try:
+        from events.models import ClubEvent  # noqa: PLC0415
+
         details = await get_user_registrations(db, current_user.id)
-        return UserRegistrationsResponse(
-            total=len(details),
-            registrations=details,
-        )
+
+        # Collect all event_ids and field_ids we need to look up
+        event_ids = list({d.event_id for d in details})
+        field_ids = set()
+        for d in details:
+            for r in d.responses:
+                field_ids.add(r.field_id)
+
+        # Batch-fetch event titles
+        event_title_map: dict[int, str] = {}
+        if event_ids:
+            ev_result = await db.execute(
+                select(ClubEvent.id, ClubEvent.title).where(ClubEvent.id.in_(event_ids))
+            )
+            for eid, etitle in ev_result.all():
+                event_title_map[eid] = etitle or "Untitled Event"
+
+        # Batch-fetch field labels
+        field_label_map: dict[int, str] = {}
+        if field_ids:
+            fl_result = await db.execute(
+                select(FormField.id, FormField.label).where(FormField.id.in_(list(field_ids)))
+            )
+            for fid, flabel in fl_result.all():
+                field_label_map[fid] = flabel or f"Field {fid}"
+
+        # Build enriched response
+        enriched = []
+        for d in details:
+            # Build responses_flat: {label: value}
+            responses_flat: dict[str, any] = {}
+            for r in d.responses:
+                label = field_label_map.get(r.field_id, f"Field {r.field_id}")
+                responses_flat[label] = r.value
+
+            # Build uploaded_files with field_label
+            files_enriched = []
+            for uf in d.uploaded_files:
+                files_enriched.append({
+                    "id": uf.id,
+                    "field_label": field_label_map.get(uf.field_id, f"Field {uf.field_id}"),
+                    "file_url": uf.file_url,
+                    "original_name": uf.original_name,
+                })
+
+            enriched.append({
+                "id": d.id,
+                "event_id": d.event_id,
+                "event_title": event_title_map.get(d.event_id, "Unknown Event"),
+                "registered_at": d.registered_at.isoformat() if d.registered_at else None,
+                "responses_flat": responses_flat,
+                "team": {
+                    "id": d.team.id,
+                    "team_name": d.team.team_name,
+                    "members": [
+                        {"id": m.id, "member_name": m.member_name, "member_email": m.member_email}
+                        for m in d.team.members
+                    ],
+                } if d.team else None,
+                "uploaded_files": files_enriched,
+            })
+
+        return {"total": len(enriched), "registrations": enriched}
     except Exception as exc:
         logger.exception("Failed to fetch registrations for user_id=%d: %s", current_user.id, exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Could not fetch your registrations. Please try again.",
+            detail=f"Could not fetch your registrations: {type(exc).__name__}: {exc}",
         )
-
-
 
