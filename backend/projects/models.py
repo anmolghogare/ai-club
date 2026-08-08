@@ -15,6 +15,7 @@ class ClubProject(Base):
     description = Column(Text, nullable=True)
     tags        = Column(Text, nullable=True)  # JSON-serialised array of tags
     github_link = Column(String(255), nullable=True)
+    contributors = Column(Text, nullable=True)
     created_at  = Column(DateTime(timezone=True), default=_utcnow, nullable=False)
 
     def __repr__(self) -> str:

@@ -202,7 +202,8 @@ const Admin = () => {
     author_id: '' as string | number,
     description: '',
     tags: '',
-    github_link: ''
+    github_link: '',
+    contributors: ''
   });
 
   // Achievements States
@@ -972,14 +973,9 @@ const Admin = () => {
   const fetchAdminProjects = async () => {
     setLoadingProjects(true);
     try {
-      const { data, error } = await supabase
-        .from('club_projects')
-        .select('*')
-        .order('id', { ascending: false });
-      if (error) {
-        showToast('Failed to fetch projects list: ' + error.message, 'error');
-      } else {
-        // Parse tags if stored as JSON strings
+      const res = await fetch(getApiUrl('/api/projects'));
+      if (res.ok) {
+        const data = await res.json();
         const parsedData = (data || []).map((p: any) => {
           let tagsList = [];
           if (p.tags) {
@@ -998,6 +994,8 @@ const Admin = () => {
           };
         });
         setAdminProjects(parsedData);
+      } else {
+        showToast('Failed to fetch projects list', 'error');
       }
     } catch (e: any) {
       console.error(e);
@@ -1012,37 +1010,34 @@ const Admin = () => {
     setIsSubmitting(true);
     try {
       const isEdit = !!editingProject;
-
       const tagsList = projectForm.tags
         .split(',')
         .map(t => t.trim())
         .filter(t => t);
 
       const payload = {
-        title: projectForm.title,
-        author: projectForm.author,
+        title: projectForm.title.trim() || null,
+        author: projectForm.author.trim() || null,
         author_id: projectForm.author_id === '' ? null : Number(projectForm.author_id),
-        description: projectForm.description,
-        github_link: projectForm.github_link,
+        description: projectForm.description.trim() || null,
+        github_link: projectForm.github_link.trim() || null,
+        contributors: projectForm.contributors.trim() || null,
         tags: JSON.stringify(tagsList)
       };
 
-      let error;
-      if (isEdit) {
-        const { error: err } = await supabase
-          .from('club_projects')
-          .update(payload)
-          .eq('id', editingProject.id);
-        error = err;
-      } else {
-        const { error: err } = await supabase
-          .from('club_projects')
-          .insert([payload]);
-        error = err;
-      }
+      const url = isEdit ? getApiUrl(`/api/admin/projects/${editingProject.id}`) : getApiUrl('/api/admin/projects');
+      const method = isEdit ? 'PUT' : 'POST';
 
-      if (error) {
-        throw new Error(error.message);
+      const res = await fetch(url, {
+        method,
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to save project');
       }
 
       showToast(isEdit ? 'Project updated successfully!' : 'Project added successfully!', 'success');
@@ -1054,7 +1049,8 @@ const Admin = () => {
         author_id: '',
         description: '',
         tags: '',
-        github_link: ''
+        github_link: '',
+        contributors: ''
       });
       fetchAdminProjects();
     } catch (err: any) {
@@ -1072,7 +1068,8 @@ const Admin = () => {
       author_id: proj.author_id !== null ? proj.author_id : '',
       description: proj.description || '',
       tags: Array.isArray(proj.tags) ? proj.tags.join(', ') : '',
-      github_link: proj.github_link || proj.githubLink || ''
+      github_link: proj.github_link || proj.githubLink || '',
+      contributors: proj.contributors || ''
     });
     setIsProjectModalOpen(true);
   };
@@ -1083,15 +1080,17 @@ const Admin = () => {
       'Are you sure you want to delete this project? This will permanently remove it from the projects page.',
       async () => {
         try {
-          const { error } = await supabase
-            .from('club_projects')
-            .delete()
-            .eq('id', projectId);
-          if (!error) {
+          const res = await fetch(getApiUrl(`/api/admin/projects/${projectId}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+          });
+          if (res.ok) {
             showToast('Project deleted successfully.', 'success');
             fetchAdminProjects();
           } else {
-            showToast('Deletion failed: ' + error.message, 'error');
+            const data = await res.json().catch(() => ({}));
+            showToast('Deletion failed: ' + (data.detail || 'Server error'), 'error');
           }
         } catch (e: any) {
           showToast('Error: ' + e.message, 'error');
@@ -1105,12 +1104,13 @@ const Admin = () => {
   const fetchPastEvents = async () => {
     setLoadingPastEvents(true);
     try {
-      const { data, error } = await supabase
-        .from('past_events')
-        .select('*')
-        .order('sort_order', { ascending: false });
-      if (error) showToast('Failed to load past events: ' + error.message, 'error');
-      else setPastEvents(data || []);
+      const res = await fetch(getApiUrl('/api/past-events'));
+      if (res.ok) {
+        const data = await res.json();
+        setPastEvents(data || []);
+      } else {
+        showToast('Failed to load past events', 'error');
+      }
     } catch (e: any) {
       showToast('Error: ' + e.message, 'error');
     } finally {
@@ -1151,32 +1151,38 @@ const Admin = () => {
     try {
       const isEdit = !!editingPastEvent;
       const payload = {
-        title: pastEventForm.title.trim(),
-        description: pastEventForm.description.trim(),
-        category: pastEventForm.category,
-        date_label: pastEventForm.date_label.trim(),
-        image_url: pastEventForm.image_url.trim() || null,
-        speaker: pastEventForm.speaker.trim() || null,
-        participants: pastEventForm.participants !== '' ? Number(pastEventForm.participants) : null,
+        title: (pastEventForm.title || '').trim() || null,
+        description: (pastEventForm.description || '').trim() || null,
+        category: pastEventForm.category || 'workshop',
+        date_label: (pastEventForm.date_label || '').trim() || null,
+        image_url: (pastEventForm.image_url || '').trim() || null,
+        speaker: (pastEventForm.speaker || '').trim() || null,
+        participants: pastEventForm.participants !== '' && pastEventForm.participants !== null ? Number(pastEventForm.participants) : null,
         sort_order: Number(pastEventForm.sort_order || 0),
-        winners: pastEventForm.winners.trim() || null,
-        winner_link: pastEventForm.winner_link.trim() || null
+        winners: (pastEventForm.winners || '').trim() || null,
+        winner_link: (pastEventForm.winner_link || '').trim() || null
       };
-      let error;
-      if (isEdit) {
-        const { error: err } = await supabase.from('past_events').update(payload).eq('id', editingPastEvent.id);
-        error = err;
-      } else {
-        const { error: err } = await supabase.from('past_events').insert([payload]);
-        error = err;
+
+      const url = isEdit ? getApiUrl(`/api/admin/past-events/${editingPastEvent.id}`) : getApiUrl('/api/admin/past-events');
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(payload),
+        credentials: 'include'
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || 'Failed to save past event');
       }
-      if (error) throw new Error(error.message);
+
       showToast(isEdit ? 'Past event updated!' : 'Past event added!', 'success');
       setIsPastEventModalOpen(false);
       setEditingPastEvent(null);
       setPastEventForm({ title: '', description: '', category: 'workshop', date_label: '', image_url: '', speaker: '', participants: '', sort_order: 0, winners: '', winner_link: '' });
       fetchPastEvents();
-      fetchSupabaseCounts();
     } catch (err: any) {
       showToast(err.message || 'Error saving past event', 'error');
     } finally {
@@ -1206,9 +1212,22 @@ const Admin = () => {
       'Delete Past Event',
       'Remove this archived event permanently?',
       async () => {
-        const { error } = await supabase.from('past_events').delete().eq('id', id);
-        if (!error) { showToast('Past event deleted.', 'success'); fetchPastEvents(); fetchSupabaseCounts(); }
-        else showToast('Error: ' + error.message, 'error');
+        try {
+          const res = await fetch(getApiUrl(`/api/admin/past-events/${id}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+          });
+          if (res.ok) {
+            showToast('Past event deleted.', 'success');
+            fetchPastEvents();
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            showToast('Error: ' + (errData.detail || 'Server error'), 'error');
+          }
+        } catch (e: any) {
+          showToast('Error: ' + e.message, 'error');
+        }
       },
       true
     );
@@ -3035,6 +3054,17 @@ const Admin = () => {
                     onChange={(e) => setProjectForm({ ...projectForm, github_link: e.target.value })}
                     className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
                     placeholder="e.g. https://github.com/..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1">Contributors / Team Members (Optional)</label>
+                  <input
+                    type="text"
+                    value={projectForm.contributors}
+                    onChange={(e) => setProjectForm({ ...projectForm, contributors: e.target.value })}
+                    className="w-full bg-secondary border border-border rounded-lg px-4 py-2.5 text-sm text-foreground outline-none focus:border-primary transition-colors"
+                    placeholder="e.g. Anmol Ghogare, Saumya Tinna, Parth Agrawal"
                   />
                 </div>
 

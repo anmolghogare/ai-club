@@ -41,6 +41,11 @@ async def migrate():
         await conn.execute("ALTER TABLE club_projects ALTER COLUMN author DROP NOT NULL;")
         await conn.execute("ALTER TABLE club_projects ALTER COLUMN description DROP NOT NULL;")
         await conn.execute("ALTER TABLE club_projects ALTER COLUMN github_link DROP NOT NULL;")
+        try:
+            await conn.execute("ALTER TABLE club_projects ADD COLUMN IF NOT EXISTS contributors TEXT;")
+            print("Added contributors to club_projects")
+        except Exception as e:
+            print("contributors column error:", e)
 
         # 4. club_members
         print("Altering club_members...")
@@ -57,6 +62,16 @@ async def migrate():
             await conn.execute("ALTER TABLE club_resources ALTER COLUMN category DROP NOT NULL;")
         except asyncpg.exceptions.UndefinedTableError:
             print("club_resources table does not exist, skipping.")
+
+        # 6. past_events
+        print("Altering past_events...")
+        try:
+            await conn.execute("ALTER TABLE past_events ALTER COLUMN title DROP NOT NULL;")
+            await conn.execute("ALTER TABLE past_events ALTER COLUMN description DROP NOT NULL;")
+            await conn.execute("ALTER TABLE past_events ALTER COLUMN date_label DROP NOT NULL;")
+            await conn.execute("ALTER TABLE past_events ALTER COLUMN category DROP NOT NULL;")
+        except Exception as pe_err:
+            print("past_events table alter note:", pe_err)
 
         print("Migration complete!")
         await conn.close()

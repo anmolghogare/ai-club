@@ -11,6 +11,7 @@ export interface Project {
   description: string;
   tags: string[];
   githubLink: string;
+  contributors?: string;
 }
 
 export interface Track {
@@ -81,6 +82,7 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
             return {
               id: p.id, title: p.title, author: p.author, authorId: p.author_id,
               description: p.description, tags: tagsList, githubLink: p.github_link,
+              contributors: p.contributors,
             };
           });
           setProjectList(parsedData);
@@ -179,7 +181,9 @@ export default function Projects({ isHomepage = false }: { isHomepage?: boolean 
                   >
                     {p.title}
                   </h4>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: 'hsl(230,15%,50%)', marginBottom: '0.6rem' }}>by {p.author}</p>
+                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.78rem', color: 'hsl(230,15%,50%)', marginBottom: '0.6rem' }}>
+                    by {p.author}{p.contributors ? ` • Contributors: ${p.contributors}` : ''}
+                  </p>
                   <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '0.85rem', color: 'hsl(230,15%,38%)', lineHeight: 1.6, marginBottom: '1rem' }}>{p.description}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '1rem' }}>
                     {p.tags.slice(0, 4).map((tag) => (

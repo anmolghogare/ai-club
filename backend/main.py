@@ -64,6 +64,10 @@ from tracks.routes import router as tracks_router
 from achievements.models import ClubAchievement
 from achievements.routes import router as achievements_router
 
+# ── Past Events module ─────────────────────────────────────────────────────
+from past_events.models import PastEvent
+from past_events.routes import router as past_events_router
+
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
@@ -142,6 +146,7 @@ app.include_router(projects_router)
 app.include_router(resources_router)
 app.include_router(roadmaps_router)
 app.include_router(tracks_router)
+app.include_router(past_events_router)
 
 # ── Stats Endpoint (Navbar) ────────────────────────────────────────────────
 from sqlalchemy.future import select
