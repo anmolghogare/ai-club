@@ -5,6 +5,12 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import { getApiUrl } from '../../lib/api';
 
+// Helper: build auth headers from localStorage token (needed for cross-origin cookie issues)
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 interface EventModel {
   id: number;
   title: string;
@@ -229,7 +235,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
         // Prepopulate default fields from backend profile
         let profile: any = {};
         try {
-          const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
+          const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include', headers: getAuthHeaders() });
           if (authRes.ok) {
             const authData = await authRes.json();
             if (authData.authenticated && authData.user) {
@@ -326,7 +332,7 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
     let currentUser = userProfile;
     if (!currentUser) {
       try {
-        const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include' });
+        const authRes = await fetch(getApiUrl('/api/auth/me'), { credentials: 'include', headers: getAuthHeaders() });
         if (authRes.ok) {
           const authData = await authRes.json();
           if (authData.authenticated && authData.user) {
@@ -394,13 +400,14 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
         res = await fetch(getApiUrl(apiPath), {
           method: 'POST',
           body: formDataPayload,
-          credentials: 'include'
+          credentials: 'include',
+          headers: getAuthHeaders()
         });
       } else {
         // Send as JSON
         res = await fetch(getApiUrl(apiPath), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
             responses: responses,
             team: teamInput
