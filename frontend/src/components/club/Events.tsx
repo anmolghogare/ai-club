@@ -711,8 +711,8 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                   >
                     <div>
                       {pe.image_url && (
-                        <div className="w-full h-44 mb-4 rounded-xl overflow-hidden bg-secondary">
-                          <img src={pe.image_url} alt={pe.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        <div className="w-full mb-4 rounded-xl overflow-hidden bg-secondary">
+                          <img src={pe.image_url} alt={pe.title} className="w-full object-contain group-hover:scale-105 transition-transform duration-500" style={{ maxHeight: '220px' }} />
                         </div>
                       )}
                       <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">{pe.category || 'Workshop'}</span>
@@ -923,8 +923,8 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                 >
                   <div>
                     {(card.banner || card.image_url) && (
-                      <div className="w-full h-44 mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
-                        <img src={card.banner || card.image_url} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div className="w-full mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
+                        <img src={card.banner || card.image_url} alt={card.title} className="w-full object-contain group-hover:scale-105 transition-transform duration-500" style={{ maxHeight: '220px' }} />
                       </div>
                     )}
                     <span className="font-mono text-[10px] tracking-widest uppercase px-3 py-1 rounded bg-primary/10 text-primary border border-primary/20">{card.category}</span>
@@ -1040,11 +1040,12 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               </button>
 
               {(selectedEvent.banner || (selectedEvent as any).image_url) && (
-                <div className="w-full max-h-64 mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
+                <div className="w-full mb-4 rounded-xl overflow-hidden bg-secondary border border-border/50">
                   <img
                     src={selectedEvent.banner || (selectedEvent as any).image_url}
                     alt={selectedEvent.title}
-                    className="w-full h-full object-cover max-h-64"
+                    className="w-full object-contain"
+                    style={{ maxHeight: '320px' }}
                   />
                 </div>
               )}
