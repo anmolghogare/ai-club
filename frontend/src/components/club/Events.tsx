@@ -1049,35 +1049,48 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                 </div>
               )}
 
-              <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
-              <p className="text-xs text-muted-foreground mb-4">Event Details & Registration</p>
+              {(() => {
+                const isPastOrCompleted = selectedEvent.status === 'completed' || selectedEvent.status === 'registration_closed' || !(selectedEvent as any).registration_start;
+                return (
+                  <>
+                    <h3 className="font-display font-extrabold text-foreground text-xl mb-1">{selectedEvent.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      {isPastOrCompleted ? 'Event Details' : 'Event Details & Registration'}
+                    </p>
 
-              {submitMessage && (
-                <div
-                  className={`p-3 rounded-lg text-xs font-medium mb-4 ${
-                    submitMessage.type === 'success' ? 'bg-accent/10 border border-accent/20 text-accent' : 'bg-destructive/10 border border-destructive/20 text-destructive'
-                  }`}
-                >
-                  {submitMessage.text}
-                </div>
-              )}
+                    {isPastOrCompleted ? (
+                      <div className="p-4 rounded-lg bg-secondary/50 border border-border/50 text-center">
+                        <p className="text-sm font-medium text-muted-foreground">This event has ended.</p>
+                        <p className="text-xs text-muted-foreground/70 mt-1">Registration is no longer available.</p>
+                      </div>
+                    ) : (
+                      <>
+                        {submitMessage && (
+                          <div
+                            className={`p-3 rounded-lg text-xs font-medium mb-4 ${
+                              submitMessage.type === 'success' ? 'bg-accent/10 border border-accent/20 text-accent' : 'bg-destructive/10 border border-destructive/20 text-destructive'
+                            }`}
+                          >
+                            {submitMessage.text}
+                          </div>
+                        )}
 
-              {loadingSchema ? (
-                <div className="flex flex-col items-center justify-center py-12 gap-3">
-                  <Loader2 className="animate-spin text-primary" size={24} />
-                  <span className="text-xs text-muted-foreground">Loading registration fields...</span>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
+                        {loadingSchema ? (
+                          <div className="flex flex-col items-center justify-center py-12 gap-3">
+                            <Loader2 className="animate-spin text-primary" size={24} />
+                            <span className="text-xs text-muted-foreground">Loading registration fields...</span>
+                          </div>
+                        ) : (
+                          <form onSubmit={handleSubmit} className="space-y-4">
                   
-                  {/* DYNAMIC FORM FIELDS */}
-                  {formFields.map((field) => {
-                    const isRequired = field.required;
-                    return (
-                      <div key={field.id}>
-                        <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">
-                          {field.label} {isRequired && <span className="text-destructive">*</span>}
-                        </label>
+                            {/* DYNAMIC FORM FIELDS */}
+                            {formFields.map((field) => {
+                              const isRequired = field.required;
+                              return (
+                                <div key={field.id}>
+                                  <label className="block text-xs font-mono tracking-wider text-muted-foreground uppercase mb-1">
+                                    {field.label} {isRequired && <span className="text-destructive">*</span>}
+                                  </label>
 
                         {/* File Upload Field */}
                         {field.field_type === 'file' ? (
@@ -1259,8 +1272,13 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
                       )}
                     </button>
                   </div>
-                </form>
-              )}
+                          </form>
+                        )}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
             </motion.div>
           </div>
         )}
