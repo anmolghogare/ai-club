@@ -7,7 +7,7 @@ import {
 import { getApiUrl } from '../../lib/api';
 
 const IconMap: Record<string, React.ElementType> = {
-  BookOpen, BarChart3, Layers, Cpu, Code2, Bot, Sparkles, Network, Zap
+  BookOpen, BarChart3, Layers, Cpu, Code2, Bot, Sparkles, Network, Zap, Brain
 };
 
 type RoadmapPhase = {
@@ -18,6 +18,19 @@ type RoadmapPhase = {
   icon: React.ElementType;
   topics: string[];
 };
+
+const ROADMAP_CONFIG: Record<string, { title: string; subtitle: string; icon: React.ElementType; gradient: string }> = {
+  ML: { title: "Machine Learning", subtitle: "End-to-End ML Framework", icon: Brain, gradient: "from-blue-500 to-indigo-500" },
+  DL: { title: "Deep Learning", subtitle: "Neural Networks & architectures", icon: Cpu, gradient: "from-emerald-500 to-teal-500" },
+  RL: { title: "Reinforcement Learning", subtitle: "Agents & Environments", icon: Network, gradient: "from-rose-500 to-orange-500" },
+  GENAI: { title: "Generative AI", subtitle: "GenAI & LLMs", icon: Sparkles, gradient: "from-fuchsia-500 to-rose-500" },
+  AGENTIC: { title: "Agentic AI", subtitle: "AI Agents & Multi-Agent", icon: Bot, gradient: "from-amber-500 to-yellow-500" },
+  TRANSFORMER: { title: "Transformers", subtitle: "Attention & Sequence Models", icon: Layers, gradient: "from-indigo-500 to-purple-500" },
+  LLM: { title: "Large Language Models", subtitle: "LLM Arch & Optimization", icon: Code2, gradient: "from-cyan-500 to-blue-500" },
+  NLP: { title: "Natural Language Processing", subtitle: "Text & Language basics", icon: BookOpen, gradient: "from-teal-500 to-emerald-500" }
+};
+
+const ROADMAP_ORDER = ['ML', 'DL', 'RL', 'NLP', 'TRANSFORMER', 'GENAI', 'LLM', 'AGENTIC'];
 
 /* ─── PHASE CARD ─────────────────────────────────────────────────── */
 
@@ -113,6 +126,8 @@ function RoadmapColumn({
   title: string; subtitle: string; icon: React.ElementType;
   gradient: string; data: RoadmapPhase[]; delay?: number;
 }) {
+  if (!data || data.length === 0) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -144,8 +159,7 @@ function RoadmapColumn({
 /* ─── MAIN COMPONENT ─────────────────────────────────────────────── */
 
 export default function Roadmap() {
-  const [mlRoadmap, setMlRoadmap] = useState<RoadmapPhase[]>([]);
-  const [genaiRoadmap, setGenaiRoadmap] = useState<RoadmapPhase[]>([]);
+  const [roadmaps, setRoadmaps] = useState<Record<string, RoadmapPhase[]>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -155,8 +169,7 @@ export default function Roadmap() {
         if (!res.ok) throw new Error('Failed to fetch roadmaps');
         const data = await res.json();
         
-        const ml: RoadmapPhase[] = [];
-        const genai: RoadmapPhase[] = [];
+        const grouped: Record<string, RoadmapPhase[]> = {};
         
         data.forEach((item: any) => {
           const parsedItem: RoadmapPhase = {
@@ -167,15 +180,13 @@ export default function Roadmap() {
             icon: IconMap[item.icon_name] || BookOpen,
             topics: item.topics || []
           };
-          if (item.roadmap_type === 'ML') {
-            ml.push(parsedItem);
-          } else if (item.roadmap_type === 'GENAI') {
-            genai.push(parsedItem);
+          if (!grouped[item.roadmap_type]) {
+            grouped[item.roadmap_type] = [];
           }
+          grouped[item.roadmap_type].push(parsedItem);
         });
         
-        setMlRoadmap(ml);
-        setGenaiRoadmap(genai);
+        setRoadmaps(grouped);
       } catch (err) {
         console.error("Failed to fetch roadmaps", err);
       } finally {
@@ -202,26 +213,25 @@ export default function Roadmap() {
         </h2>
         <p className="text-muted-foreground text-sm mb-14 max-w-xl leading-relaxed">
           Structured, phase-by-phase guides curated by AI Club DAIICT to take you from zero to
-          production-ready in Machine Learning and Generative AI.
+          production-ready across various domains in Artificial Intelligence.
         </p>
 
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-          <RoadmapColumn
-            title="Machine Learning"
-            subtitle="~6–7 months end-to-end"
-            icon={Brain}
-            gradient="from-blue-500 to-violet-500"
-            data={mlRoadmap}
-            delay={0}
-          />
-          <RoadmapColumn
-            title="Generative AI"
-            subtitle="~4–5 months end-to-end"
-            icon={Sparkles}
-            gradient="from-fuchsia-500 to-rose-500"
-            data={genaiRoadmap}
-            delay={0.15}
-          />
+          {ROADMAP_ORDER.map((type, i) => {
+            const config = ROADMAP_CONFIG[type];
+            if (!config) return null;
+            return (
+              <RoadmapColumn
+                key={type}
+                title={config.title}
+                subtitle={config.subtitle}
+                icon={config.icon}
+                gradient={config.gradient}
+                data={roadmaps[type]}
+                delay={i % 2 === 0 ? 0 : 0.15}
+              />
+            );
+          })}
         </div>
       </motion.div>
     </section>

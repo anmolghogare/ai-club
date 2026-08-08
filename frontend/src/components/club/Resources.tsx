@@ -6,6 +6,10 @@ const typeColors: Record<string, string> = {
   COURSE: 'hsl(243, 75%, 59%)',
   BOOK: 'hsl(243, 75%, 59%)',
   PAPER: 'hsl(330, 45%, 50%)',
+  PAPERS: 'hsl(330, 45%, 50%)',
+  ESSAYS: 'hsl(200, 75%, 50%)',
+  TOOLS: 'hsl(150, 60%, 45%)',
+  DATA: 'hsl(40, 80%, 55%)',
 };
 
 type ResourceItem = {

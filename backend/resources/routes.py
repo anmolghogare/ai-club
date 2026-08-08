@@ -12,6 +12,6 @@ router = APIRouter(prefix="/api/resources", tags=["Resources"])
 @router.get("", response_model=List[ClubResourceResponse])
 async def list_resources(db: AsyncSession = Depends(get_db)):
     result = await db.execute(
-        select(ClubResource).order_by(ClubResource.group_name.asc(), ClubResource.order_no.asc())
+        select(ClubResource).order_by(ClubResource.order_no.asc())
     )
     return result.scalars().all()
