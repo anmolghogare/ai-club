@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, useReducedMotion, AnimatePresence, useScroll, useSpring, useTransform, useAnimationFrame, useInView } from 'framer-motion';
-import { ArrowLeft, Sparkles, Fingerprint, Activity, Network, X } from 'lucide-react';
+import { ArrowLeft, Activity, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AnimatedAuraCore } from '../components/AnimatedAuraCore';
 import gsap from 'gsap';
@@ -192,111 +192,6 @@ const AnimatedCounter = ({ value, duration = 2 }: { value: string, duration?: nu
   return <motion.span ref={ref}>{displayValue}</motion.span>;
 };
 
-const NeuralConnection = ({ startX, startY, endX, endY, isActive, onHit, index, triggerOutward }: any) => {
-  const [particles, setParticles] = useState<{ id: string, direction: 'in' | 'out' }[]>([]);
-
-  // Independent staggered inbound spawner
-  useEffect(() => {
-    let interval: any;
-    const startDelay = index * 400; // Staggered start
-    
-    const timeout = setTimeout(() => {
-      interval = setInterval(() => {
-        // Higher probability if hovered
-        if (Math.random() > (isActive ? 0.3 : 0.8)) {
-          const id = Date.now().toString() + 'in';
-          setParticles(p => [...p, { id, direction: 'in' }]);
-          
-          setTimeout(() => {
-            setParticles(p => p.filter(x => x.id !== id));
-            onHit(); // Particle reached core
-          }, 1200);
-        }
-      }, isActive ? 1200 : 3500);
-    }, startDelay);
-
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, [isActive, onHit, index]);
-
-  // Outward response listener
-  useEffect(() => {
-    if (triggerOutward === index) {
-      const id = Date.now().toString() + 'out';
-      setParticles(p => [...p, { id, direction: 'out' }]);
-      setTimeout(() => {
-        setParticles(p => p.filter(x => x.id !== id));
-      }, 1200);
-    }
-  }, [triggerOutward, index]);
-
-  // Geometric Anchors
-  const dx = endX - startX;
-  const dy = endY - startY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  const dirX = dx / dist;
-  const dirY = dy / dist;
-
-  // Exact anchor points (Aura boundary radius ~10, Card boundary radius ~8 in 100x100 space)
-  const p1x = startX + dirX * 10;
-  const p1y = startY + dirY * 10;
-  const p2x = endX - dirX * 8;
-  const p2y = endY - dirY * 8;
-
-  // Tangential Bezier control point for an elegant curve
-  const angle = Math.atan2(p2y - p1y, p2x - p1x);
-  const offset = 8;
-  const cpX = (p1x + p2x) / 2 - Math.sin(angle) * offset;
-  const cpY = (p1y + p2y) / 2 + Math.cos(angle) * offset;
-  const path = `M ${p1x} ${p1y} Q ${cpX} ${cpY} ${p2x} ${p2y}`;
-
-  return (
-    <g>
-      {/* Layer 1: Very subtle base path */}
-      <path d={path} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.8" />
-      
-      {/* Layer 2: Moving Highlight Segments */}
-      <motion.path
-        d={path} fill="none" stroke={isActive ? "rgba(249,115,22,0.6)" : "rgba(249,115,22,0.2)"}
-        strokeWidth={isActive ? "1.5" : "1"}
-        strokeDasharray="2 8"
-        animate={{ strokeDashoffset: [100, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
-      />
-      
-      {/* Layer 3: Soft Glow on active path */}
-      <motion.path
-        d={path} fill="none" stroke="rgba(249,115,22,0.15)" strokeWidth="4"
-        style={{ filter: "blur(3px)" }}
-        animate={{ opacity: isActive ? [0.3, 0.6, 0.3] : 0.1 }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-      />
-
-      {/* Layer 4: Real Data Particles */}
-      <AnimatePresence>
-        {particles.map(p => (
-          <g key={p.id}>
-            {/* Secondary trailing energy */}
-            <motion.path
-              d={path} fill="none" stroke="rgba(249,115,22,0.5)" strokeWidth="1.5" strokeLinecap="round"
-              initial={{ pathLength: 0, pathOffset: p.direction === 'in' ? 1 : 0, opacity: 0 }}
-              animate={{ 
-                pathLength: 0.08, 
-                pathOffset: p.direction === 'in' ? [1, 0] : [0, 1], 
-                opacity: [0, 1, 1, 0] 
-              }}
-              transition={{ duration: 1.2, ease: "easeInOut", delay: 0.05 }}
-            />
-            {/* Primary bright core particle removed */}
-          </g>
-        ))}
-      </AnimatePresence>
-    </g>
-  );
-};
-
 const AuraPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -316,7 +211,7 @@ const AuraPage = () => {
     const network = containerRef.current;
     if (!network) return;
 
-    let resizeTimer: any;
+    let resizeTimer: ReturnType<typeof setTimeout>;
     const pathContainer = network.querySelector('#flowPaths') as SVGGElement;
     const particleContainer = network.querySelector('#particles') as SVGGElement;
     const auraCore = network.querySelector('#auraCore') as HTMLDivElement;

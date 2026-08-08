@@ -14,7 +14,7 @@ export const AnimatedAuraCore = () => {
       {/* Internal Spiral Particles */}
       <div className="aura-vortex absolute inset-0 rounded-full overflow-hidden">
         {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="aura-vortex-particle" style={{ '--i': i } as any}></div>
+          <div key={i} className="aura-vortex-particle" style={{ '--i': i } as React.CSSProperties}></div>
         ))}
       </div>
 
