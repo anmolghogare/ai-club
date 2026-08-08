@@ -3,7 +3,7 @@ import { Menu, X, LogOut, Shield, ChevronDown, ClipboardList, User } from 'lucid
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import { getApiUrl } from '../../lib/api';
-import aiClubLogo from '@/assets/ai-club-logo.jpeg';
+import aiClubLogo from '@/assets/ai-club-logo.png';
 
 interface UserProfile {
   name: string;

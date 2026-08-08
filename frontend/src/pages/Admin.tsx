@@ -873,6 +873,14 @@ const Admin = () => {
       }
 
       const sorted = [...(membersData || [])].sort((a, b) => {
+        const orderA = a.order_no || 0;
+        const orderB = b.order_no || 0;
+        if (orderA !== orderB) {
+          if (orderA === 0) return 1;
+          if (orderB === 0) return -1;
+          return orderA - orderB;
+        }
+
         const rA = MEMBER_ROLE_ORDER[a.role] ?? 99;
         const rB = MEMBER_ROLE_ORDER[b.role] ?? 99;
         if (rA !== rB) return rA - rB;

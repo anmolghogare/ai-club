@@ -1,6 +1,6 @@
 import { Mail, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import aiClubLogo from '@/assets/ai-club-logo.jpeg';
+import aiClubLogo from '@/assets/ai-club-logo.png';
 
 const DiscordIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">

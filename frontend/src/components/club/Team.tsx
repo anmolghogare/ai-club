@@ -178,8 +178,16 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
         if (!res.ok) throw new Error('Failed to fetch members');
         const data = await res.json();
         
-        // Sort automatically by role hierarchy
+        // Sort automatically by order_no, then role hierarchy
         const sorted = [...data].sort((a, b) => {
+          const orderA = a.order_no || 0;
+          const orderB = b.order_no || 0;
+          if (orderA !== orderB) {
+            if (orderA === 0) return 1;
+            if (orderB === 0) return -1;
+            return orderA - orderB;
+          }
+
           const roleA = ROLE_ORDER[a.role] ?? 99;
           const roleB = ROLE_ORDER[b.role] ?? 99;
           if (roleA !== roleB) return roleA - roleB;

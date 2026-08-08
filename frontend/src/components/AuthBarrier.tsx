@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { Loader2, ShieldAlert } from "lucide-react";
-import aiClubLogo from "@/assets/ai-club-logo.jpeg";
+import aiClubLogo from "@/assets/ai-club-logo.png";
 import { getApiUrl } from "../lib/api";
 
 interface AuthBarrierProps {
