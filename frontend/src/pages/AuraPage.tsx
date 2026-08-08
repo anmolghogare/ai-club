@@ -284,18 +284,7 @@ const NeuralConnection = ({ startX, startY, endX, endY, isActive, onHit, index, 
               }}
               transition={{ duration: 1.2, ease: "easeInOut", delay: 0.05 }}
             />
-            {/* Primary bright core particle */}
-            <motion.path
-              d={path} fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"
-              style={{ filter: "drop-shadow(0 0 6px #f97316)" }}
-              initial={{ pathLength: 0, pathOffset: p.direction === 'in' ? 1 : 0, opacity: 0 }}
-              animate={{ 
-                pathLength: 0.015, 
-                pathOffset: p.direction === 'in' ? [1, 0] : [0, 1], 
-                opacity: [0, 1, 1, 0] 
-              }}
-              transition={{ duration: 1.2, ease: "easeInOut" }}
-            />
+            {/* Primary bright core particle removed */}
           </g>
         ))}
       </AnimatePresence>
