@@ -78,7 +78,8 @@ const LoadingSequence = ({ onComplete }: { onComplete: () => void }) => {
       <motion.div 
         animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
         transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full blur-[100px] bg-orange-600/20"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.2) 0%, rgba(234,88,12,0) 70%)' }}
       />
       <div className="relative z-10 flex flex-col items-center">
         <h1 className="text-6xl md:text-8xl font-bold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-200 mb-8 flex h-24">
@@ -349,12 +350,14 @@ const AuraPage = () => {
             <motion.div
               animate={{ x: ['-20%', '10%', '-20%'], y: ['-10%', '20%', '-10%'], scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
               transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute top-[10%] left-[20%] w-[50vw] h-[50vw] rounded-full blur-[150px] bg-orange-600/20 mix-blend-screen"
+              className="absolute top-[10%] left-[20%] w-[50vw] h-[50vw] rounded-full mix-blend-screen"
+              style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.2) 0%, rgba(234,88,12,0) 70%)' }}
             />
             <motion.div
               animate={{ x: ['20%', '-10%', '20%'], y: ['20%', '-20%', '20%'], scale: [1.2, 1, 1.2], opacity: [0.1, 0.2, 0.1] }}
               transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-              className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full blur-[180px] bg-amber-600/15 mix-blend-screen"
+              className="absolute bottom-[10%] right-[10%] w-[60vw] h-[60vw] rounded-full mix-blend-screen"
+              style={{ background: 'radial-gradient(circle, rgba(217,119,6,0.15) 0%, rgba(217,119,6,0) 70%)' }}
             />
             <FloatingParticles />
             <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-[#050505] z-10" />
@@ -402,7 +405,7 @@ const AuraPage = () => {
                   className="relative w-24 h-24 md:w-32 md:h-32 mb-10 flex items-center justify-center"
                 >
                   <motion.img src="/aura-logo.png" alt="AURA Mark" className="w-full h-full object-contain relative z-10" animate={{ y: [0, -8, 0] }} transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }} />
-                  <motion.div className="absolute inset-0 bg-orange-600/40 blur-[40px] rounded-full z-0" animate={{ opacity: [0.4, 0.8, 0.4], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} />
+                  <motion.div className="absolute inset-0 rounded-full z-0" style={{ background: 'radial-gradient(circle, rgba(234,88,12,0.4) 0%, rgba(234,88,12,0) 70%)' }} animate={{ opacity: [0.4, 0.8, 0.4], scale: [0.8, 1.2, 0.8] }} transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }} />
                 </motion.div>
 
                 <h1 className="text-6xl sm:text-7xl md:text-[96px] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-white to-white/50 mb-6 text-center leading-none flex overflow-hidden">

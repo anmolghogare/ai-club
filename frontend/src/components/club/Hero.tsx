@@ -26,8 +26,8 @@ export default function Hero() {
       className="relative min-h-screen pt-16 flex flex-col justify-between overflow-hidden bg-gradient-to-b from-slate-50 via-indigo-50/40 to-slate-100/80"
     >
       {/* Ambient background aura glows */}
-      <div className="absolute top-1/4 left-10 w-96 h-96 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none animate-pulse duration-[6000ms]" />
-      <div className="absolute top-1/3 right-12 w-[30rem] h-[30rem] bg-cyan-500/15 rounded-full blur-3xl pointer-events-none animate-pulse duration-[8000ms]" />
+      <div className="absolute top-1/4 left-10 w-96 h-96 rounded-full pointer-events-none animate-pulse duration-[6000ms]" style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0) 70%)' }} />
+      <div className="absolute top-1/3 right-12 w-[30rem] h-[30rem] rounded-full pointer-events-none animate-pulse duration-[8000ms]" style={{ background: 'radial-gradient(circle, rgba(6,182,212,0.15) 0%, rgba(6,182,212,0) 70%)' }} />
 
       {/* Main hero grid */}
       <div className="max-w-7xl mx-auto w-full px-6 pt-10 pb-10 flex-1 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center relative z-10">
@@ -140,7 +140,7 @@ export default function Hero() {
           className="lg:col-span-5 relative flex justify-center items-center"
         >
           <div className="w-full max-w-lg relative group flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-amber-500/20 to-yellow-500/20 rounded-3xl blur-3xl group-hover:blur-2xl transition-all duration-500 opacity-50 pointer-events-none" />
+            <div className="absolute inset-0 rounded-3xl transition-all duration-500 opacity-50 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.2) 0%, rgba(249,115,22,0) 70%)' }} />
             <div className="relative z-10 w-full transform scale-110 md:scale-125 pt-10">
               <AuraLogo />
             </div>
