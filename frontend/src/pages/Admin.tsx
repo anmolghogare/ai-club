@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import Navbar from '@/components/club/Navbar';
 import Footer from '@/components/club/Footer';
-import { Loader2, Download, Trash2, Calendar, Users, Award, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Loader2, Download, Trash2, Calendar, Users, Award, Newspaper, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight, Edit2, ArrowUp, ArrowDown } from \'lucide-react\';
 import { GoogleLogin } from '@react-oauth/google';
 import { supabase } from '../lib/supabase';
 import { getApiUrl } from '../lib/api';
@@ -43,7 +43,7 @@ interface AchievementModel {
 }
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements' | 'manageNews'>('dashboard');
 
   // Auth & Admin Guard State
   const [authState, setAuthState] = useState<{
@@ -399,6 +399,85 @@ const Admin = () => {
   };
 
 
+
+
+  // News States
+  const [newsList, setNewsList] = useState<any[]>([]);
+  const [loadingNews, setLoadingNews] = useState(false);
+  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
+  const [editingNews, setEditingNews] = useState<any | null>(null);
+  const [newsForm, setNewsForm] = useState({
+    title: '',
+    description: '',
+    link: '',
+    image_url: ''
+  });
+
+  const fetchNewsList = async () => {
+    setLoadingNews(true);
+    try {
+      const res = await fetch(getApiUrl('/api/news'));
+      if (res.ok) {
+        const data = await res.json();
+        setNewsList(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load news', e);
+    } finally {
+      setLoadingNews(false);
+    }
+  };
+
+  const handleNewsSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const url = editingNews ? getApiUrl(`/api/admin/news/${editingNews.id}`) : getApiUrl('/api/admin/news');
+      const method = editingNews ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: getAuthHeaders(),
+        body: JSON.stringify(newsForm),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        showToast(`News ${editingNews ? 'updated' : 'created'} successfully!`, 'success');
+        setIsNewsModalOpen(false);
+        fetchNewsList();
+      } else {
+        showToast('Failed to save news.', 'error');
+      }
+    } catch (err) {
+      showToast('Error saving news.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteNews = async (id: number) => {
+    openConfirm(
+      'Delete News',
+      'Are you sure you want to delete this news item?',
+      async () => {
+        try {
+          const res = await fetch(getApiUrl(`/api/admin/news/${id}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+          });
+          if (res.ok) {
+            showToast('News deleted successfully!', 'success');
+            fetchNewsList();
+          } else {
+            showToast('Failed to delete news.', 'error');
+          }
+        } catch (err) {
+          showToast('Error deleting news.', 'error');
+        }
+      },
+      true
+    );
+  };
 
   const checkAdminAuth = async () => {
     try {
@@ -1257,6 +1336,8 @@ const Admin = () => {
       fetchAdminProjects();
     } else if (activeTab === 'manageAchievements') {
       fetchAchievementsList();
+    } else if (activeTab === 'manageNews') {
+      fetchNewsList();
     } else if (activeTab === 'pastEvents') {
       fetchPastEvents();
     }
@@ -1514,6 +1595,7 @@ const Admin = () => {
                 { key: 'manageProjects', label: 'Projects', icon: <Settings size={16} /> },
                 { key: 'pastEvents', label: 'Past Events Archive', icon: <Archive size={16} /> },
                 { key: 'manageAchievements', label: 'Achievements', icon: <Award size={16} /> },
+                { key: 'manageNews', label: 'News', icon: <Newspaper size={16} /> },
               ] as { key: string; label: string; icon: any }[]).map((tab) => {
                 const isActive = activeTab === tab.key;
                 return (
@@ -1562,6 +1644,7 @@ const Admin = () => {
                   {activeTab === 'manageMembers' && 'Club Members Roster'}
                   {activeTab === 'manageProjects' && 'Collaborative Projects'}
                   {activeTab === 'manageAchievements' && 'Manage Achievements'}
+                  {activeTab === 'manageNews' && 'Manage News'}
                   {activeTab === 'pastEvents' && 'Past Events Archive'}
                 </h2>
               </div>
@@ -2625,6 +2708,92 @@ const Admin = () => {
                       </div>
                     </div>
                   )}
+                </motion.div>
+              )}
+              {activeTab === 'manageNews' && (
+                <motion.div key="manageNews" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800">News & Affairs</h2>
+                      <p className="text-slate-500">Manage news links and current affairs</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setEditingNews(null);
+                        setNewsForm({ title: '', description: '', link: '', image_url: '' });
+                        setIsNewsModalOpen(true);
+                      }}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
+                    >
+                      <Plus size={18} /> Add News
+                    </button>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    {loadingNews ? (
+                      <div className="p-12 text-center text-slate-500 flex flex-col items-center">
+                        <Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />
+                        <p>Loading news...</p>
+                      </div>
+                    ) : newsList.length === 0 ? (
+                      <div className="p-12 text-center text-slate-500">
+                        <Newspaper className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium text-slate-600 mb-1">No news items found</p>
+                        <p className="text-sm">Click 'Add News' to create your first one.</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
+                              <th className="p-4 py-3">Title</th>
+                              <th className="p-4 py-3">Link</th>
+                              <th className="p-4 py-3 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {newsList.map((n) => (
+                              <tr key={n.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td className="p-4 font-medium text-slate-800">
+                                  {n.title}
+                                </td>
+                                <td className="p-4 text-slate-600 text-sm">
+                                  <a href={n.link} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">
+                                    {n.link.substring(0, 40)}{n.link.length > 40 ? '...' : ''}
+                                  </a>
+                                </td>
+                                <td className="p-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingNews(n);
+                                        setNewsForm({
+                                          title: n.title || '',
+                                          description: n.description || '',
+                                          link: n.link || '',
+                                          image_url: n.image_url || ''
+                                        });
+                                        setIsNewsModalOpen(true);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteNews(n.id)}
+                                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
                 </motion.div>
               )}
               {activeTab === 'manageAchievements' && (

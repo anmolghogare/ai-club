@@ -11,6 +11,7 @@ import EventsPage from "./pages/EventsPage.tsx";
 import ProjectsPage from "./pages/ProjectsPage.tsx";
 import TeamPage from "./pages/TeamPage.tsx";
 import AchievementsPage from "./pages/AchievementsPage.tsx";
+import NewsPage from "./pages/NewsPage.tsx";
 import AuraPage from "./pages/AuraPage.tsx";
 import AuthBarrier from "./components/AuthBarrier.tsx";
 import Navbar from "./components/club/Navbar.tsx";
@@ -59,6 +60,7 @@ const App = () => (
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/team" element={<TeamPage />} />
             <Route path="/achievements" element={<AchievementsPage />} />
+            <Route path="/news" element={<NewsPage />} />
             <Route path="/aura" element={<AuraPage />} />
 
             {/* ── Roadmap detail page ── */}

@@ -20,6 +20,7 @@ interface NavCounts {
 
 const navItems = [
   { label: 'About', href: '/#about' },
+  { label: 'News', href: '/news', pagePath: '/news' },
   { label: 'Events', href: '/#events', pagePath: '/events' },
   { label: 'Projects', href: '/#projects', pagePath: '/projects' },
   { label: 'Resources', href: '/#resources' },
