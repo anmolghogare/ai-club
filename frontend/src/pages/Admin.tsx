@@ -3892,6 +3892,113 @@ const Admin = () => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* News Modal */}
+      <AnimatePresence>
+        {isNewsModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setIsNewsModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 className="text-xl font-bold text-slate-800">
+                  {editingNews ? 'Edit News' : 'Add News'}
+                </h3>
+                <button
+                  onClick={() => setIsNewsModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleNewsSubmit} className="p-6 space-y-5 text-left">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={newsForm.title}
+                    onChange={(e) => setNewsForm({ ...newsForm, title: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="Enter news title (optional)"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                  <textarea
+                    value={newsForm.description}
+                    onChange={(e) => setNewsForm({ ...newsForm, description: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm resize-none"
+                    placeholder="Enter news description (optional)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Link (LinkedIn, Article, etc.)</label>
+                  <input
+                    type="url"
+                    value={newsForm.link}
+                    onChange={(e) => setNewsForm({ ...newsForm, link: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="https://... (optional)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Sources</label>
+                  <input
+                    type="text"
+                    value={newsForm.sources}
+                    onChange={(e) => setNewsForm({ ...newsForm, sources: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="Enter sources if any (optional)"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
+                  <input
+                    type="url"
+                    value={newsForm.image_url}
+                    onChange={(e) => setNewsForm({ ...newsForm, image_url: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="https://... (optional)"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsNewsModalOpen(false)}
+                    className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={loadingNews}
+                    className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center disabled:opacity-50"
+                  >
+                    {loadingNews ? <Loader2 size={18} className="animate-spin" /> : editingNews ? 'Update News' : 'Add News'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
