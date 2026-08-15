@@ -23,6 +23,7 @@ const Admin = lazy(() => import("./pages/Admin.tsx"));
 const EventDetailPage = lazy(() => import("./pages/EventDetailPage.tsx"));
 const MyRegistrationsPage = lazy(() => import("./pages/MyRegistrationsPage.tsx"));
 const RoadmapDetailPage = lazy(() => import("./pages/RoadmapDetailPage.tsx"));
+const CurriculumPage = lazy(() => import("./pages/CurriculumPage.tsx"));
 
 const queryClient = new QueryClient();
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "placeholder_client_id_for_google_oauth_provider.apps.googleusercontent.com";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/achievements" element={<AchievementsPage />} />
             <Route path="/news" element={<NewsPage />} />
             <Route path="/aura" element={<AuraPage />} />
+            <Route path="/curriculum" element={<Suspense fallback={<Loader />}><CurriculumPage /></Suspense>} />
 
             {/* ── Roadmap detail page ── */}
             <Route path="/roadmaps/:slug" element={
