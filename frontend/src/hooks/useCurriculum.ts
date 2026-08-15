@@ -70,3 +70,91 @@ export function useToggleProgress() {
     },
   });
 }
+
+export function useResetProgress() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (token?: string) => {
+      const authToken = token || localStorage.getItem("access_token");
+      const res = await fetch(getApiUrl("/api/resources/reset"), {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to reset progress");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["curriculumProgress"],
+      });
+    },
+  });
+}
+
+export function useCreateResource() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: Omit<ClubResource, "id">) => {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(getApiUrl("/api/admin/resources"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to create resource");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["curriculumResources"] });
+    },
+  });
+}
+
+export function useUpdateResource() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: ClubResource) => {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(getApiUrl(`/api/admin/resources/${id}`), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to update resource");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["curriculumResources"] });
+    },
+  });
+}
+
+export function useDeleteResource() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      const res = await fetch(getApiUrl(`/api/admin/resources/${id}`), {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Failed to delete resource");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["curriculumResources"] });
+    },
+  });
+}
+

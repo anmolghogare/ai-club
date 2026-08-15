@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import Navbar from '@/components/club/Navbar';
 import Footer from '@/components/club/Footer';
-import { Loader2, Download, Trash2, Calendar, Users, Award, Newspaper, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight, Edit2, ArrowUp, ArrowDown, X } from 'lucide-react';
+import { Loader2, Download, Trash2, Calendar, Users, Award, Newspaper, Clipboard, Settings, Edit, Eye, FileText, Archive, Plus, Image, Link2, Tag, LayoutDashboard, LogOut, ChevronRight, Edit2, ArrowUp, ArrowDown, X, BookOpen } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 import { supabase } from '../lib/supabase';
 import { getApiUrl } from '../lib/api';
@@ -43,7 +43,7 @@ interface AchievementModel {
 }
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements' | 'manageNews'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements' | 'manageNews' | 'manageResources'>('dashboard');
 
   // Auth & Admin Guard State
   const [authState, setAuthState] = useState<{
@@ -429,6 +429,35 @@ const Admin = () => {
     }
   };
 
+  // Resources States
+  const [resourcesList, setResourcesList] = useState<any[]>([]);
+  const [loadingResources, setLoadingResources] = useState(false);
+  const [isResourceModalOpen, setIsResourceModalOpen] = useState(false);
+  const [editingResource, setEditingResource] = useState<any | null>(null);
+  const [resourceForm, setResourceForm] = useState({
+    title: '',
+    description: '',
+    resource_type: 'VIDEO',
+    url: '',
+    group_name: '',
+    order_no: 0
+  });
+
+  const fetchResourcesList = async () => {
+    setLoadingResources(true);
+    try {
+      const res = await fetch(getApiUrl('/api/resources'));
+      if (res.ok) {
+        const data = await res.json();
+        setResourcesList(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load resources', e);
+    } finally {
+      setLoadingResources(false);
+    }
+  };
+
   const handleNewsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -474,6 +503,60 @@ const Admin = () => {
           }
         } catch (err) {
           showToast('Error deleting news.', 'error');
+        }
+      },
+      true
+    );
+  };
+
+  const handleResourceSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const url = editingResource ? getApiUrl(`/api/admin/resources/${editingResource.id}`) : getApiUrl('/api/admin/resources');
+      const method = editingResource ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: {
+          ...getAuthHeaders(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(resourceForm),
+        credentials: 'include'
+      });
+      if (res.ok) {
+        showToast(`Resource ${editingResource ? 'updated' : 'created'} successfully!`, 'success');
+        setIsResourceModalOpen(false);
+        fetchResourcesList();
+      } else {
+        showToast('Failed to save resource.', 'error');
+      }
+    } catch (err) {
+      showToast('Error saving resource.', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteResource = async (id: number) => {
+    openConfirm(
+      'Delete Resource',
+      'Are you sure you want to delete this resource?',
+      async () => {
+        try {
+          const res = await fetch(getApiUrl(`/api/admin/resources/${id}`), {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+            credentials: 'include'
+          });
+          if (res.ok) {
+            showToast('Resource deleted successfully!', 'success');
+            fetchResourcesList();
+          } else {
+            showToast('Failed to delete resource.', 'error');
+          }
+        } catch (err) {
+          showToast('Error deleting resource.', 'error');
         }
       },
       true
@@ -1342,6 +1425,8 @@ const Admin = () => {
       fetchNewsList();
     } else if (activeTab === 'pastEvents') {
       fetchPastEvents();
+    } else if (activeTab === 'manageResources') {
+      fetchResourcesList();
     }
   }, [activeTab, selectedEventId, builderEventId]);
 
@@ -1598,6 +1683,7 @@ const Admin = () => {
                 { key: 'pastEvents', label: 'Past Events Archive', icon: <Archive size={16} /> },
                 { key: 'manageAchievements', label: 'Achievements', icon: <Award size={16} /> },
                 { key: 'manageNews', label: 'News', icon: <Newspaper size={16} /> },
+                { key: 'manageResources', label: 'Resources', icon: <BookOpen size={16} /> },
               ] as { key: string; label: string; icon: any }[]).map((tab) => {
                 const isActive = activeTab === tab.key;
                 return (
@@ -1647,6 +1733,7 @@ const Admin = () => {
                   {activeTab === 'manageProjects' && 'Collaborative Projects'}
                   {activeTab === 'manageAchievements' && 'Manage Achievements'}
                   {activeTab === 'manageNews' && 'Manage News'}
+                  {activeTab === 'manageResources' && 'Resource Sheet Manager'}
                   {activeTab === 'pastEvents' && 'Past Events Archive'}
                 </h2>
               </div>
@@ -2747,7 +2834,7 @@ const Admin = () => {
                       <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                           <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
+                            <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-400 text-xs uppercase tracking-wider font-bold">
                               <th className="p-4 py-3">Title</th>
                               <th className="p-4 py-3">Link</th>
                               <th className="p-4 py-3 text-right">Actions</th>
@@ -2799,6 +2886,107 @@ const Admin = () => {
                   </div>
                 </motion.div>
               )}
+
+              {activeTab === 'manageResources' && (
+                <motion.div key="manageResources" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800">Manage Resources</h2>
+                      <p className="text-slate-500">Add, edit, or remove curriculum topics and learning resources</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setEditingResource(null);
+                        setResourceForm({ title: '', description: '', resource_type: 'VIDEO', url: '', group_name: '', order_no: 0 });
+                        setIsResourceModalOpen(true);
+                      }}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm text-sm font-semibold"
+                    >
+                      <Plus size={18} /> Add Resource
+                    </button>
+                  </div>
+
+                  <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    {loadingResources ? (
+                      <div className="p-12 text-center text-slate-500 flex flex-col items-center">
+                        <Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />
+                        <p>Loading resources...</p>
+                      </div>
+                    ) : resourcesList.length === 0 ? (
+                      <div className="p-12 text-center text-slate-500">
+                        <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                        <p className="text-lg font-medium text-slate-600 mb-1">No resources found</p>
+                        <p className="text-sm">Click 'Add Resource' to get started.</p>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                          <thead>
+                            <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-400 text-xs uppercase tracking-wider font-bold">
+                              <th className="p-4 py-3">Title</th>
+                              <th className="p-4 py-3">Topic / Group</th>
+                              <th className="p-4 py-3">Type</th>
+                              <th className="p-4 py-3">Order No</th>
+                              <th className="p-4 py-3 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {resourcesList.map((r) => (
+                              <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                                <td className="p-4 font-medium text-slate-800">
+                                  <div>
+                                    <div className="font-semibold text-slate-900">{r.title}</div>
+                                    <div className="text-xs text-slate-400 mt-0.5 max-w-sm truncate">{r.description}</div>
+                                  </div>
+                                </td>
+                                <td className="p-4 text-slate-600 text-sm font-semibold">
+                                  {r.group_name}
+                                </td>
+                                <td className="p-4">
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 border border-indigo-100">
+                                    {r.resource_type}
+                                  </span>
+                                </td>
+                                <td className="p-4 text-slate-600 text-sm">
+                                  {r.order_no}
+                                </td>
+                                <td className="p-4 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setEditingResource(r);
+                                        setResourceForm({
+                                          title: r.title || '',
+                                          description: r.description || '',
+                                          resource_type: r.resource_type || 'VIDEO',
+                                          url: r.url || '',
+                                          group_name: r.group_name || '',
+                                          order_no: r.order_no || 0
+                                        });
+                                        setIsResourceModalOpen(true);
+                                      }}
+                                      className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                                    >
+                                      <Edit size={16} />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteResource(r.id)}
+                                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
               {activeTab === 'manageAchievements' && (
                 <motion.div key="manageAchievements" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                   <div className="flex justify-between items-center mb-6">
@@ -3982,6 +4170,133 @@ const Admin = () => {
                     className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center disabled:opacity-50"
                   >
                     {loadingNews ? <Loader2 size={18} className="animate-spin" /> : editingNews ? 'Update News' : 'Add News'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Resource Modal */}
+      <AnimatePresence>
+        {isResourceModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setIsResourceModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white rounded-2xl shadow-xl w-full max-w-xl max-h-[90vh] overflow-y-auto z-10"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 className="text-xl font-bold text-slate-800">
+                  {editingResource ? 'Edit Resource' : 'Add Resource'}
+                </h3>
+                <button
+                  onClick={() => setIsResourceModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              
+              <form onSubmit={handleResourceSubmit} className="p-6 space-y-5 text-left">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={resourceForm.title}
+                    onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="Enter resource title"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                  <textarea
+                    value={resourceForm.description}
+                    onChange={(e) => setResourceForm({ ...resourceForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm resize-none"
+                    placeholder="Enter short description"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Resource Type</label>
+                    <select
+                      value={resourceForm.resource_type}
+                      onChange={(e) => setResourceForm({ ...resourceForm, resource_type: e.target.value })}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    >
+                      <option value="VIDEO">Video</option>
+                      <option value="COURSE">Course</option>
+                      <option value="BOOK">Book</option>
+                      <option value="PAPER">Paper / Essay</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Order No (Sorting)</label>
+                    <input
+                      type="number"
+                      value={resourceForm.order_no}
+                      onChange={(e) => setResourceForm({ ...resourceForm, order_no: parseInt(e.target.value) || 0 })}
+                      className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                      placeholder="0"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">URL (Resource Link)</label>
+                  <input
+                    type="url"
+                    value={resourceForm.url}
+                    onChange={(e) => setResourceForm({ ...resourceForm, url: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="https://..."
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Topic / Group Name</label>
+                  <input
+                    type="text"
+                    value={resourceForm.group_name}
+                    onChange={(e) => setResourceForm({ ...resourceForm, group_name: e.target.value })}
+                    className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    placeholder="e.g. Start Here, Neural Networks, Go Deeper"
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsResourceModalOpen(false)}
+                    className="flex-1 px-4 py-2 border border-slate-200 text-slate-600 rounded-lg font-medium hover:bg-slate-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center disabled:opacity-50"
+                  >
+                    {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : editingResource ? 'Update Resource' : 'Add Resource'}
                   </button>
                 </div>
               </form>
