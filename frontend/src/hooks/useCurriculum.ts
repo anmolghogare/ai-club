@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getApiUrl } from "../lib/api";
+import { getApiUrl } from "@/lib/api";
 
 export type ClubResource = {
   id: number;

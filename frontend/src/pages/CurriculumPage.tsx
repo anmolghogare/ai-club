@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
-import { useCurriculumResources, useCurriculumProgress, useToggleProgress } from "../../hooks/useCurriculum";
-import { useToast } from "../ui/use-toast";
+import { useCurriculumResources, useCurriculumProgress, useToggleProgress } from "@/hooks/useCurriculum";
+import { useToast } from "@/hooks/use-toast";
 import { CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Footer from "../components/club/Footer";
+import Footer from "@/components/club/Footer";
 
 export default function CurriculumPage() {
   const { data: resources = [], isLoading: loadingResources } = useCurriculumResources();

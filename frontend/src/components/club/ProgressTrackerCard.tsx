@@ -1,4 +1,4 @@
-import { useCurriculumResources, useCurriculumProgress } from "../../hooks/useCurriculum";
+import { useCurriculumResources, useCurriculumProgress } from "@/hooks/useCurriculum";
 import { Link } from "react-router-dom";
 import { ArrowRight, BookOpenCheck } from "lucide-react";
 import { motion } from "framer-motion";
