@@ -7,7 +7,7 @@ import Chatbot from '@/components/club/Chatbot';
 import { getApiUrl } from '@/lib/api';
 
 interface NewsModel {
-  id: int;
+  id: number;
   title: string;
   description?: string;
   link: string;
