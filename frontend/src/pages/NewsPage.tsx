@@ -8,9 +8,10 @@ import { getApiUrl } from '@/lib/api';
 
 interface NewsModel {
   id: number;
-  title: string;
+  title?: string;
   description?: string;
-  link: string;
+  link?: string;
+  sources?: string;
   image_url?: string;
   created_at: string;
 }
@@ -103,22 +104,24 @@ const NewsPage = () => {
                   )}
                   
                   <div className="flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{item.title}</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{item.title || 'Untitled News'}</h3>
                     {item.description && (
                       <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3 mb-4 flex-1">
                         {item.description}
                       </p>
                     )}
                     
-                    <a 
-                      href={item.link} 
-                      target="_blank" 
-                      rel="noopener noreferrer" 
-                      className="inline-flex items-center gap-2 mt-auto text-sm font-semibold text-primary hover:text-indigo-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()} // Prevent opening modal when clicking link directly
-                    >
-                      Read Full Article <ExternalLink size={16} />
-                    </a>
+                    {item.link && (
+                      <a 
+                        href={item.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center gap-2 mt-auto text-sm font-semibold text-primary hover:text-indigo-600 transition-colors"
+                        onClick={(e) => e.stopPropagation()} // Prevent opening modal when clicking link directly
+                      >
+                        Read Full Article <ExternalLink size={16} />
+                      </a>
+                    )}
                   </div>
                 </motion.div>
               ))}
@@ -161,7 +164,7 @@ const NewsPage = () => {
                 )}
 
                 <h2 className="text-2xl font-bold font-display text-foreground mb-4">
-                  {selectedNews.title}
+                  {selectedNews.title || 'Untitled News'}
                 </h2>
 
                 {selectedNews.description && (
@@ -170,16 +173,24 @@ const NewsPage = () => {
                   </div>
                 )}
                 
-                <div className="mt-auto border-t border-border/50 pt-4">
-                  <a 
-                    href={selectedNews.link} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
-                  >
-                    Open Link <ExternalLink size={18} />
-                  </a>
-                </div>
+                {selectedNews.sources && (
+                  <div className="text-muted-foreground text-xs italic mb-4">
+                    <strong>Sources:</strong> {selectedNews.sources}
+                  </div>
+                )}
+                
+                {selectedNews.link && (
+                  <div className="mt-auto border-t border-border/50 pt-4">
+                    <a 
+                      href={selectedNews.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center w-full gap-2 px-6 py-3 bg-primary text-primary-foreground font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+                    >
+                      Open Link <ExternalLink size={18} />
+                    </a>
+                  </div>
+                )}
               </motion.div>
             </div>
           )}

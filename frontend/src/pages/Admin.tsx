@@ -410,6 +410,7 @@ const Admin = () => {
     title: '',
     description: '',
     link: '',
+    sources: '',
     image_url: ''
   });
 
@@ -597,6 +598,7 @@ const Admin = () => {
       isMemberModalOpen ||
       isProjectModalOpen ||
       isAchievementModalOpen ||
+      isNewsModalOpen ||
       isPastEventModalOpen;
 
     if (isAnyModalOpen) {
@@ -611,7 +613,7 @@ const Admin = () => {
       document.body.style.overflow = '';
       document.documentElement.style.overflow = '';
     };
-  }, [selectedRegId, editingEvent, confirmModal.isOpen, isMemberModalOpen, isProjectModalOpen, isAchievementModalOpen, isPastEventModalOpen]);
+  }, [selectedRegId, editingEvent, confirmModal.isOpen, isMemberModalOpen, isProjectModalOpen, isAchievementModalOpen, isNewsModalOpen, isPastEventModalOpen]);
 
   const fetchFormFields = async (eventId: number | '') => {
     if (!eventId) return;
@@ -2720,7 +2722,7 @@ const Admin = () => {
                     <button
                       onClick={() => {
                         setEditingNews(null);
-                        setNewsForm({ title: '', description: '', link: '', image_url: '' });
+                        setNewsForm({ title: '', description: '', link: '', sources: '', image_url: '' });
                         setIsNewsModalOpen(true);
                       }}
                       className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
@@ -2771,6 +2773,7 @@ const Admin = () => {
                                           title: n.title || '',
                                           description: n.description || '',
                                           link: n.link || '',
+                                          sources: n.sources || '',
                                           image_url: n.image_url || ''
                                         });
                                         setIsNewsModalOpen(true);

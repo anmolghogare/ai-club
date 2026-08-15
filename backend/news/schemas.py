@@ -3,22 +3,25 @@ from datetime import datetime
 from typing import Optional
 
 class NewsCreate(BaseModel):
-    title: str = Field(..., max_length=255)
+    title: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
-    link: str = Field(..., max_length=1024)
+    link: Optional[str] = Field(None, max_length=1024)
+    sources: Optional[str] = Field(None, max_length=1024)
     image_url: Optional[str] = Field(None, max_length=1024)
 
 class NewsUpdate(BaseModel):
     title: Optional[str] = Field(None, max_length=255)
     description: Optional[str] = None
     link: Optional[str] = Field(None, max_length=1024)
+    sources: Optional[str] = Field(None, max_length=1024)
     image_url: Optional[str] = Field(None, max_length=1024)
 
 class NewsResponse(BaseModel):
     id: int
-    title: str
+    title: Optional[str] = None
     description: Optional[str] = None
-    link: str
+    link: Optional[str] = None
+    sources: Optional[str] = None
     image_url: Optional[str] = None
     created_at: datetime
     
