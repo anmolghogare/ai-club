@@ -21,11 +21,10 @@ export interface Member {
   created_at?: string;
 }
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { getApiUrl } from '../../lib/api';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
 
 // Role badge colours — light editorial palette
 const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
@@ -33,7 +32,7 @@ const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
   'Deputy Convenor':      { label: 'Deputy Convenor',      classes: 'bg-blue-50 text-blue-700 border border-blue-200' },
   'Core Member':          { label: 'Core Member',          classes: 'bg-indigo-50 text-indigo-700 border border-indigo-200' },
   'Extended Core Member': { label: 'Extended Core Member', classes: 'bg-purple-50 text-purple-700 border border-purple-200' },
-  'Member':               { label: 'Member',               classes: 'bg-gray-100 text-gray-600 border border-gray-200' },
+  'Member':               { label: 'Member',               classes: 'bg-slate-100 text-slate-650 border border-slate-200' },
   'Ex Convenor':          { label: 'Ex Convenor',          classes: 'bg-amber-100/70 text-amber-800 border border-amber-300' },
   'Ex Deputy Convenor':     { label: 'Ex Deputy Convenor',     classes: 'bg-blue-100/70 text-blue-800 border border-blue-300' },
   'Ex Core Member':         { label: 'Ex Core Member',         classes: 'bg-indigo-100/70 text-indigo-800 border border-indigo-300' },
@@ -41,43 +40,28 @@ const roleMeta: Record<MemberRole, { label: string; classes: string }> = {
 };
 
 const RoleBadge = ({ role }: { role: MemberRole }) => {
-  const { label, classes } = roleMeta[role];
+  const { label, classes } = roleMeta[role] || { label: role, classes: 'bg-slate-100 text-slate-600' };
   return (
-    <span className={`inline-block text-[10px] font-semibold px-2.5 py-0.5 rounded-full mt-1 tracking-wide ${classes}`}>
+    <span className={`inline-block text-[9px] font-bold px-2.5 py-0.5 rounded-full mt-1 tracking-wide uppercase ${classes}`}>
       {label}
     </span>
   );
 };
 
-const cardVariants = {
-  hidden: { opacity: 0, y: 40, scale: 0.9 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      delay: i * 0.05,
-      duration: 0.5,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  }),
-};
-
 // GitHub SVG icon
 const GitHubIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.263.82-.582 0-.288-.012-1.243-.017-2.252-3.338.726-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.09-.745.083-.73.083-.73 1.204.085 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.776.42-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.382 1.236-3.222-.124-.304-.536-1.524.117-3.176 0 0 1.008-.322 3.3 1.23a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.872.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.48 5.921.43.372.814 1.103.814 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.699.825.58C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
+  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.263.82-.582 0-.288-.012-1.243-.017-2.252-3.338.726-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.09-.745.083-.73.083-.73 1.204.085 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.776.42-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.382 1.236-3.222-.124-.304-.536-1.524.117-3.176 0 0 1.008-.322 3.3 1.23 a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.872.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.48 5.921.43.372.814 1.103.814 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.699.825.58C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
   </svg>
 );
 
 // LinkedIn SVG icon
 const LinkedInIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.447 20.452H16.89v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a1.984 1.984 0 1 1 0-3.967 1.984 1.984 0 0 1 0 3.967zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
   </svg>
 );
 
-/** Renders a member's avatar — photo if available, initials otherwise */
 const MEMBER_PHOTO_OVERRIDES: Record<string, string> = {
   'Anmol Ghogare': 'https://lh3.googleusercontent.com/d/1ff8W6U26StDc86Im77NNMcUd6jCLxCgx',
 };
@@ -89,7 +73,7 @@ function getDriveUrls(url: string): string[] {
     const id = driveMatch[1];
     return [
       `https://lh3.googleusercontent.com/d/${id}`,
-      `https://drive.google.com/thumbnail?id=${id}&sz=w800`,
+      `https://drive.google.com/thumbnail?id=${id}&sz=800`,
       `https://drive.google.com/uc?export=view&id=${id}`,
     ];
   }
@@ -119,11 +103,7 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
 
   if (currentUrl && urlIndex < urls.length) {
     return (
-      <motion.div
-        className="w-[84px] h-[84px] rounded-full mx-auto mb-4 overflow-hidden ring-2 ring-primary/30 ring-offset-2 ring-offset-card"
-        whileHover={{ scale: 1.1, rotate: 2 }}
-        transition={{ type: 'spring', stiffness: 300 }}
-      >
+      <div className="w-[80px] h-[80px] rounded-full mx-auto mb-3 overflow-hidden ring-2 ring-indigo-500/20 ring-offset-2 ring-offset-[#ECF0F7]">
         <img
           src={currentUrl}
           alt={name}
@@ -131,23 +111,195 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
           onError={() => setUrlIndex((prev) => prev + 1)}
           referrerPolicy="no-referrer"
         />
-      </motion.div>
+      </div>
     );
   }
 
   return (
     <div
       style={{
-        width: 72, height: 72, borderRadius: '50%',
+        width: 76, height: 76, borderRadius: '50%',
         background: 'hsl(243, 75%, 92%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '1.1rem',
         color: 'hsl(243, 75%, 45%)',
-        margin: '0 auto 1rem',
+        margin: '0 auto 0.75rem',
         border: '1.5px solid hsl(243, 75%, 85%)',
       }}
     >
       {initials}
+    </div>
+  );
+}
+
+// 3D Flip Card sub-component
+interface TeamMemberCardProps {
+  member: Member;
+  projects: any[];
+  achievements: any[];
+}
+
+function TeamMemberCard({ member, projects, achievements }: TeamMemberCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const nameLower = member.name.toLowerCase();
+
+  // Match projects and achievements
+  const matchedProjects = useMemo(() => {
+    return projects.filter(p => {
+      const authorMatch = p.author?.toLowerCase().includes(nameLower);
+      const contribMatch = p.contributors?.toLowerCase().includes(nameLower);
+      return authorMatch || contribMatch;
+    }).slice(0, 2);
+  }, [projects, nameLower]);
+
+  const matchedAchievements = useMemo(() => {
+    return achievements.filter(a => {
+      return a.student?.toLowerCase().includes(nameLower);
+    }).slice(0, 2);
+  }, [achievements, nameLower]);
+
+  const hasStats = matchedProjects.length > 0 || matchedAchievements.length > 0;
+
+  return (
+    <div 
+      className="relative h-[290px] w-full"
+      style={{ perspective: 1000 }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <motion.div
+        className="w-full h-full relative"
+        style={{ transformStyle: 'preserve-3d' }}
+        animate={{ rotateY: isHovered ? 180 : 0 }}
+        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+      >
+        {/* FRONT SIDE */}
+        <div 
+          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-4 bg-[#ECF0F7] text-center border-r border-b border-slate-200 transition-colors"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            background: isHovered ? 'white' : '#ECF0F7'
+          }}
+        >
+          <MemberAvatar name={member.name} photo={member.photo || ''} />
+          
+          <h4 className="font-sans text-[0.88rem] font-bold text-slate-900 leading-snug mb-1">
+            {member.name}
+          </h4>
+          
+          <RoleBadge role={member.role} />
+          
+          <div className="flex gap-2.5 justify-center mt-3">
+            {member.github && (
+              <a 
+                href={member.github} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-slate-400 hover:text-slate-900 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <GitHubIcon />
+              </a>
+            )}
+            {member.linkedin && (
+              <a 
+                href={member.linkedin} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-slate-400 hover:text-indigo-650 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <LinkedInIcon />
+              </a>
+            )}
+          </div>
+          
+          {hasStats && (
+            <div className="mt-3.5 flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-[9px] font-bold text-indigo-600 uppercase tracking-widest animate-pulse">
+              <Sparkles className="w-2.5 h-2.5 text-indigo-500" />
+              <span>Details</span>
+            </div>
+          )}
+        </div>
+
+        {/* BACK SIDE */}
+        <div 
+          className="absolute inset-0 w-full h-full flex flex-col justify-between p-4 bg-slate-950 text-white border-r border-b border-slate-900 text-left"
+          style={{ 
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)'
+          }}
+        >
+          <div className="flex-1 overflow-y-auto space-y-3.5 scrollbar-none pr-1">
+            <div className="border-b border-slate-800 pb-2">
+              <span className="text-[9px] text-indigo-400 uppercase tracking-widest font-bold font-mono">Core Profile</span>
+              <h5 className="font-bold text-[0.82rem] leading-tight text-white mt-0.5">{member.name}</h5>
+            </div>
+
+            {matchedAchievements.length > 0 && (
+              <div>
+                <span className="text-[9px] text-amber-400 uppercase tracking-wider font-bold block mb-1">🏆 Achievements</span>
+                <ul className="space-y-1">
+                  {matchedAchievements.map((ach: any) => (
+                    <li key={ach.id} className="text-[10px] text-slate-300 leading-snug line-clamp-2 pl-2 border-l border-amber-500/40" title={ach.title}>
+                      {ach.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {matchedProjects.length > 0 && (
+              <div>
+                <span className="text-[9px] text-emerald-400 uppercase tracking-wider font-bold block mb-1">💻 Projects</span>
+                <ul className="space-y-1">
+                  {matchedProjects.map((p: any) => (
+                    <li key={p.id} className="text-[10px] text-slate-300 leading-snug line-clamp-2 pl-2 border-l border-emerald-500/40" title={p.title}>
+                      {p.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {matchedAchievements.length === 0 && matchedProjects.length === 0 && (
+              <p className="text-[11px] text-slate-400 italic leading-relaxed pt-1">
+                {member.description || "Passionate student contributing to the AI Club's workshops, events, and projects."}
+              </p>
+            )}
+          </div>
+
+          <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between bg-slate-950">
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider font-mono">Social Links</span>
+            <div className="flex gap-2">
+              {member.github && (
+                <a 
+                  href={member.github} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-1 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <GitHubIcon />
+                </a>
+              )}
+              {member.linkedin && (
+                <a 
+                  href={member.linkedin} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="p-1 text-slate-400 hover:text-indigo-400 bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <LinkedInIcon />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -167,48 +319,60 @@ const ROLE_ORDER: Record<string, number> = {
 
 export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
   const [memberList, setMemberList] = useState<Member[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState('all'); // 'all', 'convenor', 'core', 'extended', 'member', 'alumni'
+  const [roleFilter, setRoleFilter] = useState('all');
 
   useEffect(() => {
-    const fetchMembers = async () => {
+    const fetchAllData = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(getApiUrl('/api/members'));
-        if (!res.ok) throw new Error('Failed to fetch members');
-        const data = await res.json();
-        
-        // Sort automatically by order_no, then role hierarchy
-        const sorted = [...data].sort((a, b) => {
-          const orderA = a.order_no || 0;
-          const orderB = b.order_no || 0;
-          if (orderA !== orderB) {
-            if (orderA === 0) return 1;
-            if (orderB === 0) return -1;
-            return orderA - orderB;
-          }
+        // Fetch Members
+        const memRes = await fetch(getApiUrl('/api/members'));
+        if (memRes.ok) {
+          const data = await memRes.json();
+          const sorted = [...data].sort((a, b) => {
+            const orderA = a.order_no || 0;
+            const orderB = b.order_no || 0;
+            if (orderA !== orderB) {
+              if (orderA === 0) return 1;
+              if (orderB === 0) return -1;
+              return orderA - orderB;
+            }
+            const roleA = ROLE_ORDER[a.role] ?? 99;
+            const roleB = ROLE_ORDER[b.role] ?? 99;
+            if (roleA !== roleB) return roleA - roleB;
+            return a.name.localeCompare(b.name);
+          });
+          setMemberList(sorted);
+        }
 
-          const roleA = ROLE_ORDER[a.role] ?? 99;
-          const roleB = ROLE_ORDER[b.role] ?? 99;
-          if (roleA !== roleB) return roleA - roleB;
-          // Within same role, sort alphabetically by name
-          return a.name.localeCompare(b.name);
-        });
-        setMemberList(sorted);
+        // Fetch Projects
+        const projRes = await fetch(getApiUrl('/api/projects'));
+        if (projRes.ok) {
+          const projData = await projRes.json();
+          setProjects(projData || []);
+        }
+
+        // Fetch Achievements
+        const achRes = await fetch(getApiUrl('/api/achievements'));
+        if (achRes.ok) {
+          const achData = await achRes.json();
+          setAchievements(achData || []);
+        }
       } catch (err) {
-        console.error("Failed to fetch members", err);
+        console.error("Failed to load team section details", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchMembers();
+    fetchAllData();
   }, []);
 
   const filteredMembers = memberList.filter((m) => {
-    if (isHomepage) {
-      // Allow all roles on the homepage so the imported members show up
-      return true;
-    }
+    if (isHomepage) return true;
 
     if (searchQuery.trim() !== '') {
       const q = searchQuery.toLowerCase();
@@ -233,58 +397,36 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
     return true;
   });
 
+  // Limit homepage members to 6 for a compact widget grid
+  const displayMembers = isHomepage ? filteredMembers.slice(0, 6) : filteredMembers;
+
   return (
     <section
       id="team"
-      style={{
-        background: 'hsl(228, 30%, 93%)',
-        borderTop: '1px solid hsl(228, 20%, 80%)',
-      }}
+      className="bg-[#ECF0F7] border-t border-slate-200"
     >
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '5rem 2rem' }}>
-        <h2
-          style={{
-            fontFamily: 'Playfair Display, Georgia, serif',
-            fontSize: 'clamp(2rem, 4vw, 3.5rem)',
-            fontWeight: 700,
-            letterSpacing: '-0.025em',
-            color: 'hsl(230, 25%, 10%)',
-            marginBottom: '0.6rem',
-          }}
-        >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <h2 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-slate-900 mb-2">
           The team
         </h2>
-        <p
-          style={{
-            fontFamily: 'Inter, sans-serif',
-            fontSize: '1rem',
-            color: 'hsl(230, 15%, 45%)',
-            marginBottom: '2.5rem',
-          }}
-        >
+        <p className="font-sans text-base text-slate-500 mb-10">
           Students who keep the Wednesday sessions running.
         </p>
 
         {/* Search + Filters for full page */}
         {!isHomepage && (
-          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '2rem' }}>
-            <div style={{ position: 'relative', flex: '1 1 260px', maxWidth: 340 }}>
-              <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'hsl(230,15%,50%)' }} />
+          <div className="flex gap-4 flex-wrap items-center mb-8">
+            <div className="relative flex-1 min-w-[260px] max-w-sm">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search by name or role..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%', paddingLeft: 32, paddingRight: 12, paddingTop: 8, paddingBottom: 8,
-                  fontFamily: 'Inter, sans-serif', fontSize: '0.85rem',
-                  border: '1px solid hsl(228, 20%, 76%)', borderRadius: 2,
-                  background: 'white', outline: 'none', color: 'hsl(230,25%,12%)',
-                  boxSizing: 'border-box' as const,
-                }}
+                className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-350 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-medium text-slate-800 placeholder-slate-400"
               />
             </div>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            <div className="flex gap-1.5 flex-wrap">
               {[
                 { id: 'all', label: 'All' },
                 { id: 'convenor', label: 'Leadership' },
@@ -296,17 +438,11 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
                 <button
                   key={pill.id}
                   onClick={() => setRoleFilter(pill.id)}
-                  style={{
-                    padding: '6px 14px',
-                    fontFamily: 'JetBrains Mono, monospace', fontSize: '0.72rem',
-                    border: '1px solid',
-                    borderColor: roleFilter === pill.id ? 'hsl(243,75%,59%)' : 'hsl(228,20%,76%)',
-                    borderRadius: 2,
-                    background: roleFilter === pill.id ? 'hsl(243,75%,59%)' : 'transparent',
-                    color: roleFilter === pill.id ? 'white' : 'hsl(230,15%,40%)',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                  }}
+                  className={`px-4 py-1.5 rounded-lg border text-xs font-mono transition-all duration-200 ${
+                    roleFilter === pill.id 
+                      ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm shadow-indigo-150' 
+                      : 'bg-transparent text-slate-500 border-slate-200 hover:bg-slate-100'
+                  }`}
                 >
                   {pill.label}
                 </button>
@@ -316,100 +452,34 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
         )}
 
         {loading ? (
-          <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>Loading team...</p>
-        ) : filteredMembers.length === 0 ? (
-          <p style={{ fontFamily: 'Inter, sans-serif', color: 'hsl(230,15%,50%)', fontSize: '0.9rem' }}>No members found.</p>
+          <div className="flex flex-col items-center py-12">
+            <div className="w-8 h-8 border-4 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin mb-3"></div>
+            <span className="text-sm font-semibold text-slate-400">Loading team...</span>
+          </div>
+        ) : displayMembers.length === 0 ? (
+          <p className="font-sans text-sm text-slate-400 py-10">No members found.</p>
         ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-              borderTop: '1px solid hsl(228,20%,78%)',
-              borderLeft: '1px solid hsl(228,20%,78%)',
-            }}
-          >
-            {filteredMembers.map((m) => (
-              <div
-                key={m.id}
-                style={{
-                  padding: '1.5rem 1rem',
-                  background: 'hsl(228,30%,93%)',
-                  textAlign: 'center',
-                  transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  borderRight: '1px solid hsl(228,20%,78%)',
-                  borderBottom: '1px solid hsl(228,20%,78%)',
-                  position: 'relative',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.background = 'white';
-                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-6px) scale(1.04)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = '0 12px 24px -6px rgba(99, 102, 241, 0.2)';
-                  (e.currentTarget as HTMLElement).style.zIndex = '10';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.background = 'hsl(228,30%,93%)';
-                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                  (e.currentTarget as HTMLElement).style.zIndex = '1';
-                }}
-              >
-                <MemberAvatar name={m.name} photo={m.photo || ''} />
-                <h4
-                  style={{
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                    color: 'hsl(230, 25%, 12%)',
-                    marginBottom: '0.35rem',
-                    lineHeight: 1.3,
-                  }}
-                >
-                  {m.name}
-                </h4>
-                <RoleBadge role={m.role} />
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: '0.6rem' }}>
-                  {m.github && (
-                    <a href={m.github} target="_blank" rel="noopener noreferrer"
-                      style={{ color: 'hsl(230,15%,50%)', transition: 'color 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,25%,12%)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,15%,50%)'}
-                    >
-                      <GitHubIcon />
-                    </a>
-                  )}
-                  {m.linkedin && (
-                    <a href={m.linkedin} target="_blank" rel="noopener noreferrer"
-                      style={{ color: 'hsl(230,15%,50%)', transition: 'color 0.15s' }}
-                      onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'hsl(243,75%,59%)'}
-                      onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230,15%,50%)'}
-                    >
-                      <LinkedInIcon />
-                    </a>
-                  )}
-                </div>
-              </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 border-t border-l border-slate-200 bg-[#ECF0F7] overflow-hidden">
+            {displayMembers.map((m) => (
+              <TeamMemberCard 
+                key={m.id} 
+                member={m} 
+                projects={projects} 
+                achievements={achievements} 
+              />
             ))}
           </div>
         )}
 
         {/* CTA */}
         {isHomepage && (
-          <div style={{ marginTop: '2.5rem' }}>
+          <div className="mt-10">
             <Link
               to="/team"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                fontFamily: 'JetBrains Mono, monospace', fontSize: '0.8rem',
-                color: 'hsl(243, 75%, 59%)', textDecoration: 'none', letterSpacing: '0.02em',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'underline'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.textDecoration = 'none'; }}
+              className="inline-flex items-center gap-1.5 font-mono text-sm text-indigo-600 hover:text-indigo-800 transition-colors group"
             >
-              Meet the full team <ArrowRight size={13} />
+              <span className="group-hover:underline">Meet the full team</span>
+              <ArrowRight size={13} className="transform group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
         )}
