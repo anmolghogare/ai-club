@@ -7,7 +7,7 @@ import Footer from "@/components/club/Footer";
 
 export default function CurriculumPage() {
   const { data: resources = [], isLoading: loadingResources } = useCurriculumResources();
-  const token = localStorage.getItem("auth_token");
+  const token = localStorage.getItem("access_token");
   const { data: progress = [], isLoading: loadingProgress } = useCurriculumProgress(token);
   const toggleProgress = useToggleProgress();
   const { toast } = useToast();
@@ -36,7 +36,8 @@ export default function CurriculumPage() {
   };
 
   const handleToggleResource = async (resourceId: number) => {
-    if (!token) {
+    const currentToken = localStorage.getItem("access_token");
+    if (!currentToken) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to save your progress.",
@@ -47,7 +48,7 @@ export default function CurriculumPage() {
     
     // Optimistic toggle locally
     try {
-      await toggleProgress.mutateAsync({ resourceId, token });
+      await toggleProgress.mutateAsync({ resourceId, token: currentToken });
     } catch (err) {
       toast({
         title: "Error",

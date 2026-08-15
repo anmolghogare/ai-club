@@ -23,19 +23,22 @@ export function useCurriculumResources() {
 }
 
 export function useCurriculumProgress(token: string | null) {
+  const activeToken = token || localStorage.getItem("access_token");
   return useQuery({
-    queryKey: ["curriculumProgress", token],
+    queryKey: ["curriculumProgress", activeToken],
     queryFn: async (): Promise<number[]> => {
-      if (!token) return [];
+      const authToken = activeToken || localStorage.getItem("access_token");
+      if (!authToken) return [];
       const res = await fetch(getApiUrl("/api/resources/progress"), {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to fetch progress");
       return res.json();
     },
-    enabled: !!token,
+    enabled: !!(activeToken || localStorage.getItem("access_token")),
   });
 }
 
@@ -47,20 +50,22 @@ export function useToggleProgress() {
       token,
     }: {
       resourceId: number;
-      token: string;
+      token?: string;
     }) => {
+      const authToken = token || localStorage.getItem("access_token");
       const res = await fetch(getApiUrl(`/api/resources/${resourceId}/toggle`), {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
+        credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to toggle progress");
       return res.json();
     },
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["curriculumProgress", variables.token],
+        queryKey: ["curriculumProgress"],
       });
     },
   });

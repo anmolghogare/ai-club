@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export default function ProgressTrackerCard() {
   const { data: resources = [], isLoading: loadingResources } = useCurriculumResources();
-  const token = localStorage.getItem("auth_token");
+  const token = localStorage.getItem("access_token");
   const { data: progress = [], isLoading: loadingProgress } = useCurriculumProgress(token);
 
   const totalResources = resources.length;
