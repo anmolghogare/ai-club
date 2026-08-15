@@ -82,7 +82,9 @@ const NewsPage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {newsList.map((item) => (
+              {newsList.map((item) => {
+                const imageUrl = item.image_url || (item.link ? `https://api.microlink.io/?url=${encodeURIComponent(item.link)}&screenshot=true&meta=false&embed=screenshot.url` : null);
+                return (
                 <motion.div
                   key={item.id}
                   initial={{ opacity: 0, y: 20 }}
@@ -93,9 +95,9 @@ const NewsPage = () => {
                   onClick={() => setSelectedNews(item)}
                   className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 flex flex-col hover:border-indigo-400 hover:shadow-xl transition-all cursor-pointer group"
                 >
-                  {item.image_url ? (
+                  {imageUrl ? (
                     <div className="w-full h-48 mb-4 rounded-xl overflow-hidden bg-secondary">
-                      <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <img src={imageUrl} alt={item.title || 'News'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     </div>
                   ) : (
                     <div className="w-full h-48 mb-4 rounded-xl overflow-hidden bg-secondary/80 flex items-center justify-center">
@@ -124,7 +126,8 @@ const NewsPage = () => {
                     )}
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -153,11 +156,11 @@ const NewsPage = () => {
                   <X size={20} />
                 </button>
 
-                {selectedNews.image_url && (
+                {(selectedNews.image_url || selectedNews.link) && (
                   <div className="w-full max-h-96 mb-6 rounded-xl overflow-hidden bg-secondary">
                     <img
-                      src={selectedNews.image_url}
-                      alt={selectedNews.title}
+                      src={selectedNews.image_url || `https://api.microlink.io/?url=${encodeURIComponent(selectedNews.link || '')}&screenshot=true&meta=false&embed=screenshot.url`}
+                      alt={selectedNews.title || 'News image'}
                       className="w-full h-full object-contain max-h-96 mx-auto"
                     />
                   </div>
