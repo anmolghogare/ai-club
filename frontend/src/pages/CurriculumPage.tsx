@@ -3,9 +3,7 @@ import { useCurriculumResources, useCurriculumProgress, useToggleProgress } from
 import { useToast } from "../ui/use-toast";
 import { CheckCircle2, Circle, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
-import BackgroundCanvas from "./BackgroundCanvas";
+import Footer from "../components/club/Footer";
 
 export default function CurriculumPage() {
   const { data: resources = [], isLoading: loadingResources } = useCurriculumResources();
@@ -66,9 +64,6 @@ export default function CurriculumPage() {
 
   return (
     <div className="min-h-screen relative font-sans text-gray-900 bg-[#F4F6FB] overflow-hidden">
-      <BackgroundCanvas />
-      
-      {/* Navbar handled globally or we include here if no header, but App.tsx includes Navbar globally */}
       
       <main className="relative z-10 pt-32 pb-24 px-6 sm:px-12 max-w-5xl mx-auto">
         <motion.div
