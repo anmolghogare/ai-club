@@ -1088,21 +1088,27 @@ export default function Events({ isHomepage = false }: { isHomepage?: boolean })
               )}
             </div>
             <div className="flex gap-5">
-              {Object.entries(timeLeft).map(([unit, value]) => (
-                <div key={unit} className="text-center">
-                  <motion.span
-                    key={value}
-                    initial={{ y: -8, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    className="font-mono text-3xl font-bold text-primary block"
-                  >
-                    {value}
-                  </motion.span>
-                  <span className="text-[10px] text-muted-foreground tracking-widest uppercase mt-1 block">
-                    {unit === 'd' ? 'Days' : unit === 'h' ? 'Hours' : unit === 'm' ? 'Mins' : 'Secs'}
-                  </span>
+              {timeLeft.d === '00' && timeLeft.h === '00' && timeLeft.m === '00' && timeLeft.s === '00' ? (
+                <div className="flex items-center justify-center bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl text-primary font-mono text-sm font-semibold tracking-wider animate-pulse self-center">
+                  COMING SOON
                 </div>
-              ))}
+              ) : (
+                Object.entries(timeLeft).map(([unit, value]) => (
+                  <div key={unit} className="text-center">
+                    <motion.span
+                      key={value}
+                      initial={{ y: -8, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="font-mono text-3xl font-bold text-primary block"
+                    >
+                      {value}
+                    </motion.span>
+                    <span className="text-[10px] text-muted-foreground tracking-widest uppercase mt-1 block">
+                      {unit === 'd' ? 'Days' : unit === 'h' ? 'Hours' : unit === 'm' ? 'Mins' : 'Secs'}
+                    </span>
+                  </div>
+                ))
+              )}
             </div>
           </motion.div>
         )}
