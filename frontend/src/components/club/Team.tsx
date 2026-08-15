@@ -23,7 +23,7 @@ export interface Member {
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, useEffect, useMemo } from 'react';
 import { getApiUrl } from '../../lib/api';
-import { Search, ArrowRight, Sparkles } from 'lucide-react';
+import { Search, ArrowRight, Sparkles, X, FolderGit2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 // Role badge colours — light editorial palette
@@ -51,7 +51,7 @@ const RoleBadge = ({ role }: { role: MemberRole }) => {
 // GitHub SVG icon
 const GitHubIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.263.82-.582 0-.288-.012-1.243-.017-2.252-3.338.726-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.09-.745.083-.73.083-.73 1.204.085 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.776.42-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.382 1.236-3.222-.124-.304-.536-1.524.117-3.176 0 0 1.008-.322 3.3 1.23 a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.872.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.48 5.921.43.372.814 1.103.814 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.699.825.58C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
+    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.263.82-.582 0-.288-.012-1.243-.017-2.252-3.338.726-4.042-1.61-4.042-1.61-.546-1.385-1.333-1.754-1.333-1.754-1.09-.745.083-.73.083-.73 1.204.085 1.838 1.237 1.838 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.776.42-1.305.762-1.605-2.665-.303-5.467-1.332-5.467-5.93 0-1.31.468-2.382 1.236-3.222-.124-.304-.536-1.524.117-3.176 0 0 1.008-.322 3.3 1.23a11.5 11.5 0 0 1 3.003-.404c1.02.005 2.047.138 3.003.404 2.29-1.552 3.297-1.23 3.297-1.23.655 1.652.243 2.872.12 3.176.77.84 1.235 1.912 1.235 3.222 0 4.61-2.807 5.624-5.48 5.921.43.372.814 1.103.814 2.222 0 1.606-.015 2.898-.015 3.293 0 .322.216.699.825.58C20.565 21.796 24 17.298 24 12c0-6.63-5.37-12-12-12z" />
   </svg>
 );
 
@@ -103,7 +103,7 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
 
   if (currentUrl && urlIndex < urls.length) {
     return (
-      <div className="w-[80px] h-[80px] rounded-full mx-auto mb-3 overflow-hidden ring-2 ring-indigo-500/20 ring-offset-2 ring-offset-[#ECF0F7]">
+      <div className="w-[84px] h-[84px] rounded-full mx-auto mb-3 overflow-hidden ring-2 ring-indigo-500/20 ring-offset-2 ring-offset-[#ECF0F7]">
         <img
           src={currentUrl}
           alt={name}
@@ -118,7 +118,7 @@ function MemberAvatar({ name, photo }: { name: string; photo: string }) {
   return (
     <div
       style={{
-        width: 76, height: 76, borderRadius: '50%',
+        width: 80, height: 80, borderRadius: '50%',
         background: 'hsl(243, 75%, 92%)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         fontFamily: 'Inter, sans-serif', fontWeight: 700, fontSize: '1.1rem',
@@ -141,6 +141,7 @@ interface TeamMemberCardProps {
 
 function TeamMemberCard({ member, projects, achievements }: TeamMemberCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const nameLower = member.name.toLowerCase();
 
   // Match projects and achievements
@@ -149,137 +150,60 @@ function TeamMemberCard({ member, projects, achievements }: TeamMemberCardProps)
       const authorMatch = p.author?.toLowerCase().includes(nameLower);
       const contribMatch = p.contributors?.toLowerCase().includes(nameLower);
       return authorMatch || contribMatch;
-    }).slice(0, 2);
+    });
   }, [projects, nameLower]);
 
   const matchedAchievements = useMemo(() => {
     return achievements.filter(a => {
       return a.student?.toLowerCase().includes(nameLower);
-    }).slice(0, 2);
+    });
   }, [achievements, nameLower]);
 
   const hasStats = matchedProjects.length > 0 || matchedAchievements.length > 0;
+  const highlightProject = matchedProjects[0];
 
   return (
-    <div 
-      className="relative h-[290px] w-full"
-      style={{ perspective: 1000 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <motion.div
-        className="w-full h-full relative"
-        style={{ transformStyle: 'preserve-3d' }}
-        animate={{ rotateY: isHovered ? 180 : 0 }}
-        transition={{ duration: 0.6, ease: [0.23, 1, 0.32, 1] }}
+    <>
+      <div 
+        className="relative h-[320px] w-full"
+        style={{ perspective: 1000, zIndex: isHovered ? 50 : 1 }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        {/* FRONT SIDE */}
-        <div 
-          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-4 bg-[#ECF0F7] text-center border-r border-b border-slate-200 transition-colors"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            background: isHovered ? 'white' : '#ECF0F7'
+        <motion.div
+          className="w-full h-full relative cursor-pointer"
+          style={{ transformStyle: 'preserve-3d' }}
+          animate={{ 
+            rotateY: isHovered ? 180 : 0,
+            scale: isHovered ? 1.15 : 1,
+            boxShadow: isHovered ? '0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.15)' : 'none'
           }}
+          transition={{ duration: 0.6, ease: [0.25, 0.8, 0.25, 1] }}
         >
-          <MemberAvatar name={member.name} photo={member.photo || ''} />
-          
-          <h4 className="font-sans text-[0.88rem] font-bold text-slate-900 leading-snug mb-1">
-            {member.name}
-          </h4>
-          
-          <RoleBadge role={member.role} />
-          
-          <div className="flex gap-2.5 justify-center mt-3">
-            {member.github && (
-              <a 
-                href={member.github} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-slate-400 hover:text-slate-900 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <GitHubIcon />
-              </a>
-            )}
-            {member.linkedin && (
-              <a 
-                href={member.linkedin} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-slate-400 hover:text-indigo-650 transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <LinkedInIcon />
-              </a>
-            )}
-          </div>
-          
-          {hasStats && (
-            <div className="mt-3.5 flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-[9px] font-bold text-indigo-600 uppercase tracking-widest animate-pulse">
-              <Sparkles className="w-2.5 h-2.5 text-indigo-500" />
-              <span>Details</span>
-            </div>
-          )}
-        </div>
-
-        {/* BACK SIDE */}
-        <div 
-          className="absolute inset-0 w-full h-full flex flex-col justify-between p-4 bg-slate-950 text-white border-r border-b border-slate-900 text-left"
-          style={{ 
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)'
-          }}
-        >
-          <div className="flex-1 overflow-y-auto space-y-3.5 scrollbar-none pr-1">
-            <div className="border-b border-slate-800 pb-2">
-              <span className="text-[9px] text-indigo-400 uppercase tracking-widest font-bold font-mono">Core Profile</span>
-              <h5 className="font-bold text-[0.82rem] leading-tight text-white mt-0.5">{member.name}</h5>
-            </div>
-
-            {matchedAchievements.length > 0 && (
-              <div>
-                <span className="text-[9px] text-amber-400 uppercase tracking-wider font-bold block mb-1">🏆 Achievements</span>
-                <ul className="space-y-1">
-                  {matchedAchievements.map((ach: any) => (
-                    <li key={ach.id} className="text-[10px] text-slate-300 leading-snug line-clamp-2 pl-2 border-l border-amber-500/40" title={ach.title}>
-                      {ach.title}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {matchedProjects.length > 0 && (
-              <div>
-                <span className="text-[9px] text-emerald-400 uppercase tracking-wider font-bold block mb-1">💻 Projects</span>
-                <ul className="space-y-1">
-                  {matchedProjects.map((p: any) => (
-                    <li key={p.id} className="text-[10px] text-slate-300 leading-snug line-clamp-2 pl-2 border-l border-emerald-500/40" title={p.title}>
-                      {p.title}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {matchedAchievements.length === 0 && matchedProjects.length === 0 && (
-              <p className="text-[11px] text-slate-400 italic leading-relaxed pt-1">
-                {member.description || "Passionate student contributing to the AI Club's workshops, events, and projects."}
-              </p>
-            )}
-          </div>
-
-          <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between bg-slate-950">
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider font-mono">Social Links</span>
-            <div className="flex gap-2">
+          {/* FRONT SIDE */}
+          <div 
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center p-4 bg-[#ECF0F7] text-center border-r border-b border-slate-200 transition-colors duration-300"
+            style={{ 
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              background: isHovered ? 'white' : '#ECF0F7'
+            }}
+          >
+            <MemberAvatar name={member.name} photo={member.photo || ''} />
+            
+            <h4 className="font-sans text-[0.95rem] font-bold text-slate-900 leading-snug mb-1">
+              {member.name}
+            </h4>
+            
+            <RoleBadge role={member.role} />
+            
+            <div className="flex gap-2.5 justify-center mt-4">
               {member.github && (
                 <a 
                   href={member.github} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="p-1 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                  className="text-slate-400 hover:text-slate-900 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <GitHubIcon />
@@ -290,17 +214,189 @@ function TeamMemberCard({ member, projects, achievements }: TeamMemberCardProps)
                   href={member.linkedin} 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="p-1 text-slate-400 hover:text-indigo-400 bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                  className="text-slate-400 hover:text-indigo-650 transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <LinkedInIcon />
                 </a>
               )}
             </div>
+            
+            {hasStats && (
+              <div className="mt-4 flex items-center space-x-1.5 px-3 py-0.5 rounded-full bg-indigo-50 border border-indigo-100 text-[9px] font-bold text-indigo-600 uppercase tracking-widest">
+                <Sparkles className="w-2.5 h-2.5 text-indigo-500 animate-pulse" />
+                <span>Details</span>
+              </div>
+            )}
           </div>
-        </div>
-      </motion.div>
-    </div>
+
+          {/* BACK SIDE */}
+          <div 
+            className="absolute inset-0 w-full h-full flex flex-col justify-between p-4 bg-slate-950 text-white border-r border-b border-slate-900 text-left"
+            style={{ 
+              backfaceVisibility: 'hidden',
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'rotateY(180deg)'
+            }}
+          >
+            <div className="flex-1 overflow-y-auto space-y-3.5 scrollbar-none pr-1">
+              <div className="border-b border-slate-800 pb-2 flex items-center justify-between">
+                <div>
+                  <span className="text-[9px] text-indigo-400 uppercase tracking-widest font-bold font-mono">Team Profile</span>
+                  <h5 className="font-bold text-[0.82rem] leading-tight text-white mt-0.5">{member.name}</h5>
+                </div>
+              </div>
+
+              {/* Show highlight project review / description right away */}
+              {highlightProject ? (
+                <div className="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800/40">
+                  <span className="text-[9px] text-emerald-400 uppercase tracking-wider font-bold block mb-1">💡 Highlight Project</span>
+                  <h6 className="text-[10px] font-bold text-white truncate">{highlightProject.title}</h6>
+                  <p className="text-[9px] text-slate-400 line-clamp-3 mt-1 leading-relaxed">
+                    {highlightProject.description}
+                  </p>
+                </div>
+              ) : member.description ? (
+                <p className="text-[10px] text-slate-350 leading-relaxed font-medium">
+                  {member.description}
+                </p>
+              ) : null}
+
+              {matchedAchievements.length > 0 && (
+                <div>
+                  <span className="text-[9px] text-amber-400 uppercase tracking-wider font-bold block mb-1">🏆 Achievements</span>
+                  <ul className="space-y-1">
+                    {matchedAchievements.slice(0, 1).map((ach: any) => (
+                      <li key={ach.id} className="text-[10px] text-slate-300 leading-snug line-clamp-2 pl-2 border-l border-amber-500/40" title={ach.title}>
+                        {ach.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {matchedAchievements.length === 0 && matchedProjects.length === 0 && (
+                <p className="text-[10px] text-slate-400 italic leading-relaxed pt-1">
+                  Contributing member to the AI Club's workshops, events, and research roadmaps.
+                </p>
+              )}
+            </div>
+
+            {/* Clickable Actions block */}
+            <div className="border-t border-slate-800 pt-2.5 flex items-center justify-between bg-slate-950">
+              {matchedProjects.length > 0 ? (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsModalOpen(true);
+                  }}
+                  className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-[9px] font-bold uppercase tracking-wider transition-colors"
+                >
+                  All Projects ({matchedProjects.length})
+                </button>
+              ) : (
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider font-mono">Social Links</span>
+              )}
+              
+              <div className="flex gap-2">
+                {member.github && (
+                  <a 
+                    href={member.github} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-1 text-slate-400 hover:text-white bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <GitHubIcon />
+                  </a>
+                )}
+                {member.linkedin && (
+                  <a 
+                    href={member.linkedin} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="p-1 text-slate-400 hover:text-indigo-400 bg-slate-900 border border-slate-800 rounded hover:bg-slate-800 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <LinkedInIcon />
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Projects list overlay Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <div className="fixed inset-0 z-[150] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
+              onClick={() => setIsModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col z-10"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100 flex-shrink-0">
+                <div>
+                  <span className="text-[10px] text-indigo-600 font-bold uppercase tracking-wider">Member Contributions</span>
+                  <h3 className="text-xl font-bold text-slate-900 mt-0.5">{member.name}'s Projects</h3>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-slate-450 hover:text-slate-700 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="p-6 overflow-y-auto space-y-5 text-left flex-1 scrollbar-thin">
+                {matchedProjects.map((proj) => (
+                  <div key={proj.id} className="p-4 bg-slate-50 border border-slate-100 rounded-2xl relative group">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h4 className="font-bold text-slate-900 text-sm sm:text-base leading-snug">{proj.title}</h4>
+                        {proj.tags && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {JSON.parse(proj.tags.replace(/'/g, '"')).map((tag: string) => (
+                              <span key={tag} className="text-[9px] bg-indigo-50 text-indigo-600 border border-indigo-100 font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {proj.github_link && (
+                        <a 
+                          href={proj.github_link} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="p-2 text-slate-400 hover:text-indigo-600 bg-white border border-slate-200/60 rounded-xl hover:shadow transition-all"
+                        >
+                          <FolderGit2 className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+                      {proj.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -397,8 +493,8 @@ export default function Team({ isHomepage = false }: { isHomepage?: boolean }) {
     return true;
   });
 
-  // Limit homepage members to 6 for a compact widget grid
-  const displayMembers = isHomepage ? filteredMembers.slice(0, 6) : filteredMembers;
+  // Render ALL team members on the homepage itself (no slicing to 6)
+  const displayMembers = filteredMembers;
 
   return (
     <section
