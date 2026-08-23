@@ -221,8 +221,8 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Full-screen canvas firework launcher — renders rockets on page load & on button click */}
-      <FireworkLauncher launcherRef={fireworkRef} />
+      {/* Full-screen canvas firework launcher — auto-fires only on home page (first visit this session) */}
+      <FireworkLauncher launcherRef={fireworkRef} autoLaunchOnHome={location.pathname === '/'} />
       <nav
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,

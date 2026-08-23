@@ -89,9 +89,11 @@ export interface FireworkLauncherHandle {
 
 interface Props {
   launcherRef: React.MutableRefObject<FireworkLauncherHandle | null>;
+  /** If true, fire rockets automatically once — only on the home page, only the first time this session. */
+  autoLaunchOnHome?: boolean;
 }
 
-export default function FireworkLauncher({ launcherRef }: Props) {
+export default function FireworkLauncher({ launcherRef, autoLaunchOnHome = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rocketsRef = useRef<Rocket[]>([]);
   const rafRef = useRef<number>(0);
@@ -227,11 +229,14 @@ export default function FireworkLauncher({ launcherRef }: Props) {
     };
   }, []);
 
-  // Launch on first mount (page open)
+  // Auto-launch ONLY on the home page, ONLY once per browser session
   useEffect(() => {
-    const timer = setTimeout(() => launch(), 600);
+    if (!autoLaunchOnHome) return;                          // not home → skip
+    if (sessionStorage.getItem('_vz_launched')) return;    // already fired this session → skip
+    sessionStorage.setItem('_vz_launched', '1');
+    const timer = setTimeout(() => launch(), 700);
     return () => clearTimeout(timer);
-  }, [launch]);
+  }, [launch, autoLaunchOnHome]);
 
   return (
     <canvas
