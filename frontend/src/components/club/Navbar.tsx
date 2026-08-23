@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X, LogOut, Shield, ChevronDown, ClipboardList, User } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-import { motion } from 'framer-motion';
 import { getApiUrl } from '../../lib/api';
 import aiClubLogo from '@/assets/ai-club-logo.png';
+import FireworkLauncher, { type FireworkLauncherHandle } from './FireworkLauncher';
 
 interface UserProfile {
   name: string;
@@ -53,6 +53,8 @@ export default function Navbar() {
   const [authLoading, setAuthLoading] = useState(false);
   const [counts, setCounts] = useState<NavCounts>({ events: 0, projects: 0, members: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const fireworkRef = useRef<FireworkLauncherHandle | null>(null);
+  const venezaButtonRef = useRef<HTMLAnchorElement>(null);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -219,6 +221,8 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Full-screen canvas firework launcher — renders rockets on page load & on button click */}
+      <FireworkLauncher launcherRef={fireworkRef} />
       <nav
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50,
@@ -249,67 +253,63 @@ export default function Navbar() {
             
             if (item.label === 'Weekly Veneza') {
               return (
-                <li key={item.label} className="relative px-1">
+                <li key={item.label} style={{ position: 'relative', padding: '0 4px' }}>
                   <a
+                    ref={venezaButtonRef}
                     href={item.pagePath || item.href}
-                    onClick={(e) => handleNavClick(e, item.pagePath || item.href)}
-                    className="relative group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black tracking-wide text-white transition-all duration-300 no-underline"
+                    onClick={(e) => {
+                      // Get button position to launch rockets FROM there
+                      const rect = venezaButtonRef.current?.getBoundingClientRect();
+                      if (rect) {
+                        fireworkRef.current?.launch(
+                          rect.left + rect.width / 2,
+                          rect.bottom + window.scrollY
+                        );
+                      }
+                      handleNavClick(e, item.pagePath || item.href);
+                    }}
+                    style={{
+                      position: 'relative',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '5px 14px',
+                      borderRadius: '10px',
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #6366f1 100%)',
+                      backgroundSize: '200% 200%',
+                      color: '#fff',
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '0.83rem',
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                      letterSpacing: '0.01em',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 0 0 0 rgba(99,102,241,0)',
+                      transition: 'transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease',
+                      animation: 'venezaGlow 3s ease-in-out infinite',
+                    }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px) scale(1.04)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 20px rgba(99,102,241,0.55)';
+                      (e.currentTarget as HTMLElement).style.filter = 'brightness(1.12)';
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLElement).style.transform = 'translateY(0) scale(1)';
+                      (e.currentTarget as HTMLElement).style.boxShadow = '0 0 0 0 rgba(99,102,241,0)';
+                      (e.currentTarget as HTMLElement).style.filter = 'brightness(1)';
+                    }}
                   >
-                    {/* Pulsing vibrant gradient background */}
-                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity shadow-md shadow-indigo-500/25" />
-
-                    {/* Continuous Sparkling Firework Particles */}
-                    <motion.span
-                      animate={{ 
-                        scale: [0.7, 1.3, 0.7],
-                        opacity: [0.5, 1, 0.5],
-                        rotate: [0, 20, -20, 0]
-                      }}
-                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                      className="absolute -top-2.5 -left-2 text-[14px] pointer-events-none z-20"
-                    >
-                      ✨
-                    </motion.span>
-                    <motion.span
-                      animate={{ 
-                        scale: [1, 1.4, 1],
-                        opacity: [0.4, 1, 0.4],
-                        y: [-2, -7, -2]
-                      }}
-                      transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut", delay: 0.3 }}
-                      className="absolute -top-3.5 -right-2 text-[13px] pointer-events-none z-20"
-                    >
-                      🎉
-                    </motion.span>
-                    <motion.span
-                      animate={{ 
-                        scale: [0.8, 1.3, 0.8],
-                        opacity: [0.6, 1, 0.6],
-                        x: [2, 6, 2]
-                      }}
-                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 0.6 }}
-                      className="absolute -bottom-2 -right-3 text-[12px] pointer-events-none z-20"
-                    >
-                      🎆
-                    </motion.span>
-                    <motion.span
-                      animate={{ 
-                        scale: [0.7, 1.2, 0.7],
-                        opacity: [0.5, 0.9, 0.5],
-                        y: [2, 5, 2]
-                      }}
-                      transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut", delay: 0.9 }}
-                      className="absolute -bottom-2.5 -left-2 text-[11px] pointer-events-none z-20"
-                    >
-                      🎇
-                    </motion.span>
-
-                    <span className="relative z-10 font-black text-amber-200 group-hover:text-white transition-colors">
-                      Weekly Veneza
-                    </span>
-                    <span className="relative z-10 px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm animate-pulse">
-                      LIVE ⚡
-                    </span>
+                    <span>Weekly Veneza</span>
+                    <span style={{
+                      padding: '2px 6px',
+                      borderRadius: '20px',
+                      fontSize: '0.6rem',
+                      fontWeight: 900,
+                      letterSpacing: '0.05em',
+                      background: 'rgba(255,255,255,0.22)',
+                      color: '#fff',
+                      textTransform: 'uppercase',
+                    }}>LIVE</span>
                   </a>
                 </li>
               );

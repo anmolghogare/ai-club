@@ -1556,3 +1556,10 @@
       transition: none;
     }
   }
+
+/* === Weekly Veneza navbar button glow animation === */
+@keyframes venezaGlow {
+  0%   { box-shadow: 0 0 6px 0 rgba(99,102,241,0.3), 0 0 0 0 rgba(139,92,246,0); }
+  50%  { box-shadow: 0 0 18px 4px rgba(139,92,246,0.55), 0 2px 14px rgba(99,102,241,0.45); }
+  100% { box-shadow: 0 0 6px 0 rgba(99,102,241,0.3), 0 0 0 0 rgba(139,92,246,0); }
+}
