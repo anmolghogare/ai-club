@@ -43,7 +43,7 @@ interface AchievementModel {
 }
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements' | 'manageNews' | 'manageResources'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'registrations' | 'createEvent' | 'formBuilder' | 'manageEvents' | 'manageMembers' | 'manageProjects' | 'pastEvents' | 'manageAchievements' | 'manageNews' | 'manageResources' | 'manageWeeklyVeneza'>('dashboard');
 
   // Auth & Admin Guard State
   const [authState, setAuthState] = useState<{
@@ -456,6 +456,173 @@ const Admin = () => {
     } finally {
       setLoadingResources(false);
     }
+  };
+
+  // ── Weekly Veneza States & Handlers ──────────────────────────────────────
+  const [weeklyVenezaWeeks, setWeeklyVenezaWeeks] = useState<any[]>([]);
+  const [loadingWeeklyVeneza, setLoadingWeeklyVeneza] = useState(false);
+  
+  // Week Modal
+  const [isWeekModalOpen, setIsWeekModalOpen] = useState(false);
+  const [editingWeek, setEditingWeek] = useState<any | null>(null);
+  const [weekForm, setWeekForm] = useState({
+    week_number: 1,
+    title: '',
+    description: '',
+    target_date: '',
+    is_current: false,
+    status: 'active',
+    order_no: 1
+  });
+
+  // Weekly Resource Modal
+  const [isWeeklyResourceModalOpen, setIsWeeklyResourceModalOpen] = useState(false);
+  const [editingWeeklyResource, setEditingWeeklyResource] = useState<any | null>(null);
+  const [weeklyResourceForm, setWeeklyResourceForm] = useState({
+    week_id: 0,
+    title: '',
+    description: '',
+    resource_type: 'VIDEO',
+    url: '',
+    est_minutes: 45,
+    order_no: 1
+  });
+
+  const fetchWeeklyVenezaList = async () => {
+    setLoadingWeeklyVeneza(true);
+    try {
+      const res = await fetch(getApiUrl('/api/weekly-veneza'));
+      if (res.ok) {
+        const data = await res.json();
+        setWeeklyVenezaWeeks(data || []);
+      }
+    } catch (e) {
+      console.error('Failed to load Weekly Veneza', e);
+    } finally {
+      setLoadingWeeklyVeneza(false);
+    }
+  };
+
+  const handleSaveWeek = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('access_token');
+      const url = editingWeek
+        ? getApiUrl(`/api/admin/weekly-veneza/weeks/${editingWeek.id}`)
+        : getApiUrl('/api/admin/weekly-veneza/weeks');
+      const method = editingWeek ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(weekForm)
+      });
+
+      if (!res.ok) throw new Error('Failed to save week');
+      showToast(editingWeek ? 'Week updated!' : 'Week created!', 'success');
+      setIsWeekModalOpen(false);
+      fetchWeeklyVenezaList();
+    } catch (err: any) {
+      showToast(err.message || 'Error saving week', 'error');
+    }
+  };
+
+  const handleDeleteWeek = (weekId: number) => {
+    openConfirm(
+      'Delete Week',
+      'Are you sure you want to delete this week and all its resources?',
+      async () => {
+        try {
+          const token = localStorage.getItem('access_token');
+          const res = await fetch(getApiUrl(`/api/admin/weekly-veneza/weeks/${weekId}`), {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+            credentials: 'include'
+          });
+          if (!res.ok) throw new Error('Failed to delete week');
+          showToast('Week deleted successfully', 'success');
+          fetchWeeklyVenezaList();
+        } catch (err: any) {
+          showToast(err.message || 'Error deleting week', 'error');
+        }
+      },
+      true
+    );
+  };
+
+  const handleSetCurrentWeek = async (week: any) => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch(getApiUrl(`/api/admin/weekly-veneza/weeks/${week.id}`), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify({ is_current: true })
+      });
+      if (!res.ok) throw new Error('Failed to set current week');
+      showToast(`Week ${week.week_number} set as Current Active Week!`, 'success');
+      fetchWeeklyVenezaList();
+    } catch (err: any) {
+      showToast(err.message || 'Error setting current week', 'error');
+    }
+  };
+
+  const handleSaveWeeklyResource = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('access_token');
+      const url = editingWeeklyResource
+        ? getApiUrl(`/api/admin/weekly-veneza/resources/${editingWeeklyResource.id}`)
+        : getApiUrl('/api/admin/weekly-veneza/resources');
+      const method = editingWeeklyResource ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(weeklyResourceForm)
+      });
+
+      if (!res.ok) throw new Error('Failed to save resource');
+      showToast(editingWeeklyResource ? 'Weekly Resource updated!' : 'Weekly Resource added!', 'success');
+      setIsWeeklyResourceModalOpen(false);
+      fetchWeeklyVenezaList();
+    } catch (err: any) {
+      showToast(err.message || 'Error saving weekly resource', 'error');
+    }
+  };
+
+  const handleDeleteWeeklyResource = (resourceId: number) => {
+    openConfirm(
+      'Delete Weekly Resource',
+      'Are you sure you want to delete this resource?',
+      async () => {
+        try {
+          const token = localStorage.getItem('access_token');
+          const res = await fetch(getApiUrl(`/api/admin/weekly-veneza/resources/${resourceId}`), {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` },
+            credentials: 'include'
+          });
+          if (!res.ok) throw new Error('Failed to delete resource');
+          showToast('Weekly Resource deleted successfully', 'success');
+          fetchWeeklyVenezaList();
+        } catch (err: any) {
+          showToast(err.message || 'Error deleting resource', 'error');
+        }
+      },
+      true
+    );
   };
 
   const handleNewsSubmit = async (e: React.FormEvent) => {
@@ -1485,6 +1652,8 @@ const Admin = () => {
       fetchPastEvents();
     } else if (activeTab === 'manageResources') {
       fetchResourcesList();
+    } else if (activeTab === 'manageWeeklyVeneza') {
+      fetchWeeklyVenezaList();
     }
   }, [activeTab, selectedEventId, builderEventId]);
 
@@ -1742,6 +1911,7 @@ const Admin = () => {
                 { key: 'manageAchievements', label: 'Achievements', icon: <Award size={16} /> },
                 { key: 'manageNews', label: 'News', icon: <Newspaper size={16} /> },
                 { key: 'manageResources', label: 'Resources', icon: <BookOpen size={16} /> },
+                { key: 'manageWeeklyVeneza', label: 'Weekly Veneza', icon: <Clock size={16} /> },
               ] as { key: string; label: string; icon: any }[]).map((tab) => {
                 const isActive = activeTab === tab.key;
                 return (
@@ -1792,6 +1962,7 @@ const Admin = () => {
                   {activeTab === 'manageAchievements' && 'Manage Achievements'}
                   {activeTab === 'manageNews' && 'Manage News'}
                   {activeTab === 'manageResources' && 'Resource Sheet Manager'}
+                  {activeTab === 'manageWeeklyVeneza' && 'Weekly Veneza Curriculum Manager'}
                   {activeTab === 'pastEvents' && 'Past Events Archive'}
                 </h2>
               </div>
@@ -3042,6 +3213,189 @@ const Admin = () => {
                       </div>
                     )}
                   </div>
+                </motion.div>
+              )}
+
+              {activeTab === 'manageWeeklyVeneza' && (
+                <motion.div key="manageWeeklyVeneza" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-800">Weekly Veneza Curriculum</h2>
+                      <p className="text-slate-500">Create, edit, and organize weekly learning resources & set active ticking week</p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setEditingWeek(null);
+                        setWeekForm({
+                          week_number: (weeklyVenezaWeeks.length + 1),
+                          title: '',
+                          description: '',
+                          target_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+                          is_current: weeklyVenezaWeeks.length === 0,
+                          status: 'active',
+                          order_no: (weeklyVenezaWeeks.length + 1)
+                        });
+                        setIsWeekModalOpen(true);
+                      }}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl flex items-center gap-2 transition-colors shadow-sm text-sm font-semibold"
+                    >
+                      <Plus size={18} /> Add New Week
+                    </button>
+                  </div>
+
+                  {loadingWeeklyVeneza ? (
+                    <div className="p-12 text-center text-slate-500 flex flex-col items-center bg-white rounded-2xl border border-slate-200">
+                      <Loader2 className="w-8 h-8 animate-spin mb-4 text-indigo-500" />
+                      <p className="font-medium">Loading Weekly Veneza...</p>
+                    </div>
+                  ) : weeklyVenezaWeeks.length === 0 ? (
+                    <div className="p-12 text-center text-slate-500 bg-white rounded-2xl border border-slate-200">
+                      <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                      <p className="text-lg font-bold text-slate-700 mb-1">No weeks configured yet</p>
+                      <p className="text-sm text-slate-400">Click 'Add New Week' to set up your first Weekly Veneza curriculum.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {weeklyVenezaWeeks.map((week) => (
+                        <div 
+                          key={week.id} 
+                          className={`bg-white rounded-2xl shadow-sm border overflow-hidden transition-all ${
+                            week.is_current ? 'border-indigo-500 ring-2 ring-indigo-500/20' : 'border-slate-200'
+                          }`}
+                        >
+                          {/* Week Header Row */}
+                          <div className="p-5 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div className="flex items-center space-x-3">
+                              <span className={`px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider ${
+                                week.is_current ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-200 text-slate-700'
+                              }`}>
+                                Week {week.week_number}
+                              </span>
+                              <div>
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="text-base font-bold text-slate-900">{week.title}</h3>
+                                  {week.is_current && (
+                                    <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded">
+                                      Active Clock Ticking
+                                    </span>
+                                  )}
+                                </div>
+                                {week.description && (
+                                  <p className="text-xs text-slate-500 mt-0.5">{week.description}</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2">
+                              {!week.is_current && (
+                                <button
+                                  onClick={() => handleSetCurrentWeek(week)}
+                                  className="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold rounded-lg transition-colors border border-indigo-200"
+                                >
+                                  Set Current Week
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setEditingWeeklyResource(null);
+                                  setWeeklyResourceForm({
+                                    week_id: week.id,
+                                    title: '',
+                                    description: '',
+                                    resource_type: 'VIDEO',
+                                    url: '',
+                                    est_minutes: 45,
+                                    order_no: (week.resources?.length || 0) + 1
+                                  });
+                                  setIsWeeklyResourceModalOpen(true);
+                                }}
+                                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1"
+                              >
+                                <Plus size={14} /> Add Resource
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingWeek(week);
+                                  setWeekForm({
+                                    week_number: week.week_number,
+                                    title: week.title,
+                                    description: week.description || '',
+                                    target_date: week.target_date || '',
+                                    is_current: week.is_current,
+                                    status: week.status || 'active',
+                                    order_no: week.order_no || week.week_number
+                                  });
+                                  setIsWeekModalOpen(true);
+                                }}
+                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-colors"
+                              >
+                                <Edit size={16} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteWeek(week.id)}
+                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Weekly Resources List */}
+                          <div className="p-4 bg-white">
+                            {(!week.resources || week.resources.length === 0) ? (
+                              <p className="text-xs text-slate-400 italic text-center py-4">No resources added to Week {week.week_number} yet.</p>
+                            ) : (
+                              <div className="space-y-2">
+                                {week.resources.map((res: any) => (
+                                  <div key={res.id} className="p-3 bg-slate-50/70 border border-slate-200/80 rounded-xl flex items-center justify-between gap-4">
+                                    <div className="flex items-center space-x-3 min-w-0">
+                                      <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold uppercase rounded border border-indigo-200">
+                                        {res.resource_type}
+                                      </span>
+                                      <div className="min-w-0">
+                                        <h4 className="text-sm font-bold text-slate-900 truncate">{res.title}</h4>
+                                        <p className="text-xs text-slate-500 truncate max-w-lg">{res.description}</p>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center space-x-2 flex-shrink-0">
+                                      <span className="text-xs text-slate-400 font-mono hidden sm:inline">{res.est_minutes} mins</span>
+                                      <a href={res.url} target="_blank" rel="noreferrer" className="p-1.5 text-slate-400 hover:text-indigo-600">
+                                        <Link2 size={14} />
+                                      </a>
+                                      <button
+                                        onClick={() => {
+                                          setEditingWeeklyResource(res);
+                                          setWeeklyResourceForm({
+                                            week_id: week.id,
+                                            title: res.title,
+                                            description: res.description,
+                                            resource_type: res.resource_type,
+                                            url: res.url,
+                                            est_minutes: res.est_minutes,
+                                            order_no: res.order_no
+                                          });
+                                          setIsWeeklyResourceModalOpen(true);
+                                        }}
+                                        className="p-1.5 text-slate-400 hover:text-indigo-600"
+                                      >
+                                        <Edit size={14} />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteWeeklyResource(res.id)}
+                                        className="p-1.5 text-slate-400 hover:text-rose-600"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </motion.div>
               )}
 
@@ -4366,6 +4720,255 @@ const Admin = () => {
                     className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center disabled:opacity-50"
                   >
                     {isSubmitting ? <Loader2 size={18} className="animate-spin" /> : editingResource ? 'Update Resource' : 'Add Resource'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Week Creation/Edit Modal */}
+      <AnimatePresence>
+        {isWeekModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setIsWeekModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto z-10"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 className="text-xl font-bold text-slate-800">
+                  {editingWeek ? `Edit Week ${editingWeek.week_number}` : 'Add New Week'}
+                </h3>
+                <button
+                  onClick={() => setIsWeekModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveWeek} className="p-6 space-y-4 text-left">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Week Number</label>
+                    <input
+                      type="number"
+                      value={weekForm.week_number}
+                      onChange={(e) => setWeekForm({ ...weekForm, week_number: parseInt(e.target.value) || 1 })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Order No</label>
+                    <input
+                      type="number"
+                      value={weekForm.order_no}
+                      onChange={(e) => setWeekForm({ ...weekForm, order_no: parseInt(e.target.value) || 1 })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Week Title</label>
+                  <input
+                    type="text"
+                    value={weekForm.title}
+                    onChange={(e) => setWeekForm({ ...weekForm, title: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    placeholder="e.g. Week 1: Foundations of Neural Networks"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
+                  <textarea
+                    value={weekForm.description}
+                    onChange={(e) => setWeekForm({ ...weekForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium resize-none"
+                    placeholder="Short summary of this week's goals"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Target Date / Deadline (For Ticking Clock)</label>
+                  <input
+                    type="datetime-local"
+                    value={weekForm.target_date ? weekForm.target_date.slice(0, 16) : ''}
+                    onChange={(e) => setWeekForm({ ...weekForm, target_date: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="is_current_chk"
+                    checked={weekForm.is_current}
+                    onChange={(e) => setWeekForm({ ...weekForm, is_current: e.target.checked })}
+                    className="w-4 h-4 text-indigo-600 rounded"
+                  />
+                  <label htmlFor="is_current_chk" className="text-sm font-bold text-slate-800">
+                    Set as Current Active Week (Ticking Clock Highlight)
+                  </label>
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsWeekModalOpen(false)}
+                    className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700"
+                  >
+                    {editingWeek ? 'Update Week' : 'Create Week'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Weekly Resource Creation/Edit Modal */}
+      <AnimatePresence>
+        {isWeeklyResourceModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+              onClick={() => setIsWeeklyResourceModalOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto z-10"
+            >
+              <div className="flex items-center justify-between p-6 border-b border-slate-100">
+                <h3 className="text-xl font-bold text-slate-800">
+                  {editingWeeklyResource ? 'Edit Weekly Resource' : 'Add Resource to Week'}
+                </h3>
+                <button
+                  onClick={() => setIsWeeklyResourceModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-600 transition-colors p-1"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveWeeklyResource} className="p-6 space-y-4 text-left">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Target Week</label>
+                  <select
+                    value={weeklyResourceForm.week_id}
+                    onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, week_id: parseInt(e.target.value) })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    required
+                  >
+                    <option value={0}>Select a Week...</option>
+                    {weeklyVenezaWeeks.map(w => (
+                      <option key={w.id} value={w.id}>Week {w.week_number}: {w.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Resource Title</label>
+                  <input
+                    type="text"
+                    value={weeklyResourceForm.title}
+                    onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, title: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    placeholder="e.g. 3Blue1Brown — Neural Networks"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Description</label>
+                  <textarea
+                    value={weeklyResourceForm.description}
+                    onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, description: e.target.value })}
+                    rows={3}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium resize-none"
+                    placeholder="Why this resource is valuable and key takeaways"
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Resource Type</label>
+                    <select
+                      value={weeklyResourceForm.resource_type}
+                      onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, resource_type: e.target.value })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    >
+                      <option value="VIDEO">Video</option>
+                      <option value="COURSE">Course</option>
+                      <option value="BOOK">Book</option>
+                      <option value="PAPER">Paper</option>
+                      <option value="ARTICLE">Article</option>
+                      <option value="CODE">Code</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Est. Minutes</label>
+                    <input
+                      type="number"
+                      value={weeklyResourceForm.est_minutes}
+                      onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, est_minutes: parseInt(e.target.value) || 45 })}
+                      className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Resource URL</label>
+                  <input
+                    type="url"
+                    value={weeklyResourceForm.url}
+                    onChange={(e) => setWeeklyResourceForm({ ...weeklyResourceForm, url: e.target.value })}
+                    className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold"
+                    placeholder="https://..."
+                    required
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsWeeklyResourceModalOpen(false)}
+                    className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl text-xs font-bold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-indigo-700"
+                  >
+                    {editingWeeklyResource ? 'Update Resource' : 'Add Resource'}
                   </button>
                 </div>
               </form>
