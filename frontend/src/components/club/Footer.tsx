@@ -92,7 +92,7 @@ export default function Footer() {
               Dhirubhai Ambani University's student AI club — building, learning, and shipping together.
             </p>
             <a
-              href="mailto:aiclub@dau.ac.in"
+              href="mailto:ai_club@dau.ac.in"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -106,7 +106,7 @@ export default function Footer() {
               onMouseEnter={e => (e.currentTarget as HTMLElement).style.color = 'hsl(243, 75%, 59%)'}
               onMouseLeave={e => (e.currentTarget as HTMLElement).style.color = 'hsl(230, 15%, 42%)'}
             >
-              <Mail size={12} /> aiclub@dau.ac.in
+              <Mail size={12} /> ai_club@dau.ac.in
             </a>
           </div>
 
