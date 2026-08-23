@@ -531,45 +531,9 @@ export default function WeeklyVenezaPage() {
         ) : (
           <div className="space-y-6">
 
-            {/* 1. PAST WEEKS SECTION */}
-            {pastWeeks.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 mb-2 px-1">
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Previous Weeks (Archived)</span>
-                  <div className="flex-1 h-px bg-slate-200"></div>
-                </div>
-
-                {pastWeeks.map((week) => {
-                  const filteredRes = filterWeekResources(week.resources || []);
-                  if (filteredRes.length === 0 && (searchQuery || selectedType !== "ALL")) return null;
-
-                  const completedCount = (week.resources || []).filter(r => progress.includes(r.id)).length;
-                  const totalCount = (week.resources || []).length;
-                  const isWeekDone = completedCount === totalCount && totalCount > 0;
-                  const isOpen = openWeeks.includes(week.id);
-
-                  return (
-                    <WeekCard 
-                      key={week.id}
-                      week={week}
-                      filteredRes={filteredRes}
-                      completedCount={completedCount}
-                      totalCount={totalCount}
-                      isWeekDone={isWeekDone}
-                      isOpen={isOpen}
-                      onToggle={() => toggleWeekExpand(week.id)}
-                      progress={progress}
-                      onResourceToggle={handleToggleResource}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* 2. THE SEXY TICKING CLOCK DIVIDER */}
+            {/* 1. THE SEXY TICKING CLOCK DIVIDER & CURRENT ACTIVE WEEK SECTION (FIRST / TOP) */}
             <TickingClockDivider currentWeek={activeCurrentWeek} />
 
-            {/* 3. CURRENT ACTIVE WEEK SECTION */}
             {activeCurrentWeek && (
               <div className="space-y-4">
                 <div className="flex items-center space-x-3 mb-2 px-1">
@@ -605,15 +569,15 @@ export default function WeeklyVenezaPage() {
               </div>
             )}
 
-            {/* 4. UPCOMING WEEKS SECTION */}
-            {upcomingWeeks.length > 0 && (
-              <div className="space-y-4 pt-6">
+            {/* 2. PREVIOUS WEEKS SECTION (BELOW CURRENT WEEK) */}
+            {pastWeeks.length > 0 && (
+              <div className="space-y-4 pt-8">
                 <div className="flex items-center space-x-3 mb-2 px-1">
-                  <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Upcoming Weeks</span>
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Previous Weeks</span>
                   <div className="flex-1 h-px bg-slate-200"></div>
                 </div>
 
-                {upcomingWeeks.map((week) => {
+                {pastWeeks.map((week) => {
                   const filteredRes = filterWeekResources(week.resources || []);
                   if (filteredRes.length === 0 && (searchQuery || selectedType !== "ALL")) return null;
 

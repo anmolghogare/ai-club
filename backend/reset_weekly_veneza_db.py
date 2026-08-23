@@ -1,37 +1,29 @@
 import asyncio
 import logging
-from datetime import datetime, timedelta, timezone
-
+from sqlalchemy import select, delete
 from db import async_session, engine, Base
 from auth.models import User
 from weekly_veneza.models import WeeklyVenezaWeek, WeeklyVenezaResource
 
 logging.basicConfig(level=logging.INFO)
 
-async def seed_data():
+async def reset_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     async with async_session() as db:
-        # Check existing
-        result = await db.execute(
-            WeeklyVenezaWeek.__table__.select()
-        )
-        if result.first():
-            logging.info("Weekly Veneza data already exists. Skipping seed.")
-            return
+        # Delete all existing weekly veneza data to ensure no dummy resources from main resources section remain
+        await db.execute(delete(WeeklyVenezaResource))
+        await db.execute(delete(WeeklyVenezaWeek))
+        await db.commit()
 
-        logging.info("Seeding Weekly Veneza initial data...")
+        logging.info("Cleared old weekly veneza database entries.")
 
-        now = datetime.now(timezone.utc)
-        target_week1 = (now + timedelta(days=7)).isoformat()
-
-        # Week 1 (CURRENT ACTIVE WEEK)
+        # Create current week (Week 1) with user-provided resources only
         w1 = WeeklyVenezaWeek(
             week_number=1,
             title="Week 1: Python, Data Science & ML Fundamentals",
             description="Master Python basics, numerical computing with NumPy, data analysis with Pandas, and Machine Learning Specialization 1 by Andrew Ng.",
-            target_date=target_week1,
             is_current=True,
             status="current",
             order_no=1,
@@ -78,7 +70,7 @@ async def seed_data():
 
         db.add_all([r1, r2, r3, r4])
         await db.commit()
-        logging.info("Weekly Veneza seed data inserted successfully!")
+        logging.info("Successfully reset Weekly Veneza DB with ONLY user-specified current week resources!")
 
 if __name__ == "__main__":
-    asyncio.run(seed_data())
+    asyncio.run(reset_db())

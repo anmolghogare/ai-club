@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Menu, X, LogOut, Shield, ChevronDown, ClipboardList, User } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
+import { motion } from 'framer-motion';
 import { getApiUrl } from '../../lib/api';
 import aiClubLogo from '@/assets/ai-club-logo.png';
 
@@ -245,6 +246,75 @@ export default function Navbar() {
           {navItems.map((item) => {
             const active = isActive(item);
             const badgeCount = item.label === 'Events' ? counts.events : item.label === 'Projects' ? counts.projects : item.label === 'Team' ? counts.members : 0;
+            
+            if (item.label === 'Weekly Veneza') {
+              return (
+                <li key={item.label} className="relative px-1">
+                  <a
+                    href={item.pagePath || item.href}
+                    onClick={(e) => handleNavClick(e, item.pagePath || item.href)}
+                    className="relative group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black tracking-wide text-white transition-all duration-300 no-underline"
+                  >
+                    {/* Pulsing vibrant gradient background */}
+                    <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity shadow-md shadow-indigo-500/25" />
+
+                    {/* Continuous Sparkling Firework Particles */}
+                    <motion.span
+                      animate={{ 
+                        scale: [0.7, 1.3, 0.7],
+                        opacity: [0.5, 1, 0.5],
+                        rotate: [0, 20, -20, 0]
+                      }}
+                      transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                      className="absolute -top-2.5 -left-2 text-[14px] pointer-events-none z-20"
+                    >
+                      ✨
+                    </motion.span>
+                    <motion.span
+                      animate={{ 
+                        scale: [1, 1.4, 1],
+                        opacity: [0.4, 1, 0.4],
+                        y: [-2, -7, -2]
+                      }}
+                      transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut", delay: 0.3 }}
+                      className="absolute -top-3.5 -right-2 text-[13px] pointer-events-none z-20"
+                    >
+                      🎉
+                    </motion.span>
+                    <motion.span
+                      animate={{ 
+                        scale: [0.8, 1.3, 0.8],
+                        opacity: [0.6, 1, 0.6],
+                        x: [2, 6, 2]
+                      }}
+                      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut", delay: 0.6 }}
+                      className="absolute -bottom-2 -right-3 text-[12px] pointer-events-none z-20"
+                    >
+                      🎆
+                    </motion.span>
+                    <motion.span
+                      animate={{ 
+                        scale: [0.7, 1.2, 0.7],
+                        opacity: [0.5, 0.9, 0.5],
+                        y: [2, 5, 2]
+                      }}
+                      transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut", delay: 0.9 }}
+                      className="absolute -bottom-2.5 -left-2 text-[11px] pointer-events-none z-20"
+                    >
+                      🎇
+                    </motion.span>
+
+                    <span className="relative z-10 font-black text-amber-200 group-hover:text-white transition-colors">
+                      Weekly Veneza
+                    </span>
+                    <span className="relative z-10 px-1.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow-sm animate-pulse">
+                      LIVE ⚡
+                    </span>
+                  </a>
+                </li>
+              );
+            }
+
             return (
               <li key={item.label}>
                 <a
