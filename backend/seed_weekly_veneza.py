@@ -114,8 +114,8 @@ async def seed_data():
         # Week 3 (CURRENT ACTIVE WEEK)
         w3 = WeeklyVenezaWeek(
             week_number=3,
-            title="Transformers & Attention Mechanisms",
-            description="Unpack self-attention, multi-head attention, positional encoding, and modern LLM architecture.",
+            title="Week 3: Python, Data Science & ML Fundamentals",
+            description="Essential Python basics, NumPy array computing, Pandas data analysis, and Stanford's Machine Learning Specialization.",
             target_date=target_week3,
             is_current=True,
             status="current",
@@ -126,38 +126,38 @@ async def seed_data():
 
         r3_1 = WeeklyVenezaResource(
             week_id=w3.id,
-            title="Attention Is All You Need — Vaswani et al.",
-            description="The foundational paper introducing the Transformer architecture that powers modern Generative AI.",
-            resource_type="PAPER",
-            url="https://arxiv.org/abs/1706.03762",
-            est_minutes=90,
+            title="Python Basics",
+            description="Complete Python tutorial covering data structures, control flow, functions, and core programming principles.",
+            resource_type="VIDEO",
+            url="https://youtu.be/rfscVS0vtbw?si=btlOx35YT9Pdne0X",
+            est_minutes=120,
             order_no=1,
         )
         r3_2 = WeeklyVenezaResource(
             week_id=w3.id,
-            title="The Illustrated Transformer — Jay Alammar",
-            description="A visually stunning breakdown of how queries, keys, values, and self-attention operate inside Transformers.",
-            resource_type="ARTICLE",
-            url="https://jalammar.github.io/illustrated-transformer/",
-            est_minutes=45,
+            title="NumPy",
+            description="High-performance numerical computing in Python, multidimensional array manipulation, and vectorization.",
+            resource_type="VIDEO",
+            url="https://youtu.be/QUT1VHiLmmI?si=1wLSgS89McMWE-T2",
+            est_minutes=90,
             order_no=2,
         )
         r3_3 = WeeklyVenezaResource(
             week_id=w3.id,
-            title="Let's Build GPT from Scratch — Andrej Karpathy",
-            description="Code a complete generative decoder-only Transformer from scratch in PyTorch.",
-            resource_type="VIDEO",
-            url="https://www.youtube.com/watch?y=kCc8FmEb1nY",
-            est_minutes=125,
+            title="Pandas",
+            description="Comprehensive data analysis & manipulation library covering DataFrames, series, filtering, and data cleaning.",
+            resource_type="COURSE",
+            url="https://youtube.com/playlist?list=PL-osiE80TeTsWmV9i9c58mdDCSskIFdDS&si=oPOnrY3KmCaUa9uL",
+            est_minutes=180,
             order_no=3,
         )
         r3_4 = WeeklyVenezaResource(
             week_id=w3.id,
-            title="Hugging Face NLP & Transformers Course",
-            description="Hands-on guide to fine-tuning, tokenization, model deployment, and datasets.",
+            title="Machine Learning Specialization - 1 (Andrew Ng)",
+            description="Supervised Machine Learning: Regression and Classification by Stanford / DeepLearning.AI instructor Andrew Ng.",
             resource_type="COURSE",
-            url="https://huggingface.co/learn/nlp-course/",
-            est_minutes=240,
+            url="https://youtube.com/playlist?list=PLkDaE6sCZn6FNC6YRfRQc_FbeQrF8BwGI&si=CQKlhHfzpvsKGd0V",
+            est_minutes=360,
             order_no=4,
         )
         db.add_all([r3_1, r3_2, r3_3, r3_4])
